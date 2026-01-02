@@ -1,0 +1,60 @@
+name: ci
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ main, dev, chore/**, docs/**, feat/**, fix/** ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  windows-py310:
+    runs-on: windows-latest
+    timeout-minutes: 20
+    env:
+      PYTHONIOENCODING: utf-8
+    defaults:
+      run:
+        shell: pwsh
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
+          cache: pip
+
+      - name: Install make (Chocolatey)
+        run: choco install make -y
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          if (Test-Path requirements.txt) { pip install -r requirements.txt } else { pip install pandas typer sphinx sphinx-rtd-theme }
+          if (Test-Path requirements-dev.txt) { pip install -r requirements-dev.txt } else { pip install ruff pytest }
+          pip install -e .
+
+      - name: Lint
+        run: make lint
+
+      - name: Build docs
+        run: make docs
+
+      - name: Tests
+        run: make test
+
+      - name: Tiny smoke
+        run: make ll-ci
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ledgerloom-artifacts
+          if-no-files-found: ignore
+          path: |
+            outputs/**
+            docs/build/html/**

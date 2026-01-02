@@ -1,0 +1,21 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.ipynb_checkpoints/
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Generated outputs
+outputs/
+data/synthetic/
+docs/build/
+
+# Packaging / build artifacts
+/dist/
+/build/
+*.whl
+*.tar.gz

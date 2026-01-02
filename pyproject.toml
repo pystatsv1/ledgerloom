@@ -1,0 +1,34 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "ledgerloom"
+version = "0.1.0"
+description = "LedgerLoom: accounting concepts for the modern software mind."
+readme = "README.md"
+requires-python = ">=3.10"
+authors = [
+  { name = "LedgerLoom contributors" }
+]
+license = "MIT"
+license-files = ["LICENSE"]
+dependencies = []
+
+[project.scripts]
+ledgerloom = "ledgerloom.__main__:main"
+ledgerloom-docs = "ledgerloom.__main__:open_docs_cli"
+
+[project.urls]
+"Homepage" = "https://github.com/pystatsv1/ledgerloom"
+"Documentation" = "https://ledgerloom.readthedocs.io"
+"Source" = "https://github.com/pystatsv1/ledgerloom"
+"Issues" = "https://github.com/pystatsv1/ledgerloom/issues"
+"PyPI" = "https://pypi.org/project/ledgerloom/"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+include-package-data = true
+
+[tool.setuptools.packages.find]
+where = ["src"]
