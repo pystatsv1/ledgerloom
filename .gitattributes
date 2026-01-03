@@ -9,8 +9,9 @@
 *.yaml text eol=lf
 *.txt  text eol=lf
 
-# Windows batch files keep CRLF
+# Explicitly keep Windows scripts as CRLF (if added later).
 *.bat text eol=crlf
+*.ps1 text eol=crlf
 
 # Keep these as-is (binary)
 *.png  -text

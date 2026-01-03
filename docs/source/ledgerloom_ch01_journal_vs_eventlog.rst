@@ -1,42 +1,41 @@
-LedgerLoom Chapter 01 — Journal vs event log
-========================================
+Chapter 01 — Journal vs Event Log
+================================
 
-In paper-era accounting, transactions were recorded in a **journal** and posted to a **general ledger**.
-In modern software terms, the journal is an append-only **event log**, and the ledger is a set of derived
-**read models** (aggregations) like the trial balance and statements.
+This chapter bridges a traditional accounting **journal** with a developer-friendly **event log**.
 
-What you will build
--------------------
+- **Journal**: a table of debits/credits (what accountants record)
+- **Event log**: an append-only stream of domain events (what software systems record)
+- **Ledger view**: a *derived view* (projection) built deterministically from the event log
+- **Trial balance**: an invariant check (debits == credits)
 
-Running the chapter script:
+Run it
+------
+
+From the repo root (editable install) you can run:
+
+.. code-block:: bash
+
+   python -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir outputs/ledgerloom --seed 123
+
+Or, if you are developing locally:
 
 .. code-block:: bash
 
    make ll-ch01
 
-writes these artifacts to ``outputs/ledgerloom/ch01``:
+Outputs
+-------
 
-- ``ledger.jsonl`` — an append-only journal (event log)
-- ``trial_balance.csv`` — account balances derived from the journal
-- ``income_statement.csv`` — a simple P&L derived from the trial balance
-- ``balance_sheet.csv`` — a simple balance sheet (with a check row)
-- ``entry_explanations.md`` — a human-readable explanation of each entry
+The runner writes:
 
-Why debits/credits exist
-------------------------
+- ``journal.csv`` — the accounting journal
+- ``eventlog.jsonl`` — the append-only event log (JSON Lines)
+- ``ledger_view.csv`` — a derived ledger view (projection)
+- ``trial_balance.csv`` — invariant check output
+- ``entry_explanations.md`` — short human-readable notes
 
-Debits and credits are a *UI convention* for expressing a constrained update:
+Why it matters
+--------------
 
-- every entry must satisfy **sum(debits) == sum(credits)**.
-
-In software terms, this is an invariant that makes bad states hard to represent.
-
-Next
-----
-
-Future chapters will expand this into:
-
-- imports from CSV (bank exports)
-- configurable chart of accounts
-- more realistic accrual examples (AP/AR aging)
-- optional persistence backends (SQLite/DuckDB)
+Accounting is a specification: if you store *events* and derive *views*, you can reproduce
+the books exactly, test invariants, and explain transformations step-by-step.

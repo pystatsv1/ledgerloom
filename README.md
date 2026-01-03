@@ -1,5 +1,42 @@
 # LedgerLoom
 
+LedgerLoom is a tiny, opinionated Python project that teaches accounting using modern developer mental models:
+**event logs**, **derived views**, and **invariants**.
+
+It ships as:
+
+- a Python package (`ledgerloom`) you can run locally
+- a ReadTheDocs “textbook” with short chapters + reproducible outputs
+
+## Install
+
+```bash
+pip install ledgerloom
+
+
+## Run Chapter 01 (Journal vs Event Log)
+
+This chapter generates a small, deterministic demo dataset and writes artifacts to an output folder:
+
+```bash
+python -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir outputs/ledgerloom --seed 123
+```
+
+## You should see files like:
+
+**journal.csv (traditional accounting journal)**
+
+**eventlog.jsonl (append-only event log)**
+
+**ledger_view.csv (derived view)**
+
+**trial_balance.csv (invariant check)**
+
+**entry_explanations.md (human-friendly explanation)**
+
+
+# LedgerLoom
+
 **LedgerLoom** teaches accounting using modern developer mental models: **event logs**, **database views**, **invariants**, and **reproducible pipelines**.
 
 It is both:
@@ -8,7 +45,7 @@ It is both:
 
 ---
 
-## Badges
+## Links
 
 - Docs: https://ledgerloom.readthedocs.io/en/latest/
 - PyPI: https://pypi.org/project/ledgerloom/
