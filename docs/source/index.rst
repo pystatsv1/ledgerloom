@@ -13,6 +13,7 @@ The core idea is simple:
    :caption: Start here
 
    ledgerloom_intro
+   ledgerloom_vision
 
 .. toctree::
    :maxdepth: 1
