@@ -14,11 +14,11 @@ Don’t just calculate results — engineer them.
 Near-term plan (MVP textbook arc)
 ---------------------------------
 
-- Ch01: Journal vs event log (done)
-- Ch02: Chart of accounts as schema
-- Ch03: Debits/credits as sign convention + trial balance
-- Ch04: Close process as deterministic transformation
-- Ch05: Statements as projections (views)
+- **Ch01**: Journal vs event log (the mapping)
+- **Ch02**: Posting rules + chart of accounts (events -> balances)
+- **Ch03**: Debits/credits as sign convention + trial balance
+- **Ch04**: Close process as deterministic transformation
+- **Ch05**: Statements as projections (views)
 
 How to contribute
 -----------------

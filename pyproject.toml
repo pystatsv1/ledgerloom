@@ -8,27 +8,52 @@ version = "0.1.1"
 description = "LedgerLoom: accounting concepts for the modern software mind."
 readme = "README.md"
 requires-python = ">=3.10"
-authors = [
-  { name = "LedgerLoom contributors" }
+license = { text = "MIT" }
+authors = [{ name = "PyStatsV1" }]
+keywords = ["accounting", "bookkeeping", "double-entry", "ledger", "event-sourcing", "education"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Education",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Office/Business :: Financial :: Accounting",
+  "Topic :: Education",
+  "Topic :: Software Development :: Libraries :: Python Modules",
 ]
-license = "MIT"
-license-files = ["LICENSE"]
-dependencies = []
+dependencies = [
+  "pandas>=2.0",
+]
+
+[project.optional-dependencies]
+dev = [
+  "pytest>=7",
+  "ruff>=0.6",
+  "build>=1.2",
+  "twine>=5",
+]
+docs = [
+  "sphinx>=7",
+  "sphinx-rtd-theme>=2",
+]
 
 [project.scripts]
 ledgerloom = "ledgerloom.__main__:main"
-ledgerloom-docs = "ledgerloom.__main__:open_docs_cli"
+ledgerloom-docs = "ledgerloom.open_docs:open_docs_cli"
 
 [project.urls]
-"Homepage" = "https://github.com/pystatsv1/ledgerloom"
-"Documentation" = "https://ledgerloom.readthedocs.io"
-"Source" = "https://github.com/pystatsv1/ledgerloom"
-"Issues" = "https://github.com/pystatsv1/ledgerloom/issues"
-"PyPI" = "https://pypi.org/project/ledgerloom/"
+Homepage = "https://github.com/pystatsv1/ledgerloom"
+Repository = "https://github.com/pystatsv1/ledgerloom"
+Issues = "https://github.com/pystatsv1/ledgerloom/issues"
+Documentation = "https://ledgerloom.readthedocs.io"
+Changelog = "https://github.com/pystatsv1/ledgerloom/blob/main/CHANGELOG.md"
 
 [tool.setuptools]
-package-dir = { "" = "src" }
-include-package-data = true
+package-dir = {"" = "src"}
 
 [tool.setuptools.packages.find]
 where = ["src"]
