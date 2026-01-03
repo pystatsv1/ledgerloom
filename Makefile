@@ -25,13 +25,13 @@ docs:
 # --- CI smokes (small, deterministic) ---
 .PHONY: ll-ci
 ll-ci:
-	$(PYTHON) -m scripts.ledgerloom_ch01_journal_vs_eventlog --outdir $(OUT_LL) --seed $(SEED)
+	$(PYTHON) -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir $(OUT_LL) --seed $(SEED)
 
 
 # --- Full demos ---
 .PHONY: ll-ch01
 ll-ch01:
-	$(PYTHON) -m scripts.ledgerloom_ch01_journal_vs_eventlog --outdir $(OUT_LL) --seed $(SEED)
+	$(PYTHON) -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir $(OUT_LL) --seed $(SEED)
 
 
 .PHONY: lint

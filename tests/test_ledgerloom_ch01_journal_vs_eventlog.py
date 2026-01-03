@@ -13,7 +13,7 @@ def test_ch01_script_writes_expected_artifacts(tmp_path: Path) -> None:
     cmd = [
         sys.executable,
         "-m",
-        "scripts.ledgerloom_ch01_journal_vs_eventlog",
+        "ledgerloom.chapters.ch01_journal_vs_eventlog",
         "--outdir",
         str(tmp_path),
         "--seed",
