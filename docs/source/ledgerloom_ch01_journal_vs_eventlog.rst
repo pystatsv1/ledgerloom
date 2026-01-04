@@ -1,12 +1,18 @@
 Chapter 01 — Journal vs Event Log
 ================================
 
-This chapter bridges a traditional accounting **journal** with a developer-friendly **event log**.
+This chapter reframes the "journal" as an **append-only event log**, then shows how familiar
+accounting outputs (ledger, trial balance, statements) are just **deterministic views** over
+those immutable facts.
 
-- **Journal**: a table of debits/credits (what accountants record)
-- **Event log**: an append-only stream of domain events (what software systems record)
-- **Ledger view**: a *derived view* (projection) built deterministically from the event log
-- **Trial balance**: an invariant check (debits == credits)
+Developer mapping
+-----------------
+
+* **Journal entry** → event (immutable fact)
+* **Journal (table)** → one possible *view* of those events
+* **General ledger** → derived view (projection / materialized view)
+* **Double-entry** → invariant (sum(debits) == sum(credits) per entry)
+* **Trial balance** → automated check over account totals
 
 Run it
 ------
@@ -26,16 +32,37 @@ Or, if you are developing locally:
 Outputs
 -------
 
-The runner writes:
+The runner writes a small set of artifacts under ``outputs/ledgerloom/ch01/``:
 
-- ``journal.csv`` — the accounting journal
-- ``eventlog.jsonl`` — the append-only event log (JSON Lines)
-- ``ledger_view.csv`` — a derived ledger view (projection)
-- ``trial_balance.csv`` — invariant check output
-- ``entry_explanations.md`` — short human-readable notes
+Core artifacts
+^^^^^^^^^^^^^
+
+* ``eventlog.jsonl`` — append-only event log (JSON Lines)
+* ``journal.csv`` — traditional journal view (one row per posting with debit/credit columns)
+* ``ledger_view.csv`` — derived ledger view with running balances by account
+
+Checks and statements
+^^^^^^^^^^^^^^^^^^^^^
+
+* ``trial_balance.csv`` — account totals (derived check)
+* ``income_statement.csv`` — income statement from the trial balance
+* ``balance_sheet.csv`` — balance sheet (includes a ``Check`` value that should be 0)
+
+Explainability + reproducibility
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+* ``entry_explanations.md`` — human-friendly explanation of each entry
+* ``run_meta.json`` — artifact hashes + counts for reproducible runs
+* ``summary.md`` — short memo describing what was generated
 
 Why it matters
 --------------
 
-Accounting is a specification: if you store *events* and derive *views*, you can reproduce
-the books exactly, test invariants, and explain transformations step-by-step.
+If you store *events* and derive *views*, you can:
+
+* reproduce outputs exactly (deterministic pipeline)
+* validate invariants continuously (tests, CI)
+* explain transformations step-by-step (audit-friendly artifacts)
+
+This is the foundation for the rest of LedgerLoom: later chapters add richer business events,
+schema validation, and period-end workflows — but the mental model stays the same.
