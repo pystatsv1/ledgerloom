@@ -22,6 +22,7 @@ Chapters
 
    ledgerloom_ch01_journal_vs_eventlog
    ledgerloom_ch02_debits_credits_encoding
+   ledgerloom_ch03_posting_to_ledger
    ledgerloom_ch03_chart_of_accounts_schema
    ledgerloom_ch04_general_ledger_database
    ledgerloom_ch05_accounting_equation_invariant
