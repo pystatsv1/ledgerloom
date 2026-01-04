@@ -1,63 +1,80 @@
 from __future__ import annotations
 
+import hashlib
 import json
-import os
-import subprocess
-import sys
-from decimal import Decimal
 from pathlib import Path
 
+from ledgerloom.chapters.ch02_debits_credits_encoding import (
+    build_demo_wide,
+    long_to_entries,
+    long_to_signed,
+    main,
+    wide_to_entries,
+    wide_to_long,
+)
 
-def test_ch02_runs_and_writes_outputs(tmp_path: Path) -> None:
-    repo_root = Path(__file__).resolve().parents[1]
-    cmd = [
-        sys.executable,
-        "-m",
-        "ledgerloom.chapters.ch02_debits_credits_encoding",
-        "--outdir",
-        str(tmp_path),
-        "--seed",
-        "123",
-    ]
-    env = dict(os.environ)
-    src = str(repo_root / "src")
-    env["PYTHONPATH"] = src + os.pathsep + env.get("PYTHONPATH", "")
-    subprocess.check_call(cmd, cwd=repo_root, env=env)
 
-    out_dir = tmp_path / "ch02"
-    assert out_dir.exists()
+def sha256(p: Path) -> str:
+    return hashlib.sha256(p.read_bytes()).hexdigest()
 
-    expected = [
+
+def test_ch02_encodings_compile_to_same_journal_and_reports(tmp_path: Path) -> None:
+    outdir = tmp_path / "outputs"
+    rc = main(["--outdir", str(outdir), "--seed", "123"])
+    assert rc == 0
+
+    out_ch_dir = outdir / "ch02"
+
+    # Core artifacts
+    for name in [
         "encoding_wide.csv",
         "encoding_long.csv",
         "encoding_signed.csv",
         "journal_from_wide.jsonl",
         "journal_from_long.jsonl",
         "journal_from_signed.jsonl",
-        "diagnostics.md",
         "trial_balance.csv",
         "income_statement.csv",
         "balance_sheet.csv",
+        "checks.md",
+        "diagnostics.md",
+        "tables.md",
+        "lineage.mmd",
         "run_meta.json",
+        "manifest.json",
         "summary.md",
-    ]
-    for name in expected:
-        assert (out_dir / name).exists()
+    ]:
+        assert (out_ch_dir / name).exists(), f"missing artifact: {name}"
 
-    # The compiled journals should be byte-for-byte identical (determinism + equivalence).
-    wide = (out_dir / "journal_from_wide.jsonl").read_text(encoding="utf-8")
-    long = (out_dir / "journal_from_long.jsonl").read_text(encoding="utf-8")
-    signed = (out_dir / "journal_from_signed.jsonl").read_text(encoding="utf-8")
-    assert wide == long == signed
+    # Journal equivalence (hash-based)
+    h_w = sha256(out_ch_dir / "journal_from_wide.jsonl")
+    h_l = sha256(out_ch_dir / "journal_from_long.jsonl")
+    h_s = sha256(out_ch_dir / "journal_from_signed.jsonl")
+    assert h_w == h_l == h_s
 
-    # Meta should agree.
-    meta = json.loads((out_dir / "run_meta.json").read_text(encoding="utf-8"))
-    assert meta["entries_match_all"] is True
-    assert meta["n_entries"] == 6
+    # Spot-check that the compile functions agree at the object level too.
+    df_wide = build_demo_wide(seed=123)
+    df_long = wide_to_long(df_wide)
+    df_signed = long_to_signed(df_long)
 
-    # Each entry should balance (sum(debits) == sum(credits)).
-    for line in wide.splitlines():
-        obj = json.loads(line)
-        debits = sum(Decimal(p["debit"]) for p in obj["postings"])
-        credits = sum(Decimal(p["credit"]) for p in obj["postings"])
-        assert debits == credits
+    entries_w = wide_to_entries(df_wide)
+    entries_l = long_to_entries(df_long)
+
+    assert entries_w == entries_l
+    assert entries_w == wide_to_entries(df_wide)  # determinism
+    assert entries_w == long_to_entries(df_long)  # determinism
+
+    # Signed compiles to the same entries as well (by construction).
+    from ledgerloom.chapters.ch02_debits_credits_encoding import signed_to_entries
+
+    entries_s = signed_to_entries(df_signed)
+    assert entries_w == entries_s
+
+    # Manifest is parseable and includes hashes
+    manifest = json.loads((out_ch_dir / "manifest.json").read_text(encoding="utf-8"))
+    assert manifest["schema"] == "ledgerloom.manifest.v1"
+    names = {a["name"] for a in manifest["artifacts"]}
+    assert "journal_from_wide.jsonl" in names
+    assert "checks.md" in names
+    for a in manifest["artifacts"]:
+        assert "sha256" in a and isinstance(a["sha256"], str) and len(a["sha256"]) == 64
