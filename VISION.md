@@ -1,500 +1,566 @@
-\# LedgerLoom — Vision Document
+# LedgerLoom
 
+LedgerLoom is an opinionated Python project that teaches accounting using modern developer mental models:
+**event logs**, **derived views**, **invariants**, and **reproducible pipelines**.
 
+It ships as:
 
-\## 1) What is LedgerLoom?
+- a Python package (`ledgerloom`) you can run locally
+- a ReadTheDocs “textbook” with short chapters + reproducible outputs
 
+## Links
 
+- Docs: https://ledgerloom.readthedocs.io/en/latest/
+- PyPI: https://pypi.org/project/ledgerloom/
+- GitHub: https://github.com/pystatsv1/ledgerloom
 
-LedgerLoom is a small, MIT-licensed project with a big goal:
+## Quickstart
 
+### Install
 
+```bash
+pip install ledgerloom
+```
 
-> Teach accounting using modern software mental models — and make the concepts \*reproducible, testable, and usable\*.
+### Run Chapter 01 (Journal vs Event Log)
 
+This chapter generates a small, deterministic demo dataset and writes artifacts to an output folder:
 
+```bash
+python -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir outputs/ledgerloom --seed 123
+```
 
-LedgerLoom treats accounting as a \*\*data system\*\*:
+### You should see files like
 
-\- the \*journal\* is an append-only event log
+- `journal.csv` — traditional accounting journal
+- `eventlog.jsonl` — append-only event log
+- `ledger_view.csv` — derived ledger view
+- `trial_balance.csv` — invariant check
+- `entry_explanations.md` — human-friendly explanation
 
-\- the \*ledger\* is a derived view
+## Why LedgerLoom exists
 
-\- \*double-entry\* is a consistency invariant
+Many people learn accounting as rules + vocabulary.
 
-\- the \*trial balance\* is an automated check
+LedgerLoom teaches accounting as **systems engineering**:
 
-\- statements are deterministic transforms with audit-friendly artifacts
+- a **ledger** is a *database view* of an **event log**
+- **double-entry** is a **consistency invariant**
+- a **trial balance** is an automated **check**
+- financial statements are **deterministic outputs** from well-defined transformations
 
+**Core idea:**  
+> Don’t just calculate results — engineer them.
 
+## The mental model mapping
 
-LedgerLoom is designed to be:
-
-1\) a \*\*textbook\*\* (Read the Docs), and  
-
-2\) a \*\*tiny library + CLI\*\* that generates/validates artifacts.
-
-
-
----
-
-
-
-\## 2) Value proposition
-
-
-
-\### For learners
-
-LedgerLoom makes accounting “click” by mapping it to familiar engineering concepts:
-
-\- event sourcing
-
-\- schema + derived views
-
-\- invariants and checks
-
-\- pipelines that run end-to-end
-
-
-
-\### For practitioners (bookkeeping / finance ops)
-
-LedgerLoom can become a practical “quality layer”:
-
-\- standardized event format
-
-\- validation (double-entry, period controls)
-
-\- reproducible roll-ups (trial balance, statements)
-
-\- reconciliation templates and audit-friendly output artifacts
-
-
-
-\### For developers / data teams
-
-LedgerLoom provides a clean accounting-shaped dataset model:
-
-\- deterministic transformations
-
-\- golden-file testing for financial outputs
-
-\- doc-driven development for accounting workflows
-
-
+| Accounting concept | Developer mental model |
+|---|---|
+| Journal entries | Append-only event log (immutable facts) |
+| General ledger | Derived view / projection over events |
+| Double-entry | Invariant: debits == credits (by entry) |
+| Trial balance | Automated check over account totals |
+| Close process | Period-end transformation + roll-forward |
+| Audit trail | Reproducibility + provenance + diffs |
+| Reconciliation | Control loop: expected vs observed |
 
 ---
 
+## Project vision and roadmap
 
+## LedgerLoom Vision Document (v0.1.x)
 
-\## 3) Goals
+### One-line summary
 
+LedgerLoom is an MIT-licensed Python library + CLI + ReadTheDocs “textbook” that teaches accounting using modern developer mental models—event logs, database views, invariants, and reproducible pipelines—while also growing into a practical tool for generating trustworthy, explainable financial statements from real-world data.
 
+### 1) What LedgerLoom is
 
-\### Near-term goals (0.1.x → 0.2.x)
+LedgerLoom is a learning-first accounting engine built the way software people naturally think:
 
-\- Build a compelling “MVP textbook arc” (Ch01–Ch06-ish)
+- Event log first (append-only records of what happened)
+- Views second (trial balance, income statement, balance sheet as derived summaries)
+- Invariants always (double-entry balancing, account normal balances, period close rules)
+- Reproducible artifacts (deterministic outputs, manifests, memos, tables, figures)
+LedgerLoom is intentionally designed to “translate” traditional accounting concepts—journal entry, general ledger, debits/credits, trial balance, closing—into a language that matches modern Python + data workflows, without losing the rigor that makes accounting trustworthy.
 
-\- Keep core library small, stable, and well-tested
+Current state (from the codebase):
 
-\- Establish the PyStatsV1-style chapter workflow:
+- RTD docs and PyPI release are live
+- A clean project scaffold exists (docs, CI, publishing, CLI)
+- Chapter 01 is implemented end-to-end with a script, test, docs page, and a make target
+### 2) Value proposition
 
-&nbsp; - script → outputs → tests → docs
+#### For learners
 
+LedgerLoom reduces the cognitive load of accounting by:
 
+- Reframing debits/credits as an encoding of constraints instead of a mystical rule set
+- Showing how statements are “just” summary statistics over a validated event stream
+Connecting accounting workflows to things developers already know:
 
-\### Mid-term goals (0.3.x)
+- database tables and views
+- event sourcing
+- schema + constraints + tests
+- reproducible pipelines (like ML/analytics pipelines)
+#### For practitioners
 
-\- Support “bring your own exports” workflows:
+LedgerLoom aims to become a practical “accounting pipeline toolkit”:
 
-&nbsp; - CSV import templates
+- ingest common exports (CSV from QuickBooks/Xero/Wave/ERP, bank feeds)
+- validate and normalize into an event log
+- produce statement-quality reports and audit-friendly artifacts
+- support “closing” workflows and documentation templates
+- enable analysis (variance, trend, anomaly detection, forecasting) on top of a trusted ledger model
+Key differentiator: LedgerLoom doesn’t just compute outputs—it emphasizes engineering trust:
 
-&nbsp; - mapping rules
+- deterministic results
+- explicit assumptions
+- testable invariants
+- reproducible builds
+- clear lineage from transactions → ledger → statements
+### 3) Goals and non-goals
 
-&nbsp; - validation and reporting
+#### Primary goals
 
+Best-in-class learning tool for modern software minds:
 
+- teach core accounting ideas without forcing legacy mental models up front
+- provide readable chapters, runnable scripts, and test-backed outputs
+Practical toolchain for real data:
 
-\### Long-term goals (1.0)
+- utilities for importing, validating, and reporting
+- export artifacts to CSV/JSON/HTML/PDF-friendly formats
+Open-source excellence:
 
-\- A trusted learning reference
+- contributor-friendly repo
+- stable API boundaries
+- strong docs
+- disciplined releases
+#### Non-goals (for now)
 
-\- A practical toolkit for consistent, reproducible accounting outputs
+Replacing full accounting systems (QuickBooks, Xero, NetSuite)
 
-\- A base for higher-level analytics (variance analysis, forecasting, audit controls)
+Real-time multi-user bookkeeping UI
 
+Tax filing, payroll filing, jurisdiction-specific compliance automation
 
+GAAP/IFRS authoritative guidance (LedgerLoom can explain concepts, not act as an official standard)
+
+LedgerLoom should include clear disclaimers: educational + tooling, not professional accounting advice.
+
+### 4) Philosophy: “Accounting as a data system”
+
+LedgerLoom treats accounting as a measurement system with:
+
+- Events (sales, payments, payroll runs, depreciation, inventory movement)
+- Classification (chart of accounts)
+- Constraints (balance to zero, period boundaries, normal balances)
+- Summaries (statements)
+- Controls (reconciliations, audit trail, approvals)
+This is how developers build reliable systems—and it maps cleanly to:
+
+- event sourcing
+- database modeling
+- data pipelines
+- reproducibility + test suites
+### 5) Product shape and repo conventions
+
+LedgerLoom intentionally mirrors the PyStatsV1 “chapter pipeline” approach:
+
+#### “Chapter = code + docs + test + make target”
+
+For each chapter XX, we aim to have:
+
+- docs/source/ledgerloom_chXX_<topic>.rst
+- scripts/ledgerloom_chXX_<topic>.py
+- tests/test_ledgerloom_chXX_<topic>.py
+- Makefile target: ll-chXX
+- outputs written to: outputs/ledgerloom/chXX/…
+Each chapter should produce:
+
+- a small event log (e.g., JSONL)
+- derived views (trial balance, statements)
+- at least one chart/table
+- a short memo or assumptions log (audit-friendly narrative)
+- a manifest describing artifacts
+- This keeps the textbook runnable and the outputs trustworthy.
+### 6) The LedgerLoom “textbook” plan (RTD)
+
+Below is a proposed chapter outline that builds from “developer mental models” into full accounting workflows. The intent is that each chapter is:
+
+- Conceptual explanation
+- Minimal runnable example
+- Artifacts + tests
+- Exercises
+- Bridge section: “How this maps to accounting jargon” and “How this maps to databases / OOP”
+#### PART I — Foundations: Accounting for developers
+
+- **Ch 01 — Journal vs Event Log (MVP already)**
+  - Journal entry as a structured event
+  - Event log as append-only truth
+  - Trial balance and statements as derived views
+  - The “double-entry invariant” as a constraint
+- **Ch 02 — Debits/Credits are an encoding**
+  - Why debits/credits exist historically
+  - Normal balances and sign conventions
+  - A modern representation: signed amounts + constraints
+  - “Developer translation table” for common account types
+- **Ch 03 — Chart of Accounts as a schema**
+  - Accounts as dimensions / classification
+  - Parent-child trees and rollups
+  - Naming, codes, segments (department/location/project)
+  - Designing a chart for analysis (not just bookkeeping)
+- **Ch 04 — General Ledger as a database**
+  - Ledger tables: entries, postings, accounts
+  - Views: balances by account, by period, by segment
+  - Indexing concepts and query patterns
+  - Immutable event log + derived materialized views
+#### PART II — The accounting cycle as a pipeline
+
+- **Ch 05 — The accounting equation as an invariant**
+  - A = L + E as a system constraint
+  - How every valid event preserves it
+  - Detecting corruption: “check equations” and diagnostics
+- **Ch 06 — Periods, accrual, and timing**
+  - Cash vs accrual from a data perspective
+  - Revenue recognition intuition (no standards rabbit hole yet)
+  - Cutoffs and period boundaries
+  - Why timing drives adjustments
+- **Ch 07 — Adjusting entries as “late-arriving data”**
+  - Accruals, deferrals, estimates
+  - Adjustments as separate events with provenance
+  - Audit trail: who/why/when
+  - Tests: “post-adjustment trial balance must still balance”
+- **Ch 08 — Closing as a controlled transformation**
+  - Temporary vs permanent accounts
+  - Income summary mechanics
+  - Retained earnings flow
+  - Closing checklist as a reproducible workflow
+#### PART III — Operational subsystems (practical bookkeeping)
+
+- **Ch 09 — Accounts Receivable (AR) lifecycle**
+  - Invoices, payments, credits, aging
+  - Matching events (invoice → cash receipt)
+  - AR subledger vs GL control account
+  - Practical import: CSV-based AR events
+- **Ch 10 — Accounts Payable (AP) lifecycle**
+  - Bills, payments, vendor credits
+  - AP aging and cash planning
+  - Approvals and controls as metadata
+  - Practical import: CSV-based AP events
+- **Ch 11 — Inventory and COGS**
+  - Perpetual vs periodic
+  - Inventory movements as events
+  - COGS linkage to sales
+  - Practical: simple costing assumptions + limitations
+- **Ch 12 — Fixed assets and depreciation**
+  - Capitalization vs expense
+  - Depreciation schedules as deterministic generators
+  - Disposal and impairment concepts
+  - Practical: a depreciation engine that emits events monthly
+- **Ch 13 — Payroll as a multi-line event**
+  - Gross pay, withholdings, employer taxes
+  - Payables and remittances
+  - Controls: reconciliation to payroll register
+  - Practical: import a payroll register export
+#### PART IV — Controls, auditability, and “trust engineering”
+
+- **Ch 14 — Reconciliations as quality control**
+  - Bank reconciliation as matching problem
+  - Variances and investigation workflow
+  - How to encode reconciliation status in metadata
+- **Ch 15 — Materiality and “inconsequential misstatements”**
+  - Why accounting uses thresholds
+  - Aggregation risk (“further undetected misstatements”)
+  - Practical: rules + tests + reporting of discrepancies
+- **Ch 16 — Audit trail, provenance, and explainability**
+  - Every output should be explainable back to events
+  - Attestations: “why we believe this is correct”
+  - Practical: manifests, checksums, run metadata, version stamping
+#### PART V — Analytics on top of a trusted ledger
+
+- **Ch 17 — Statement analysis as summary statistics**
+  - Trend, common-size statements
+  - Ratios as derived metrics
+  - How to avoid misleading visuals
+- **Ch 18 — Forecasting and planning basics**
+  - Driver-based forecasting (revenue, COGS, expenses)
+  - Scenario inputs and reproducible assumptions
+  - Practical: producing a forecast memo + uncertainty band (later)
+#### Appendices (always useful on RTD)
+
+- A. Glossary: Accounting ↔ Developer translation
+- B. Data model reference (tables / JSON schemas)
+- C. Cookbook: “How do I…?”
+import bank CSV
+
+generate a trial balance
+
+close a period
+
+produce statements
+
+- D. Contributing guide for new chapters
+- E. Style rules for artifacts + docs (PyStatsV1-style)
+### 7) Practical tool roadmap (how it becomes “useful at work”)
+
+LedgerLoom can evolve into a practical toolkit through carefully staged capability:
+
+#### Stage 1: “Local, deterministic ledger engine” (now → v0.3)
+
+stable core model (events/postings)
+
+basic reports (TB/IS/BS)
+
+chapter scripts as canonical examples
+
+strong tests and docs
+
+#### Stage 2: “Import real exports” (v0.3 → v0.6)
+
+CSV import helpers:
+
+- bank transactions
+- invoices/payments
+- bills/vendor payments
+- payroll register
+mapping layer:
+
+- user-provided account mapping tables
+- validation + reporting of unmapped items
+output exports:
+
+- CSV tables
+- JSON artifacts
+- “audit memo” templates
+#### Stage 3: “Database-native mode” (v0.6 → v1.0)
+
+optional SQLite/DuckDB backend
+
+views built as SQL
+
+reproducible pipelines that run end-to-end on real datasets
+
+#### Stage 4: “Learning + practice platform”
+
+sample datasets
+
+exercises with answer keys
+
+optional notebook gallery
+
+“mini projects” (close a month, reconcile a bank account, produce statements)
+
+### 8) How LedgerLoom becomes the best it can be
+
+#### Make it the best learning tool
+
+ruthless clarity: every chapter answers “what problem does this solve?”
+
+translation tables everywhere (jargon ↔ developer terms)
+
+runnable artifacts + tests (students trust what they run)
+
+“why this exists historically” but “how to model it today”
+
+#### Make it the best practical tool
+
+focus on common workflows:
+
+- import → validate → report → memo
+embrace imperfect real data:
+
+- missing fields
+- inconsistent descriptions
+- duplicates
+provide strong diagnostics:
+
+- what failed, why, where to fix it
+- keep the core small and stable; add importers as plugins/modules
+#### Make it the best open-source project
+
+consistent chapter template
+
+issues labeled by chapter and skill level
+
+“good first issue” tasks like:
+
+- add a glossary entry
+- add one diagnostic check
+- add one small importer
+- regular releases with changelogs
+- CI always green; docs always build
+### 9) Success criteria (how we’ll know it’s working)
+
+#### Learning success
+
+readers can explain:
+
+- what a journal entry is in event-log terms
+- why debits/credits work (invariant encoding)
+- how statements are produced mechanically
+readers can run:
+
+- chapter scripts and reproduce outputs
+- tests that confirm invariants
+#### Practical success
+
+user can:
+
+- import a simple export (bank CSV)
+- map accounts
+- produce a trial balance and statements
+- reconcile and flag mismatches
+- generate an “explainable output pack”
+#### Community success
+
+contributors can add a chapter without guessing:
+
+- template and conventions are obvious
+- tests are easy to write
+- docs wiring is predictable
+### 10) Near-term development plan (next 3 releases)
+
+#### v0.1.x (now)
+
+Ch01 done; polish docs and README
+
+add badges, link RTD/PyPI, add “Quickstart” section with commands
+
+ensure CLI UX is clean and stable
+
+#### v0.2.0
+
+Chapter 02: Debits/Credits as encoding
+
+include a “signed amount” representation alongside classic D/C
+
+add invariant tests and a small diagnostic report
+
+#### v0.3.0
+
+Chapter 03: Chart of accounts as schema
+
+introduce segments (department/project) as metadata
+
+add rollups and a “statement by segment” example
 
 ---
 
+## Contributing
 
+LedgerLoom is MIT-licensed and welcomes contributions.
 
-\## 4) Design principles
+If you’d like to help, a great starting point is:
 
+- improve docs clarity (translation tables, worked examples)
+- add small diagnostics / invariant checks
+- help implement the next chapter(s) in the roadmap (code + docs + tests)
 
+See the GitHub repo for issues and contribution guidelines.
 
-1\. \*\*Reproducibility first\*\*
+## Disclaimer
 
-&nbsp;  - deterministic outputs
-
-&nbsp;  - stable formatting
-
-&nbsp;  - seed control where randomness exists
-
-
-
-2\. \*\*Audit-friendly artifacts\*\*
-
-&nbsp;  - tables/figures/memos
-
-&nbsp;  - clear assumptions logs
-
-&nbsp;  - manifests of generated outputs
-
-
-
-3\. \*\*Small core, extensible edges\*\*
-
-&nbsp;  - keep the internal model tight
-
-&nbsp;  - add connectors/importers as optional modules or extras
-
-
-
-4\. \*\*Teach the invariants\*\*
-
-&nbsp;  - double-entry consistency
-
-&nbsp;  - period boundaries
-
-&nbsp;  - reconciliation as a control loop
-
-&nbsp;  - “what could go wrong” examples
-
-
+LedgerLoom is educational software and tooling. It is **not** professional accounting advice and is **not** a replacement for a full accounting system (e.g., QuickBooks/Xero) or jurisdiction-specific compliance guidance.
 
 ---
 
+## Appendix: Original README draft (verbatim)
+
+<details>
+<summary>Click to expand</summary>
+
+````markdown
+# LedgerLoom
+
+LedgerLoom is a tiny, opinionated Python project that teaches accounting using modern developer mental models:
+**event logs**, **derived views**, and **invariants**.
+
+It ships as:
+
+- a Python package (`ledgerloom`) you can run locally
+- a ReadTheDocs “textbook” with short chapters + reproducible outputs
+
+## Install
+
+```bash
+pip install ledgerloom
 
 
-\## 5) The LedgerLoom “Textbook” (Read the Docs)
+## Run Chapter 01 (Journal vs Event Log)
+
+This chapter generates a small, deterministic demo dataset and writes artifacts to an output folder:
+
+```bash
+python -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir outputs/ledgerloom --seed 123
+```
+
+## You should see files like:
+
+**journal.csv (traditional accounting journal)**
+
+**eventlog.jsonl (append-only event log)**
+
+**ledger_view.csv (derived view)**
+
+**trial_balance.csv (invariant check)**
+
+**entry_explanations.md (human-friendly explanation)**
 
 
+# LedgerLoom
 
-\### Structure
+**LedgerLoom** teaches accounting using modern developer mental models: **event logs**, **database views**, **invariants**, and **reproducible pipelines**.
 
-Each chapter should include:
-
-\- narrative explanation (docs)
-
-\- a deterministic pipeline (script)
-
-\- golden outputs (artifacts)
-
-\- automated checks (tests)
-
-
-
-\### Naming conventions
-
-\- `docs/source/ledgerloom\_chNN\_topic.rst`
-
-\- `scripts/ledgerloom\_chNN\_topic.py`
-
-\- `tests/test\_ledgerloom\_chNN\_topic.py`
-
-\- `make ll-chNN` targets
-
-
-
----
-
-
-
-\## 6) Chapter roadmap (proposed)
-
-
-
-\### Part I — Foundations (Accounting as a system)
-
-\*\*Ch01 — Journal vs event log (done)\*\*
-
-\- event log concept
-
-\- minimal journal
-
-\- why “append-only facts” beat edits
-
-\- outputs: sample event log, derived ledger view, simple checks
-
-
-
-\*\*Ch02 — Chart of accounts as schema\*\*
-
-\- accounts as a controlled vocabulary
-
-\- types (asset/liability/equity/revenue/expense)
-
-\- why account design matters for downstream reporting
-
-\- outputs: example COA, mapping examples, schema validation
-
-
-
-\*\*Ch03 — Debits/credits as sign convention\*\*
-
-\- debits/credits as a formal balancing system
-
-\- entry-level invariants
-
-\- outputs: trial balance derivation + invariant tests
-
-
-
-\*\*Ch04 — The close process as transformation\*\*
-
-\- accrual vs cash mindset
-
-\- period boundaries
-
-\- closing entries as deterministic transforms
-
-\- outputs: close checklist template + before/after TB
-
-
-
-\*\*Ch05 — Financial statements as projections\*\*
-
-\- IS/BS/CF as “views”
-
-\- mapping TB → statements
-
-\- outputs: statement tables + reconciliation checks
-
-
+It is both:
+1) a **textbook-style** set of chapters on Read the Docs, and  
+2) a **tiny, MIT-licensed Python library + CLI** for generating and validating accounting-shaped artifacts.
 
 ---
 
+## Links
 
-
-\### Part II — Real workflows (subledgers and controls)
-
-\*\*Ch06 — AR/AP as event streams\*\*
-
-\- invoices, payments, aging
-
-\- outputs: AR aging, AP aging, reconciliation checks
-
-
-
-\*\*Ch07 — Inventory \& COGS\*\*
-
-\- perpetual vs periodic
-
-\- purchase → on-hand → issue → COGS
-
-\- outputs: inventory rollforward, COGS tie-out checks
-
-
-
-\*\*Ch08 — Fixed assets \& depreciation\*\*
-
-\- capex vs expense
-
-\- depreciation schedules
-
-\- outputs: FA register, depreciation rollforward
-
-
-
-\*\*Ch09 — Payroll liabilities\*\*
-
-\- withholdings, remittances, accruals
-
-\- outputs: payroll liability rollforward, checks
-
-
-
-\*\*Ch10 — Reconciliations as quality control\*\*
-
-\- bank rec as control loop
-
-\- “expected vs observed”
-
-\- outputs: reconciliation report template + mismatch diagnostics
-
-
+- Docs: https://ledgerloom.readthedocs.io/en/latest/
+- PyPI: https://pypi.org/project/ledgerloom/
+- GitHub: https://github.com/pystatsv1/ledgerloom
 
 ---
 
+## Why LedgerLoom exists
 
+Many people learn accounting as rules + vocabulary.
 
-\### Part III — Decision support (analysis that doesn’t lie)
+LedgerLoom teaches accounting as **systems engineering**:
 
-\*\*Ch11 — Variance analysis (budget vs actual)\*\*
+- a **ledger** is a *database view* of an **event log**
+- **double-entry** is a **consistency invariant**
+- a **trial balance** is an automated **check**
+- financial statements are **deterministic outputs** from well-defined transformations
 
-\- price/volume/mix intuition
-
-\- outputs: variance tables, explanations memo template
-
-
-
-\*\*Ch12 — Forecasting hygiene (foundations)\*\*
-
-\- baseline forecasts
-
-\- backtests
-
-\- error metrics
-
-\- outputs: forecast report + assumptions log
-
-
-
-\*\*Ch13 — Audit lens\*\*
-
-\- materiality intuition
-
-\- common failure modes (missing entries, duplicates, wrong period)
-
-\- outputs: “red flag” checks + example cases
-
-
+**Core idea:**  
+> Don’t just calculate results — engineer them.
 
 ---
 
+## The mental model mapping
 
-
-\### Part IV — Practical tooling (optional, but powerful)
-
-\*\*Ch14 — Bring your own exports\*\*
-
-\- CSV templates
-
-\- mapping rules (accounts, vendors, customers)
-
-\- outputs: imported events + validation report
-
-
-
-\*\*Ch15 — Connector architecture\*\*
-
-\- plugin approach
-
-\- stable internal model
-
-\- “adapters at the edges”
-
-\- outputs: reference connector skeleton + tests
-
-
+| Accounting concept | Developer mental model |
+|---|---|
+| Journal entries | Append-only event log (immutable facts) |
+| General ledger | Derived view / projection over events |
+| Double-entry | Invariant: debits == credits (by entry) |
+| Trial balance | Automated check over account totals |
+| Close process | Period-end transformation + roll-forward |
+| Audit trail | Reproducibility + provenance + diffs |
+| Reconciliation | Control loop: expected vs observed |
 
 ---
 
+## Install
 
+```bash
+pip install ledgerloom
+````
 
-\## 7) How LedgerLoom can grow to be the best it can be
-
-
-
-\### Community + contribution strategy
-
-\- keep PRs small and deterministic
-
-\- prefer docs/tests/examples early
-
-\- publish issues as “chapter-sized” tasks
-
-\- maintain a clear “MVP chapters” milestone
-
-
-
-\### Quality strategy
-
-\- golden-file artifact testing
-
-\- stable formatting for tables
-
-\- strict linting and CI checks
-
-\- docs must build on every PR
-
-
-
-\### Product strategy
-
-LedgerLoom wins by being:
-
-\- clearer than traditional accounting texts
-
-\- more reproducible than blog tutorials
-
-\- more practical than pure theory
-
-\- small enough to trust, but extensible enough to grow
-
-
-
----
-
-
-
-\## 8) Next milestones (concrete)
-
-
-
-\### Milestone: MVP Textbook Arc (Ch01–Ch05)
-
-\- complete docs + scripts + tests for Ch02–Ch05
-
-\- ensure every chapter has `make ll-chNN`
-
-\- keep outputs stable and reviewable
-
-
-
-\### Milestone: Controls \& Reconciliations (Ch06–Ch10)
-
-\- add “what can go wrong” checks
-
-\- add reconciliation templates
-
-
-
-\### Milestone: Decision Support (Ch11–Ch13)
-
-\- variance analysis + forecasting foundations
-
-\- keep it audit-friendly and assumption-driven
-
-
-
-\### Milestone: Bring Your Own Data (Ch14+)
-
-\- CSV import templates
-
-\- mapping rules
-
-\- connector skeleton
-
-
-
----
-
-
-
-\## 9) Definition of success
-
-
-
-LedgerLoom is successful when:
-
-\- learners say “accounting finally makes sense”
-
-\- practitioners can run a small pipeline and trust the outputs
-
-\- contributors can add a chapter with confidence
-
-\- the project stays small, readable, and deterministic
-
+</details>
