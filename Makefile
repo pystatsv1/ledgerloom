@@ -10,6 +10,7 @@ help:
 	@echo "LedgerLoom (developer-friendly accounting) — targets:"
 	@echo ""
 	@echo "  ll-ch01    - Chapter 01 demo (journal vs event log) + artifacts"
+	@echo "  ll-ch02    - Chapter 02 demo (debits/credits encoding) + artifacts"
 	@echo "  ll-ci      - Tiny deterministic smoke (for CI)"
 	@echo "  docs       - build HTML docs"
 	@echo "  lint       - ruff check"
@@ -32,6 +33,9 @@ ll-ci:
 .PHONY: ll-ch01
 ll-ch01:
 	$(PYTHON) -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir $(OUT_LL) --seed $(SEED)
+
+ll-ch02:
+	$(PYTHON) -m ledgerloom.chapters.ch02_debits_credits_encoding --outdir $(OUT_LL) --seed $(SEED)
 
 
 .PHONY: lint
