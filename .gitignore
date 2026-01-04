@@ -19,3 +19,7 @@ docs/build/
 /build/
 *.whl
 *.tar.gz
+
+# Local patch delivery artifacts (do not commit)
+/APPLY_PATCH.md
+/ledgerloom_*_patch.zip

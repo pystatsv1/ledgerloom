@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import json
 import os
 import subprocess
 import sys
@@ -34,8 +35,16 @@ def test_ch01_script_writes_expected_artifacts(tmp_path: Path) -> None:
         "trial_balance.csv",
         "income_statement.csv",
         "balance_sheet.csv",
+        "entry_balancing.csv",
+        "account_rollup.csv",
+        "root_bar_chart.md",
         "entry_explanations.md",
+        "assumptions.md",
+        "checks.md",
+        "tables.md",
+        "lineage.mmd",
         "run_meta.json",
+        "manifest.json",
         "summary.md",
     ]
     for name in expected:
@@ -54,3 +63,10 @@ def test_ch01_script_writes_expected_artifacts(tmp_path: Path) -> None:
     assert check, "Expected a 'Check' row in balance_sheet.csv"
     check_val = float(check[0]["amount"])
     assert abs(check_val) < 1e-9
+
+    # Manifest should be JSON and should describe key artifacts.
+    manifest = json.loads((outdir / "manifest.json").read_text(encoding="utf-8"))
+    names = {a["name"] for a in manifest["artifacts"]}
+    assert "ledger.jsonl" in names
+    assert "journal.csv" in names
+    assert "run_meta.json" in names
