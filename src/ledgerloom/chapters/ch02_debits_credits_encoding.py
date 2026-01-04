@@ -7,8 +7,11 @@ different tabular encodings and still compile into the same canonical journal
 Outputs (written under outputs/ledgerloom/ch02 by default):
 - encoding_wide.csv
 - encoding_long.csv
+- encoding_signed.csv
 - journal_from_wide.jsonl
 - journal_from_long.jsonl
+- journal_from_signed.jsonl
+- diagnostics.md
 - trial_balance.csv
 - income_statement.csv
 - balance_sheet.csv
@@ -19,6 +22,7 @@ Outputs (written under outputs/ledgerloom/ch02 by default):
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 from datetime import date
 from decimal import Decimal
@@ -173,6 +177,104 @@ def wide_to_long(df_wide: pd.DataFrame) -> pd.DataFrame:
     return df_long.drop(columns=["_side_order"]).reset_index(drop=True)
 
 
+def long_to_signed(df_long: pd.DataFrame) -> pd.DataFrame:
+    """Convert long encoding into a signed encoding (single amount column).
+
+    Convention used here (journal-centric):
+    - debits are positive
+    - credits are negative
+
+    This is *not* account-type aware; it's a modern tabular encoding that is
+    convenient for data pipelines, with invariants enforcing correctness.
+    """
+
+    required = {"tx_id", "dt", "narration", "account", "side", "amount"}
+    missing = required - set(df_long.columns)
+    if missing:
+        raise ValueError(f"Long encoding missing columns: {sorted(missing)}")
+
+    rows: list[dict[str, str]] = []
+    for r in df_long.to_dict(orient="records"):
+        amt = _d(r["amount"])
+        side = str(r["side"])
+        if side == "debit":
+            signed_amt = amt
+        elif side == "credit":
+            signed_amt = -amt
+        else:
+            raise ValueError(f"Invalid side value in long encoding: {side!r}")
+
+        rows.append(
+            {
+                "tx_id": str(r["tx_id"]),
+                "dt": str(r["dt"]),
+                "narration": str(r["narration"]),
+                "account": str(r["account"]),
+                "signed_amount": format(signed_amt, "f"),
+            }
+        )
+
+    df_signed = pd.DataFrame(rows)
+
+    # Deterministic ordering: debits (positive) first, then credits (negative).
+    side_order = df_signed["signed_amount"].map(
+        lambda s: 0 if _d(s) >= 0 else 1
+    ).astype(int)
+    df_signed = df_signed.assign(_side_order=side_order).sort_values(
+        ["dt", "tx_id", "_side_order", "account"],
+        kind="mergesort",
+    )
+    return df_signed.drop(columns=["_side_order"]).reset_index(drop=True)
+
+
+def signed_to_entries(df: pd.DataFrame) -> list[Entry]:
+    """Compile signed encoding rows into canonical LedgerLoom entries."""
+
+    required = {"tx_id", "dt", "narration", "account", "signed_amount"}
+    missing = required - set(df.columns)
+    if missing:
+        raise ValueError(f"Signed encoding missing columns: {sorted(missing)}")
+
+    # Deterministic ordering: debits (positive) first, then credits (negative).
+    side_order = df["signed_amount"].map(lambda s: 0 if _d(s) >= 0 else 1)
+    if side_order.isna().any():
+        raise ValueError("Signed encoding contains invalid signed_amount values")
+    df2 = df.assign(_side_order=side_order.astype(int)).sort_values(
+        ["dt", "tx_id", "_side_order", "account"],
+        kind="mergesort",
+    )
+
+    entries: list[Entry] = []
+    for tx_id, g in df2.groupby("tx_id", sort=False):
+        first = g.iloc[0]
+
+        # Invariant: signed amounts must sum to 0 within a transaction.
+        signed_sum = sum((_d(x) for x in g["signed_amount"]), Decimal("0"))
+        if signed_sum != Decimal("0.00"):
+            raise ValueError(
+                f"Signed encoding does not balance for tx_id={tx_id!r}: sum={signed_sum}"
+            )
+
+        postings: list[Posting] = []
+        for _, r in g.iterrows():
+            amt = _d(r["signed_amount"])
+            if amt >= 0:
+                postings.append(Posting(account=str(r["account"]), debit=amt))
+            else:
+                postings.append(Posting(account=str(r["account"]), credit=-amt))
+
+        entry = Entry(
+            dt=date.fromisoformat(str(first["dt"])),
+            narration=str(first["narration"]),
+            postings=postings,
+            meta={"tx_id": str(tx_id)},
+        )
+        entry.validate_balanced()
+        entries.append(entry)
+
+    return entries
+
+
 def long_to_entries(df: pd.DataFrame) -> list[Entry]:
     """Compile long encoding rows into canonical LedgerLoom entries."""
 
@@ -256,17 +358,53 @@ def main(argv: list[str] | None = None) -> int:
 
     df_wide = build_demo_wide(seed=args.seed)
     df_long = wide_to_long(df_wide)
+    df_signed = long_to_signed(df_long)
 
     entries_from_wide = wide_to_entries(df_wide)
     entries_from_long = long_to_entries(df_long)
+    entries_from_signed = signed_to_entries(df_signed)
 
     # Write encodings
     df_wide.to_csv(out_ch_dir / "encoding_wide.csv", index=False)
     df_long.to_csv(out_ch_dir / "encoding_long.csv", index=False)
+    df_signed.to_csv(out_ch_dir / "encoding_signed.csv", index=False)
 
     # Write compiled journals
     write_jsonl(out_ch_dir / "journal_from_wide.jsonl", entries_from_wide)
     write_jsonl(out_ch_dir / "journal_from_long.jsonl", entries_from_long)
+    write_jsonl(out_ch_dir / "journal_from_signed.jsonl", entries_from_signed)
+
+    # Diagnostics (human-friendly) — invariants + equivalence checks.
+    def _sha256_text(p: Path) -> str:
+        return hashlib.sha256(p.read_bytes()).hexdigest()
+
+    wide_hash = _sha256_text(out_ch_dir / "journal_from_wide.jsonl")
+    long_hash = _sha256_text(out_ch_dir / "journal_from_long.jsonl")
+    signed_hash = _sha256_text(out_ch_dir / "journal_from_signed.jsonl")
+
+    diag_lines = [
+        "# LedgerLoom Chapter 02 — Diagnostics\n",
+        "\n",
+        "This file captures the *invariants* and *equivalence checks* for the chapter artifacts.\n",
+        "\n",
+        "## Invariants\n",
+        "- Wide rows compile into balanced entries.\n",
+        "- Long rows compile into the same balanced entries.\n",
+        "- Signed rows sum to 0 per transaction and compile into the same balanced entries.\n",
+        "\n",
+        "## Journal equivalence (sha256)\n",
+        f"- journal_from_wide.jsonl: `{wide_hash}`\n",
+        f"- journal_from_long.jsonl: `{long_hash}`\n",
+        f"- journal_from_signed.jsonl: `{signed_hash}`\n",
+        "\n",
+        f"- wide == long: **{wide_hash == long_hash}**\n",
+        f"- wide == signed: **{wide_hash == signed_hash}**\n",
+        "\n",
+        "## Why signed encoding is useful\n",
+        "A signed amount column is convenient in data/analytics pipelines because it turns postings into a single numeric measure.\n",
+        "The constraints (sum to 0 per transaction; balances roll up correctly) are what make it accounting.\n",
+    ]
+    (out_ch_dir / "diagnostics.md").write_text("".join(diag_lines), encoding="utf-8")
 
     # Reports (use the canonical entries, but both should match)
     _write_reports(out_ch_dir, entries_from_wide)
@@ -279,7 +417,10 @@ def main(argv: list[str] | None = None) -> int:
         "n_postings": int(sum(len(e.postings) for e in entries_from_wide)),
         "wide_columns": list(df_wide.columns),
         "long_columns": list(df_long.columns),
-        "entries_match": entries_from_wide == entries_from_long,
+        "signed_columns": list(df_signed.columns),
+        "entries_match_wide_long": entries_from_wide == entries_from_long,
+        "entries_match_wide_signed": entries_from_wide == entries_from_signed,
+        "entries_match_all": entries_from_wide == entries_from_long == entries_from_signed,
     }
     (out_ch_dir / "run_meta.json").write_text(
         json.dumps(meta, indent=2, sort_keys=True) + "\n", encoding="utf-8"
@@ -291,10 +432,12 @@ def main(argv: list[str] | None = None) -> int:
         "## What was generated\n",
         f"- Wide rows: {len(df_wide)}\n",
         f"- Long rows: {len(df_long)}\n",
+        f"- Signed rows: {len(df_signed)}\n",
         f"- Entries: {len(entries_from_wide)}\n",
         "\n",
         "## Key result\n",
-        f"- journal_from_wide.jsonl == journal_from_long.jsonl: **{meta['entries_match']}**\n",
+        f"- journal_from_wide.jsonl == journal_from_long.jsonl == journal_from_signed.jsonl: **{meta['entries_match_all']}**\n",
+        "- See `diagnostics.md` for hashes + invariant checks.\n",
         "\n",
         "## Next\n",
         "Chapter 03 will introduce a Chart of Accounts schema to validate account names and types.\n",

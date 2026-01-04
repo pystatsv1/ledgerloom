@@ -26,7 +26,17 @@ def write_jsonl(path: Path, entries: Iterable[Entry]) -> None:
                 ],
                 "meta": e.meta,
             }
-            f.write(json.dumps(obj) + "\n")
+            # Defensive normalization: stable key ordering and predictable JSON.
+            # This keeps outputs deterministic across platforms/Python versions.
+            f.write(
+                json.dumps(
+                    obj,
+                    sort_keys=True,
+                    ensure_ascii=False,
+                    separators=(",", ":"),
+                )
+                + "\n"
+            )
 
 
 def read_jsonl(path: Path) -> List[Entry]:

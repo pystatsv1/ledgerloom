@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import csv
+import os
 import subprocess
 import sys
 from pathlib import Path
@@ -19,21 +20,37 @@ def test_ch01_script_writes_expected_artifacts(tmp_path: Path) -> None:
         "--seed",
         "123",
     ]
-    subprocess.run(cmd, check=True, cwd=repo_root)
+    env = dict(os.environ)
+    src = str(repo_root / "src")
+    env["PYTHONPATH"] = src + os.pathsep + env.get("PYTHONPATH", "")
+    subprocess.run(cmd, check=True, cwd=repo_root, env=env)
 
     outdir = tmp_path / "ch01"
-    assert (outdir / "ledger.jsonl").exists()
-    assert (outdir / "trial_balance.csv").exists()
-    assert (outdir / "income_statement.csv").exists()
-    assert (outdir / "balance_sheet.csv").exists()
-    assert (outdir / "entry_explanations.md").exists()
+    expected = [
+        "ledger.jsonl",
+        "eventlog.jsonl",
+        "journal.csv",
+        "ledger_view.csv",
+        "trial_balance.csv",
+        "income_statement.csv",
+        "balance_sheet.csv",
+        "entry_explanations.md",
+        "run_meta.json",
+        "summary.md",
+    ]
+    for name in expected:
+        assert (outdir / name).exists(), f"Missing expected artifact: {name}"
+
+    # eventlog.jsonl is a friendly alias for ledger.jsonl.
+    assert (outdir / "eventlog.jsonl").read_text(encoding="utf-8") == (
+        outdir / "ledger.jsonl"
+    ).read_text(encoding="utf-8")
 
     # Basic invariant check: Balance Sheet "Check" should be 0.
-    # balance_sheet.csv is a 2-column CSV: index, amount
     with (outdir / "balance_sheet.csv").open(newline="", encoding="utf-8") as f:
-        rows = list(csv.reader(f))
+        rows = list(csv.DictReader(f))
 
-    check_rows = [r for r in rows if r and r[0] == "Check"]
-    assert check_rows, "Expected a 'Check' row in balance_sheet.csv"
-    check_val = float(check_rows[0][1])
+    check = [r for r in rows if r.get("account") == "Check"]
+    assert check, "Expected a 'Check' row in balance_sheet.csv"
+    check_val = float(check[0]["amount"])
     assert abs(check_val) < 1e-9
