@@ -1,0 +1,21 @@
+code,name,account_type,normal_side,statement,rollup_code,is_contra,is_active,track_department,track_project,description
+1000,Assets,asset,debit,BS,,false,true,false,false,Rollup: all assets
+1100,Cash,asset,debit,BS,1000,false,true,false,false,Cash on hand / bank
+1200,Accounts Receivable,asset,debit,BS,1000,false,true,true,true,Customer receivables (segment-tracked)
+1300,Inventory,asset,debit,BS,1000,false,true,true,true,Inventory held for sale (segment-tracked)
+1500,Equipment,asset,debit,BS,1000,false,true,false,true,Equipment (project-tracked)
+1510,Accumulated Depreciation,asset,credit,BS,1000,true,true,false,true,Contra-asset for equipment
+2000,Liabilities,liability,credit,BS,,false,true,false,false,Rollup: all liabilities
+2100,Accounts Payable,liability,credit,BS,2000,false,true,true,true,Supplier payables (segment-tracked)
+2200,Notes Payable,liability,credit,BS,2000,false,true,false,true,Debt instruments (project-tracked)
+3000,Equity,equity,credit,BS,,false,true,false,false,Rollup: all equity
+3100,Owner Capital,equity,credit,BS,3000,false,true,false,false,Owner contributions
+3200,Retained Earnings,equity,credit,BS,3000,false,true,false,false,Cumulative profits
+4000,Revenue,revenue,credit,IS,,false,true,true,true,Rollup: all revenue
+4100,Sales Revenue,revenue,credit,IS,4000,false,true,true,true,Product/service revenue
+4200,Service Revenue,revenue,credit,IS,4000,false,true,true,true,Services revenue
+5000,Expenses,expense,debit,IS,,false,true,true,true,Rollup: all expenses
+5100,COGS,expense,debit,IS,5000,false,true,true,true,Cost of goods sold
+5200,Rent Expense,expense,debit,IS,5000,false,true,true,false,Rent (dept-tracked)
+5300,Wages Expense,expense,debit,IS,5000,false,true,true,false,Wages (dept-tracked)
+5400,Marketing Expense,expense,debit,IS,5000,false,true,true,true,Marketing (segment-tracked)

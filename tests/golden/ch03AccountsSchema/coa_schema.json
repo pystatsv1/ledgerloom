@@ -1,0 +1,97 @@
+{
+  "account_master": {
+    "constraints": [
+      "unique(code)",
+      "rollup_code must reference an existing account or be empty",
+      "no cycles in rollup relationships",
+      "normal_side is debit for assets/expenses and credit for liabilities/equity/revenue (except contra accounts may differ)"
+    ],
+    "fields": [
+      {
+        "description": "Account code (4 digits)",
+        "name": "code",
+        "pattern": "^\\d{4}$",
+        "type": "string"
+      },
+      {
+        "name": "name",
+        "type": "string"
+      },
+      {
+        "name": "account_type",
+        "type": "enum",
+        "values": [
+          "asset",
+          "liability",
+          "equity",
+          "revenue",
+          "expense"
+        ]
+      },
+      {
+        "name": "normal_side",
+        "type": "enum",
+        "values": [
+          "debit",
+          "credit"
+        ]
+      },
+      {
+        "description": "Balance Sheet / Income Statement",
+        "name": "statement",
+        "type": "enum",
+        "values": [
+          "BS",
+          "IS"
+        ]
+      },
+      {
+        "description": "Parent rollup bucket",
+        "name": "rollup_code",
+        "nullable": true,
+        "type": "string"
+      },
+      {
+        "description": "Contra accounts invert the normal balance for presentation",
+        "name": "is_contra",
+        "type": "bool"
+      },
+      {
+        "name": "is_active",
+        "type": "bool"
+      },
+      {
+        "name": "track_department",
+        "type": "bool"
+      },
+      {
+        "name": "track_project",
+        "type": "bool"
+      },
+      {
+        "name": "description",
+        "type": "string"
+      }
+    ],
+    "primary_key": [
+      "code"
+    ]
+  },
+  "schema_version": "1.0",
+  "segments": {
+    "dimensions": [
+      {
+        "description": "Department",
+        "dimension_code": "DEPT"
+      },
+      {
+        "description": "Project",
+        "dimension_code": "PROJ"
+      }
+    ],
+    "rules": [
+      "When an account has track_department=true, postings should include a DEPT value.",
+      "When an account has track_project=true, postings should include a PROJ value."
+    ]
+  }
+}
