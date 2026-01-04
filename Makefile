@@ -37,6 +37,9 @@ ll-ch01:
 ll-ch02:
 	$(PYTHON) -m ledgerloom.chapters.ch02_debits_credits_encoding --outdir $(OUT_LL) --seed $(SEED)
 
+ll-ch03:
+	python -m ledgerloom.chapters.ch03_posting_to_ledger --outdir outputs/ledgerloom --seed 123
+
 
 .PHONY: lint
 lint:
