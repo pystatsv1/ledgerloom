@@ -1,0 +1,3 @@
+dimension_code,dimension_name,required,description
+DEPT,Department,false,"Operational department (e.g., SALES, OPS)."
+PROJ,Project,false,"Project / job / initiative (e.g., P001)."
