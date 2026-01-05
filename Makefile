@@ -46,6 +46,9 @@ ll-ch03:
 ll-ch03-coa:
 	$(PYTHON) -m ledgerloom.chapters.ch03_chart_of_accounts_schema --outdir $(OUT_LL) --seed $(SEED)
 
+ll-ch03AccountsSchema:
+	python -m ledgerloom.chapters.ch03_chart_of_accounts_schema --outdir outputs/ledgerloom --seed 123
+
 ll-ch04:
 	$(PYTHON) -m ledgerloom.chapters.ch04_general_ledger_database --outdir $(OUT_LL) --seed $(SEED)
 
