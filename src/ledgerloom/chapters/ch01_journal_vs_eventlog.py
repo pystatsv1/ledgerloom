@@ -10,15 +10,16 @@ from typing import Any
 
 import pandas as pd
 
-from ledgerloom.chart import account_root, signed_delta
 from ledgerloom.core import Entry, Posting
 from ledgerloom.io_jsonl import write_jsonl
 from ledgerloom.reports import balance_sheet, income_statement, trial_balance
+from ledgerloom.chart import account_root
+from ledgerloom.engine import LedgerEngine
 
 
 def build_demo_entries() -> list[Entry]:
     # Tiny "small business" story:
-    # 1) Invoice a client for services (AR up, income up)
+    # 1) Invoice a client for services (AR up, revenue up)
     # 2) Client pays the invoice (cash up, AR down)
     # 3) Pay a software bill (expense up, cash down)
     return [
@@ -27,9 +28,9 @@ def build_demo_entries() -> list[Entry]:
             narration="Invoice client for services",
             postings=[
                 Posting("Assets:AccountsReceivable", debit=Decimal("1000.00")),
-                Posting("Income:Services", credit=Decimal("1000.00")),
+                Posting("Revenue:Services", credit=Decimal("1000.00")),
             ],
-            meta={"doc": "INV-0001"},
+            meta={"doc": "INV-0001", "entry_id": "E001"},
         ),
         Entry(
             dt=date(2026, 1, 10),
@@ -38,7 +39,7 @@ def build_demo_entries() -> list[Entry]:
                 Posting("Assets:Cash", debit=Decimal("1000.00")),
                 Posting("Assets:AccountsReceivable", credit=Decimal("1000.00")),
             ],
-            meta={"doc": "RCPT-0001"},
+            meta={"doc": "RCPT-0001", "entry_id": "E002"},
         ),
         Entry(
             dt=date(2026, 1, 15),
@@ -47,7 +48,7 @@ def build_demo_entries() -> list[Entry]:
                 Posting("Expenses:Software", debit=Decimal("50.00")),
                 Posting("Assets:Cash", credit=Decimal("50.00")),
             ],
-            meta={"doc": "BILL-0001"},
+            meta={"doc": "BILL-0001", "entry_id": "E003"},
         ),
     ]
 
@@ -123,7 +124,7 @@ ARTIFACT_SPECS: list[dict[str, str]] = [
         "name": "account_rollup.csv",
         "format": "csv",
         "kind": "view",
-        "description": "Roll-up totals by account root (Assets/Liabilities/Equity/Income/Expenses).",
+        "description": "Roll-up totals by account root (Assets/Liabilities/Equity/Revenue/Expenses).",
     },
     {
         "name": "root_bar_chart.md",
@@ -237,7 +238,7 @@ This chapter is a **tiny, deterministic** accounting demo intended to be:
 
 - a micro "services" business
 - three events: invoice → payment → expense
-- a minimal chart of accounts (Assets/Income/Expenses)
+- a minimal chart of accounts (Assets/Revenue/Expenses)
 - reports: trial balance, income statement, balance sheet
 
 ## What is *not* modeled yet (intentionally)
@@ -360,7 +361,7 @@ def entries_to_journal_df(entries: list[Entry]) -> pd.DataFrame:
     """Traditional 'journal' view: one row per posting with explicit debit/credit columns."""
     rows: list[dict[str, str]] = []
     for i, e in enumerate(entries, start=1):
-        entry_id = f"E{i:03d}"
+        entry_id = str(e.meta.get("entry_id") or f"E{i:03d}")
         for j, p in enumerate(e.postings, start=1):
             rows.append(
                 {
@@ -378,32 +379,44 @@ def entries_to_journal_df(entries: list[Entry]) -> pd.DataFrame:
 
 
 def entries_to_ledger_view_df(entries: list[Entry]) -> pd.DataFrame:
-    """Developer 'ledger view': derived, type-aware running balances by account."""
+    """Developer 'ledger view': derived, type-aware running balances by account.
+
+    This is intentionally a *derived view* computed from the Engine's postings fact
+    table, to keep Chapter 01 aligned with the reusable core.
+    """
+
+    engine = LedgerEngine()
+    postings = engine.postings_fact_table(entries)
+
+    # Map entry_id -> doc metadata for nice traceability.
+    doc_by_entry = {str(e.meta.get("entry_id", "")): str(e.meta.get("doc", "")) for e in entries}
+
     rows: list[dict[str, str]] = []
     running: dict[str, Decimal] = {}
 
-    for i, e in enumerate(entries, start=1):
-        entry_id = f"E{i:03d}"
-        for j, p in enumerate(e.postings, start=1):
-            delta = signed_delta(p.account, p.debit, p.credit)
-            running[p.account] = running.get(p.account, Decimal("0")) + delta
-            rows.append(
-                {
-                    "dt": e.dt.isoformat(),
-                    "entry_id": entry_id,
-                    "line_no": str(j),
-                    "narration": e.narration,
-                    "account_root": account_root(p.account),
-                    "account": p.account,
-                    "debit": _fmt(p.debit),
-                    "credit": _fmt(p.credit),
-                    "delta": _fmt(delta),
-                    "balance": _fmt(running[p.account]),
-                    "doc": e.meta.get("doc", ""),
-                }
-            )
+    # postings are already sorted (date, entry_id, line_no) deterministically.
+    for _, r in postings.iterrows():
+        acct = str(r["account"])
+        delta = Decimal(str(r["signed_delta"]))
+        running[acct] = running.get(acct, Decimal("0")) + delta
 
-    # Deterministic ordering: already built in entry order; keep stable.
+        eid = str(r["entry_id"])
+        rows.append(
+            {
+                "dt": str(r["date"]),
+                "entry_id": eid,
+                "line_no": str(r["line_no"]),
+                "narration": str(r["narration"]),
+                "account_root": str(r["root"]),
+                "account": acct,
+                "debit": str(r["debit"]),
+                "credit": str(r["credit"]),
+                "delta": _fmt(delta),
+                "balance": _fmt(running[acct]),
+                "doc": doc_by_entry.get(eid, ""),
+            }
+        )
+
     return pd.DataFrame(rows)
 
 
@@ -449,7 +462,7 @@ def main() -> int:
     # --- Extra "wow" artifacts (tables, checks, chart) ---
     entry_balance_rows: list[dict[str, str]] = []
     for i, e in enumerate(entries, start=1):
-        entry_id = f"E{i:03d}"
+        entry_id = str(e.meta.get("entry_id") or f"E{i:03d}")
         debits = sum((p.debit for p in e.postings), Decimal("0"))
         credits = sum((p.credit for p in e.postings), Decimal("0"))
         entry_balance_rows.append(
