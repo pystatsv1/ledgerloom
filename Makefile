@@ -13,6 +13,7 @@ help:
 	@echo "  ll-ch02    - Chapter 02 demo (debits/credits encoding) + artifacts"
 	@echo "  ll-ch03    - Chapter 03 demo (posting to ledger) + artifacts"
 	@echo "  ll-ch03-coa - Chapter 03 alt (COA as schema) + artifacts"
+	@echo "  ll-ch04    - Chapter 04 demo (GL as database) + artifacts"
 	@echo "  ll-ci      - Tiny deterministic smoke (for CI)"
 	@echo "  docs       - build HTML docs"
 	@echo "  lint       - ruff check"
@@ -45,6 +46,11 @@ ll-ch03:
 ll-ch03-coa:
 	$(PYTHON) -m ledgerloom.chapters.ch03_chart_of_accounts_schema --outdir $(OUT_LL) --seed $(SEED)
 
+ll-ch04:
+	$(PYTHON) -m ledgerloom.chapters.ch04_general_ledger_database --outdir $(OUT_LL) --seed $(SEED)
+
+
+.PHONY: ll-ch04
 
 .PHONY: lint
 lint:

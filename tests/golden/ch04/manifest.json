@@ -1,0 +1,54 @@
+{
+  "artifacts": [
+    {
+      "bytes": 653,
+      "file": "balances_by_account.csv",
+      "sha256": "a020020909ee084987fa79f0204b155d2b2d5a051b2f3024a94edd8fab5d44b3"
+    },
+    {
+      "bytes": 163,
+      "file": "balances_by_department.csv",
+      "sha256": "e83c6d12c37b921e924b061ff6630da90c98fd52ece626b38b87e0fec8091876"
+    },
+    {
+      "bytes": 534,
+      "file": "balances_by_period.csv",
+      "sha256": "44e2c3d17b94050c2ebe4832acdb7c0c9da3018242cce8b281c3c269be80f2e1"
+    },
+    {
+      "bytes": 2068,
+      "file": "gl_schema.json",
+      "sha256": "66864e81cd8a58337ee88f0ef7b74351bfd9ed694f86429268010f98e3a9583e"
+    },
+    {
+      "bytes": 524,
+      "file": "invariants.json",
+      "sha256": "bdda01d66eaf36140062be0ceeee2839ce7f267e154b6a020713c579780a6849"
+    },
+    {
+      "bytes": 422,
+      "file": "lineage.mmd",
+      "sha256": "ca068d8fed7030be9c8073a31e4cab7a26a7ac960fabd34e386f87a01c66bf95"
+    },
+    {
+      "bytes": 2352,
+      "file": "postings.csv",
+      "sha256": "b51306a53789cd1b4dd415560f3c5fea26be6dc02ee738bf24d80622100e2124"
+    },
+    {
+      "bytes": 136,
+      "file": "run_meta.json",
+      "sha256": "432c918a67d0c36b88ae12077ae6958562377f3d6b1921839290d652fca3cf36"
+    },
+    {
+      "bytes": 1750,
+      "file": "running_balance_by_posting.csv",
+      "sha256": "0822eb1ee0413802188229b6ad0508f20affc70ad7bda0eedab8a91bec3e5daf"
+    },
+    {
+      "bytes": 1450,
+      "file": "sql_mental_model.md",
+      "sha256": "75b5eaa0db3610937b531201c1c04d61474271318d0cf5e4da4beb38aabfa217"
+    }
+  ]
+}
