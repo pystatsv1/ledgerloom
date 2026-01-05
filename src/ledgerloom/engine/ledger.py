@@ -14,7 +14,7 @@ core, keeping byte-for-byte identical artifacts when chapters call it.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from decimal import Decimal
+from datetime import date
 from typing import Any
 
 import pandas as pd
@@ -22,7 +22,7 @@ import pandas as pd
 from ledgerloom.core import Entry
 
 from .config import LedgerEngineConfig
-from .money import cents_to_str, to_cents
+from .money import cents_to_str, str_to_cents, to_cents
 
 
 def account_root(account: str) -> str:
@@ -88,12 +88,29 @@ def postings_fact_table(entries: list[Entry], cfg: LedgerEngineConfig) -> pd.Dat
     return df
 
 
+def postings_as_of(postings: pd.DataFrame, as_of: date | str) -> pd.DataFrame:
+    """Filter postings to rows with ``date <= as_of``.
+
+    The postings table stores dates as ISO strings (YYYY-MM-DD), so lexical
+    comparison is safe and deterministic.
+    """
+
+    if isinstance(as_of, date):
+        as_of_s = as_of.isoformat()
+    else:
+        as_of_s = str(as_of)
+
+    out = postings.loc[postings["date"] <= as_of_s].copy()
+    return out.reset_index(drop=True)
+
+
+
 def balances_by_account(postings: pd.DataFrame, cfg: LedgerEngineConfig) -> pd.DataFrame:
     """Materialized view: balances grouped by account."""
 
     tmp = postings.copy()
     for col in ["debit", "credit", "raw_delta", "signed_delta"]:
-        tmp[f"{col}_cents"] = tmp[col].map(lambda s: int(Decimal(s) * 100))
+        tmp[f"{col}_cents"] = tmp[col].map(str_to_cents)
 
     g = tmp.groupby(["root", "account"], sort=True, as_index=False).agg(
         debit_cents=("debit_cents", "sum"),
@@ -123,7 +140,7 @@ def balances_by_period(postings: pd.DataFrame) -> pd.DataFrame:
 
     tmp = postings.copy()
     tmp["period"] = tmp["date"].str.slice(0, 7)  # YYYY-MM
-    tmp["signed_cents"] = tmp["signed_delta"].map(lambda s: int(Decimal(s) * 100))
+    tmp["signed_cents"] = tmp["signed_delta"].map(str_to_cents)
 
     g = tmp.groupby(["period", "root", "account"], sort=True, as_index=False).agg(
         signed_cents=("signed_cents", "sum"),
@@ -138,7 +155,7 @@ def balances_by_department(postings: pd.DataFrame) -> pd.DataFrame:
     """Materialized view: balances grouped by department and root."""
 
     tmp = postings.copy()
-    tmp["signed_cents"] = tmp["signed_delta"].map(lambda s: int(Decimal(s) * 100))
+    tmp["signed_cents"] = tmp["signed_delta"].map(str_to_cents)
 
     g = tmp.groupby(["department", "root"], sort=True, as_index=False).agg(
         signed_cents=("signed_cents", "sum"),
@@ -153,7 +170,7 @@ def running_balance_by_posting(postings: pd.DataFrame) -> pd.DataFrame:
     """Window-function style running balances per account."""
 
     tmp = postings.copy()
-    tmp["signed_cents"] = tmp["signed_delta"].map(lambda s: int(Decimal(s) * 100))
+    tmp["signed_cents"] = tmp["signed_delta"].map(str_to_cents)
 
     tmp = tmp.sort_values(["account", "date", "entry_id", "line_no"], kind="mergesort").reset_index(drop=True)
     tmp["running_balance_cents"] = tmp.groupby("account", sort=True)["signed_cents"].cumsum()
@@ -185,13 +202,42 @@ def invariants(entries: list[Entry], postings: pd.DataFrame, cfg: LedgerEngineCo
 
     entry_ok = all(r["ok"] for r in entry_rows)
 
-    raw_total_cents = int(sum(Decimal(x) for x in postings["raw_delta"]) * 100)
+    raw_total_cents = int(postings["raw_delta"].map(str_to_cents).sum())
 
     roots = sorted(set(postings["root"].tolist()))
     recognized_roots = sorted(cfg.recognized_roots)
     unknown_roots = sorted(set(roots) - set(recognized_roots))
 
-    posting_id_unique = postings["posting_id"].is_unique
+    posting_id_unique = bool(postings["posting_id"].is_unique)
+
+    # Contract-level checks (useful for teaching and safe refactors).
+    entry_ids = [r["entry_id"] for r in entry_rows]
+    missing_entry_ids = [r for r in entry_rows if not r["entry_id"]]
+    entry_id_present = len(missing_entry_ids) == 0
+    entry_id_unique = len(set(entry_ids)) == len(entry_ids)
+
+    pid_series = postings["posting_id"].astype(str)
+    posting_id_format_ok = bool(pid_series.str.match(r".+:\d{2}$").all()) if len(postings) else True
+    date_format_ok = bool(postings["date"].astype(str).str.match(r"^\d{4}-\d{2}-\d{2}$").all()) if len(postings) else True
+
+    def _pid_prefix_ok(r: pd.Series) -> bool:
+        return str(r["posting_id"]).startswith(f"{r['entry_id']}:")
+
+    def _pid_suffix_ok(r: pd.Series) -> bool:
+        return str(r["posting_id"]).endswith(f":{int(r['line_no']):02d}")
+
+    posting_id_entry_id_ok = bool(postings.apply(_pid_prefix_ok, axis=1).all()) if len(postings) else True
+    posting_id_line_no_ok = bool(postings.apply(_pid_suffix_ok, axis=1).all()) if len(postings) else True
+
+    bad_posting_ids = []
+    if len(postings):
+        mask = ~(pid_series.str.match(r".+:\d{2}$") & postings.apply(_pid_prefix_ok, axis=1) & postings.apply(_pid_suffix_ok, axis=1))
+        if mask.any():
+            bad_posting_ids = postings.loc[mask, ["posting_id", "entry_id", "line_no", "date"]].head(25).to_dict("records")
+
+    bad_dates = []
+    if len(postings) and not date_format_ok:
+        bad_dates = postings.loc[~postings["date"].astype(str).str.match(r"^\d{4}-\d{2}-\d{2}$"), ["posting_id", "date"]].head(25).to_dict("records")
 
     return {
         "entry_double_entry_ok": entry_ok,
@@ -199,6 +245,15 @@ def invariants(entries: list[Entry], postings: pd.DataFrame, cfg: LedgerEngineCo
         "ledger_raw_delta_zero": raw_total_cents == 0,
         "ledger_raw_delta_total": cents_to_str(raw_total_cents),
         "posting_id_unique": posting_id_unique,
+        "entry_id_present": entry_id_present,
+        "entry_id_unique": entry_id_unique,
+        "missing_entry_ids": missing_entry_ids,
+        "date_format_ok": date_format_ok,
+        "bad_dates": bad_dates,
+        "posting_id_format_ok": posting_id_format_ok,
+        "posting_id_entry_id_ok": posting_id_entry_id_ok,
+        "posting_id_line_no_ok": posting_id_line_no_ok,
+        "bad_posting_ids": bad_posting_ids,
         "roots_seen": roots,
         "unknown_roots": unknown_roots,
         "notes": [
@@ -283,6 +338,16 @@ class LedgerEngine:
 
     def balances_by_department(self, postings: pd.DataFrame) -> pd.DataFrame:
         return balances_by_department(postings)
+
+    def postings_as_of(self, postings: pd.DataFrame, as_of: date | str) -> pd.DataFrame:
+        """Filter postings to rows with ``date <= as_of``."""
+
+        return postings_as_of(postings, as_of=as_of)
+
+    def balances_by_account_as_of(self, postings: pd.DataFrame, as_of: date | str) -> pd.DataFrame:
+        """Balances grouped by account, using postings up to ``as_of``."""
+
+        return balances_by_account(postings_as_of(postings, as_of=as_of), cfg=self.cfg)
 
     def running_balance_by_posting(self, postings: pd.DataFrame) -> pd.DataFrame:
         return running_balance_by_posting(postings)
