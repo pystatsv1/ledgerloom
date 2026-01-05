@@ -1,36 +1,55 @@
-\# LedgerLoom Changelog
+# LedgerLoom Changelog
+
+
+## 0.1.5 (2026-01-05)
+
+- Engine: deterministic money conversion (explicit rounding + cents normalization)
+
+- Engine: add as-of filtering helper(s) for period cutoffs
+
+- Engine: expand invariant/contract checks (posting_id shape + root validation)
+
+- Tests: add engine money + contract tests
+
+- Docs: add Engine overview + design principles + API reference + data model reference
 
 
 
-\## 0.1.3 (2026-01-03)
+## 0.1.4 (2026-01-04)
 
-\- Docs: scaffold chapters Ch02–Ch18 and appendices; wire into RTD navigation.
-
-\- Docs: expand README/VISION roadmap content to match the canonical 18-chapter plan.
+- Docs: transition to Engine
 
 
 
-\## 0.1.2 (2026-01-03)
+## 0.1.3 (2026-01-03)
 
-\- Packaging: declare pandas dependency + extras; refine classifiers/keywords.
+- Docs: scaffold chapters Ch02–Ch18 and appendices; wire into RTD navigation.
 
-\- Docs: add changelog page to RTD; expand Vision + Chapter 01 docs pages.
-
-\- CI: simplify workflow; add .gitattributes + .editorconfig.
+- Docs: expand README/VISION roadmap content to match the canonical 18-chapter plan.
 
 
 
-\## 0.1.1 (2026-01-03)
+## 0.1.2 (2026-01-03)
 
-\- Package: expose Chapter 01 runner as `python -m ledgerloom.chapters.ch01\_journal\_vs\_eventlog`.
+- Packaging: declare pandas dependency + extras; refine classifiers/keywords.
 
-\- Docs: add Vision/Roadmap pages (README + VISION + RTD page).
+- Docs: add changelog page to RTD; expand Vision + Chapter 01 docs pages.
 
-\- Infrastructure: enable PyPI publish via trusted publisher.
+- CI: simplify workflow; add .gitattributes + .editorconfig.
 
 
 
-\## 0.1.0 (2026-01-03)
+## 0.1.1 (2026-01-03)
 
-\- Initial release of LedgerLoom (MIT): tiny library + CLI + demo Chapter 01 runner.
+- Package: expose Chapter 01 runner as `python -m ledgerloom.chapters.ch01\_journal\_vs\_eventlog`.
+
+- Docs: add Vision/Roadmap pages (README + VISION + RTD page).
+
+- Infrastructure: enable PyPI publish via trusted publisher.
+
+
+
+## 0.1.0 (2026-01-03)
+
+- Initial release of LedgerLoom (MIT): tiny library + CLI + demo Chapter 01 runner.
 

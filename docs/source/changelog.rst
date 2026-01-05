@@ -1,6 +1,18 @@
 LedgerLoom Changelog
 ===================
 
+0.1.5 (2026-01-05)
+------------------
+- Engine: deterministic money conversion (explicit rounding + cents normalization)
+- Engine: add as-of filtering helper(s) for period cutoffs
+- Engine: expand invariant/contract checks (posting_id shape + root validation)
+- Tests: add engine money + contract tests
+- Docs: add Engine overview + design principles + API reference + data model reference
+
+0.1.4 (2026-01-04)
+------------------
+- Docs: transition to Engine
+
 0.1.3 (2026-01-03)
 ------------------
 - Docs: scaffold chapters Ch02–Ch18 and appendices; wire into RTD navigation.
