@@ -106,7 +106,7 @@ Here’s what a single line *conceptually* looks like (formatting added for read
      "narration": "Invoice client for services",
      "postings": [
        {"account": "Assets:AccountsReceivable", "credit": "0", "debit": "1000.00"},
-       {"account": "Income:Services", "credit": "1000.00", "debit": "0"}
+       {"account": "Revenue:Services", "credit": "1000.00", "debit": "0"}
      ]
    }
 
