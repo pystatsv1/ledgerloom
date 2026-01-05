@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import subprocess
+import sys
 from pathlib import Path
 
 
@@ -9,7 +10,7 @@ def _run_ch03_coa(tmp_path: Path) -> Path:
     out_root.mkdir(parents=True, exist_ok=True)
 
     cmd = [
-        "python",
+        sys.executable,
         "-m",
         "ledgerloom.chapters.ch03_chart_of_accounts_schema",
         "--outdir",
