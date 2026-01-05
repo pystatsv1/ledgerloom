@@ -11,9 +11,9 @@
       "sha256": "63bdf662c52c2d6a7d6cdf8225f15f9ead7191a1648016e1d9e98a27734ac60d"
     },
     {
-      "bytes": 714,
+      "bytes": 965,
       "file": "invariants.json",
-      "sha256": "4fecc20c0b3f3ba7ca3e45857eb5d60359bb5563bb86083dd43046a48ae7f763"
+      "sha256": "ef8b9b638074de519099894237ffde71ce14dadf31e9d1755c0635facc35b596"
     }
   ]
 }
