@@ -26,7 +26,7 @@ LedgerLoom is a developer-friendly accounting learning project. It includes:
    ledgerloom_ch03_chart_of_accounts_schema
    ledgerloom_ch04_general_ledger_database
    ledgerloom_ch05_accounting_equation_invariant
-   ledgerloom_ch06_periods_stub
+   ledgerloom_ch06_periods_accrual_timing
 
 
 .. toctree::

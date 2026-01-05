@@ -1,0 +1,14 @@
+period,root,account,balance
+2026-01,Assets,Assets:AccountsReceivable,500.00
+2026-01,Assets,Assets:Cash,890.00
+2026-01,Assets,Assets:PrepaidRent,200.00
+2026-01,Equity,Equity:OwnerCapital,1000.00
+2026-01,Expenses,Expenses:Supplies,30.00
+2026-01,Expenses,Expenses:Utilities,60.00
+2026-01,Liabilities,Liabilities:AccountsPayable,60.00
+2026-01,Revenue,Revenue:Sales,620.00
+2026-02,Assets,Assets:AccountsReceivable,-500.00
+2026-02,Assets,Assets:Cash,440.00
+2026-02,Assets,Assets:PrepaidRent,-200.00
+2026-02,Expenses,Expenses:Rent,200.00
+2026-02,Liabilities,Liabilities:AccountsPayable,-60.00
