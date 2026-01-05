@@ -1,0 +1,96 @@
+{
+  "tables": {
+    "balances_by_account": {
+      "description": "Materialized view: balances grouped by account.",
+      "primary_key": [
+        "account"
+      ]
+    },
+    "balances_by_department": {
+      "description": "Materialized view: balances grouped by department and root.",
+      "primary_key": [
+        "department",
+        "root"
+      ]
+    },
+    "balances_by_period": {
+      "description": "Materialized view: balances grouped by period (YYYY-MM) and account.",
+      "primary_key": [
+        "period",
+        "account"
+      ]
+    },
+    "postings": {
+      "columns": [
+        {
+          "example": "E0001:01",
+          "name": "posting_id",
+          "type": "string"
+        },
+        {
+          "name": "entry_id",
+          "type": "string"
+        },
+        {
+          "name": "line_no",
+          "type": "int"
+        },
+        {
+          "name": "date",
+          "type": "date (YYYY-MM-DD)"
+        },
+        {
+          "name": "department",
+          "type": "string"
+        },
+        {
+          "name": "narration",
+          "type": "string"
+        },
+        {
+          "name": "account",
+          "type": "string"
+        },
+        {
+          "name": "root",
+          "type": "string"
+        },
+        {
+          "name": "debit",
+          "type": "decimal (string)"
+        },
+        {
+          "name": "credit",
+          "type": "decimal (string)"
+        },
+        {
+          "meaning": "debit - credit",
+          "name": "raw_delta",
+          "type": "decimal (string)"
+        },
+        {
+          "meaning": "delta in the account's normal-balance convention",
+          "name": "signed_delta",
+          "type": "decimal (string)"
+        }
+      ],
+      "description": "Fact table: one row per posting line (debit or credit).",
+      "index_suggestions": [
+        [
+          "date"
+        ],
+        [
+          "account",
+          "date"
+        ],
+        [
+          "department",
+          "date"
+        ]
+      ],
+      "primary_key": [
+        "posting_id"
+      ]
+    }
+  }
+}

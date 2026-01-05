@@ -1,0 +1,12 @@
+root,account,normal_side,debit_total,credit_total,balance
+Assets,Assets:AccountsReceivable,debit,420.00,420.00,0.00
+Assets,Assets:AccumulatedDepreciation,debit,0.00,20.00,-20.00
+Assets,Assets:Cash,debit,6270.00,4300.00,1970.00
+Assets,Assets:Equipment,debit,800.00,0.00,800.00
+Assets,Assets:Inventory,debit,1200.00,0.00,1200.00
+Equity,Equity:OwnerCapital,credit,0.00,5000.00,5000.00
+Expenses,Expenses:Depreciation,debit,20.00,0.00,20.00
+Expenses,Expenses:Rent,debit,900.00,0.00,900.00
+Expenses,Expenses:Wages,debit,1400.00,0.00,1400.00
+Liabilities,Liabilities:AccountsPayable,credit,1200.00,1200.00,0.00
+Revenue,Revenue:Sales,credit,0.00,1270.00,1270.00

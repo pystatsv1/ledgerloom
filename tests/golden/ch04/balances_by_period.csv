@@ -1,0 +1,13 @@
+period,root,account,balance
+2025-01,Assets,Assets:AccountsReceivable,0.00
+2025-01,Assets,Assets:Cash,5070.00
+2025-01,Assets,Assets:Inventory,1200.00
+2025-01,Equity,Equity:OwnerCapital,5000.00
+2025-01,Liabilities,Liabilities:AccountsPayable,0.00
+2025-01,Revenue,Revenue:Sales,1270.00
+2025-02,Assets,Assets:AccumulatedDepreciation,-20.00
+2025-02,Assets,Assets:Cash,-3100.00
+2025-02,Assets,Assets:Equipment,800.00
+2025-02,Expenses,Expenses:Depreciation,20.00
+2025-02,Expenses,Expenses:Rent,900.00
+2025-02,Expenses,Expenses:Wages,1400.00

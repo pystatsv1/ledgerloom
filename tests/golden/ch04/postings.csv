@@ -1,0 +1,21 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+E0001:01,E0001,1,2025-01-02,ADM,Owner contribution to start the month,Assets:Cash,Assets,5000.00,0.00,5000.00,5000.00
+E0001:02,E0001,2,2025-01-02,ADM,Owner contribution to start the month,Equity:OwnerCapital,Equity,0.00,5000.00,-5000.00,5000.00
+E0002:01,E0002,1,2025-01-05,OPS,Buy initial inventory on account,Assets:Inventory,Assets,1200.00,0.00,1200.00,1200.00
+E0002:02,E0002,2,2025-01-05,OPS,Buy initial inventory on account,Liabilities:AccountsPayable,Liabilities,0.00,1200.00,-1200.00,1200.00
+E0003:01,E0003,1,2025-01-09,OPS,Make a cash sale,Assets:Cash,Assets,850.00,0.00,850.00,850.00
+E0003:02,E0003,2,2025-01-09,OPS,Make a cash sale,Revenue:Sales,Revenue,0.00,850.00,-850.00,850.00
+E0004:01,E0004,1,2025-01-10,OPS,Make a credit sale (A/R),Assets:AccountsReceivable,Assets,420.00,0.00,420.00,420.00
+E0004:02,E0004,2,2025-01-10,OPS,Make a credit sale (A/R),Revenue:Sales,Revenue,0.00,420.00,-420.00,420.00
+E0005:01,E0005,1,2025-01-18,OPS,Collect on receivable,Assets:Cash,Assets,420.00,0.00,420.00,420.00
+E0005:02,E0005,2,2025-01-18,OPS,Collect on receivable,Assets:AccountsReceivable,Assets,0.00,420.00,-420.00,-420.00
+E0006:01,E0006,1,2025-01-28,OPS,Pay supplier (A/P),Liabilities:AccountsPayable,Liabilities,1200.00,0.00,1200.00,-1200.00
+E0006:02,E0006,2,2025-01-28,OPS,Pay supplier (A/P),Assets:Cash,Assets,0.00,1200.00,-1200.00,-1200.00
+E0007:01,E0007,1,2025-02-01,ADM,Pay monthly rent,Expenses:Rent,Expenses,900.00,0.00,900.00,900.00
+E0007:02,E0007,2,2025-02-01,ADM,Pay monthly rent,Assets:Cash,Assets,0.00,900.00,-900.00,-900.00
+E0008:01,E0008,1,2025-02-06,OPS,Payroll for operations,Expenses:Wages,Expenses,1400.00,0.00,1400.00,1400.00
+E0008:02,E0008,2,2025-02-06,OPS,Payroll for operations,Assets:Cash,Assets,0.00,1400.00,-1400.00,-1400.00
+E0009:01,E0009,1,2025-02-13,ADM,Buy a laptop for admin (project: onboarding),Assets:Equipment,Assets,800.00,0.00,800.00,800.00
+E0009:02,E0009,2,2025-02-13,ADM,Buy a laptop for admin (project: onboarding),Assets:Cash,Assets,0.00,800.00,-800.00,-800.00
+E0010:01,E0010,1,2025-02-20,ADM,Recognize monthly depreciation,Expenses:Depreciation,Expenses,20.00,0.00,20.00,20.00
+E0010:02,E0010,2,2025-02-20,ADM,Recognize monthly depreciation,Assets:AccumulatedDepreciation,Assets,0.00,20.00,-20.00,-20.00
