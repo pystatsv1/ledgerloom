@@ -1,0 +1,19 @@
+{
+  "artifacts": [
+    {
+      "bytes": 1211,
+      "file": "postings.csv",
+      "sha256": "a2e586b2c24def93662752d20933d6c9a96bace9908059bdd5ed79879e80f750"
+    },
+    {
+      "bytes": 497,
+      "file": "equation_check_by_entry.csv",
+      "sha256": "63bdf662c52c2d6a7d6cdf8225f15f9ead7191a1648016e1d9e98a27734ac60d"
+    },
+    {
+      "bytes": 714,
+      "file": "invariants.json",
+      "sha256": "4fecc20c0b3f3ba7ca3e45857eb5d60359bb5563bb86083dd43046a48ae7f763"
+    }
+  ]
+}

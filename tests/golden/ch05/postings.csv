@@ -1,0 +1,11 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+E0001:01,E0001,1,2025-01-02,,Owner invests cash to start the business,Assets:Cash,Assets,1000.00,0.00,1000.00,1000.00
+E0001:02,E0001,2,2025-01-02,,Owner invests cash to start the business,Equity:OwnerCapital,Equity,0.00,1000.00,-1000.00,1000.00
+E0002:01,E0002,1,2025-01-05,,Buy supplies on account,Assets:Supplies,Assets,200.00,0.00,200.00,200.00
+E0002:02,E0002,2,2025-01-05,,Buy supplies on account,Liabilities:AccountsPayable,Liabilities,0.00,200.00,-200.00,200.00
+E0003:01,E0003,1,2025-01-09,,Provide services for cash,Assets:Cash,Assets,500.00,0.00,500.00,500.00
+E0003:02,E0003,2,2025-01-09,,Provide services for cash,Revenue:ServiceRevenue,Revenue,0.00,500.00,-500.00,500.00
+E0004:01,E0004,1,2025-01-15,,Pay monthly rent,Expenses:Rent,Expenses,300.00,0.00,300.00,300.00
+E0004:02,E0004,2,2025-01-15,,Pay monthly rent,Assets:Cash,Assets,0.00,300.00,-300.00,-300.00
+E0005:01,E0005,1,2025-01-20,,Pay a portion of accounts payable,Liabilities:AccountsPayable,Liabilities,150.00,0.00,150.00,-150.00
+E0005:02,E0005,2,2025-01-20,,Pay a portion of accounts payable,Assets:Cash,Assets,0.00,150.00,-150.00,-150.00

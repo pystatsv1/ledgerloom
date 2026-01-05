@@ -5,7 +5,7 @@ SEED ?= 123
 OUT_LL := outputs/ledgerloom
 
 
-.PHONY: help
+.PHONY: help ll-ch05
 help:
 	@echo "LedgerLoom (developer-friendly accounting) — targets:"
 	@echo ""
@@ -15,6 +15,7 @@ help:
 	@echo "  ll-ch03-coa - Chapter 03 alt (COA as schema) + artifacts"
 	@echo "  ll-ch03AccountsSchema - alias for ll-ch03-coa (kept for convenience)"
 	@echo "  ll-ch04    - Chapter 04 demo (GL as database) + artifacts"
+	@echo "  ll-ch05    - Chapter 05 demo (accounting equation invariant) + artifacts"
 	@echo "  ll-ci      - Tiny deterministic smoke (for CI)"
 	@echo "  docs       - build HTML docs"
 	@echo "  lint       - ruff check"
@@ -28,13 +29,13 @@ docs:
 
 
 # --- CI smokes (small, deterministic) ---
-.PHONY: ll-ci
+.PHONY: ll-ci ll-ch05
 ll-ci:
 	$(PYTHON) -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir $(OUT_LL) --seed $(SEED)
 
 
 # --- Full demos ---
-.PHONY: ll-ch01 ll-ch02 ll-ch03 ll-ch03-coa ll-ch03AccountsSchema ll-ch04
+.PHONY: ll-ch01 ll-ch02 ll-ch03 ll-ch03-coa ll-ch03AccountsSchema ll-ch04 ll-ch05
 ll-ch01:
 	$(PYTHON) -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir $(OUT_LL) --seed $(SEED)
 
@@ -52,23 +53,26 @@ ll-ch03AccountsSchema: ll-ch03-coa
 ll-ch04:
 	$(PYTHON) -m ledgerloom.chapters.ch04_general_ledger_database --outdir $(OUT_LL) --seed $(SEED)
 
+ll-ch05:
+	$(PYTHON) -m ledgerloom.chapters.ch05_accounting_equation_invariant --outdir $(OUT_LL) --seed $(SEED)
 
-.PHONY: lint
+
+.PHONY: lint ll-ch05
 lint:
 	ruff check .
 
 
-.PHONY: lint-fix
+.PHONY: lint-fix ll-ch05
 lint-fix:
 	ruff check . --fix
 
 
-.PHONY: test
+.PHONY: test ll-ch05
 test:
 	pytest
 
 
-.PHONY: clean
+.PHONY: clean ll-ch05
 clean:
 	@echo "Removing generated outputs in $(OUT_LL) + packaging artifacts"
 	-@rm -rf $(OUT_LL)
