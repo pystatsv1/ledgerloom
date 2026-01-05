@@ -1,0 +1,11 @@
+as_of,account,balance
+2026-01-31,Assets:AccountsReceivable,500.00
+2026-01-31,Assets:Cash,890.00
+2026-01-31,Assets:PrepaidRent,200.00
+2026-01-31,Equity:OwnerCapital,1000.00
+2026-01-31,Liabilities:AccountsPayable,60.00
+2026-02-28,Assets:AccountsReceivable,0.00
+2026-02-28,Assets:Cash,1330.00
+2026-02-28,Assets:PrepaidRent,0.00
+2026-02-28,Equity:OwnerCapital,1000.00
+2026-02-28,Liabilities:AccountsPayable,0.00

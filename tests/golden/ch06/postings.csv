@@ -1,0 +1,19 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+E0001:01,E0001,1,2026-01-01,,Owner investment to start operations,Assets:Cash,Assets,1000.00,0.00,1000.00,1000.00
+E0001:02,E0001,2,2026-01-01,,Owner investment to start operations,Equity:OwnerCapital,Equity,0.00,1000.00,-1000.00,1000.00
+E0002:01,E0002,1,2026-01-15,,Pay February rent in advance (prepaid rent),Assets:PrepaidRent,Assets,200.00,0.00,200.00,200.00
+E0002:02,E0002,2,2026-01-15,,Pay February rent in advance (prepaid rent),Assets:Cash,Assets,0.00,200.00,-200.00,-200.00
+E0003:01,E0003,1,2026-01-20,,Cash sale,Assets:Cash,Assets,120.00,0.00,120.00,120.00
+E0003:02,E0003,2,2026-01-20,,Cash sale,Revenue:Sales,Revenue,0.00,120.00,-120.00,120.00
+E0004:01,E0004,1,2026-01-21,,Buy office supplies for cash,Expenses:Supplies,Expenses,30.00,0.00,30.00,30.00
+E0004:02,E0004,2,2026-01-21,,Buy office supplies for cash,Assets:Cash,Assets,0.00,30.00,-30.00,-30.00
+E0005:01,E0005,1,2026-01-28,,Invoice customer (net 30),Assets:AccountsReceivable,Assets,500.00,0.00,500.00,500.00
+E0005:02,E0005,2,2026-01-28,,Invoice customer (net 30),Revenue:Sales,Revenue,0.00,500.00,-500.00,500.00
+E0006:01,E0006,1,2026-01-31,,Utilities incurred (bill arrives later),Expenses:Utilities,Expenses,60.00,0.00,60.00,60.00
+E0006:02,E0006,2,2026-01-31,,Utilities incurred (bill arrives later),Liabilities:AccountsPayable,Liabilities,0.00,60.00,-60.00,60.00
+E0007:01,E0007,1,2026-02-01,,Recognize February rent from prepaid balance,Expenses:Rent,Expenses,200.00,0.00,200.00,200.00
+E0007:02,E0007,2,2026-02-01,,Recognize February rent from prepaid balance,Assets:PrepaidRent,Assets,0.00,200.00,-200.00,-200.00
+E0008:01,E0008,1,2026-02-10,,Customer pays January invoice,Assets:Cash,Assets,500.00,0.00,500.00,500.00
+E0008:02,E0008,2,2026-02-10,,Customer pays January invoice,Assets:AccountsReceivable,Assets,0.00,500.00,-500.00,-500.00
+E0009:01,E0009,1,2026-02-15,,Pay utilities bill,Liabilities:AccountsPayable,Liabilities,60.00,0.00,60.00,-60.00
+E0009:02,E0009,2,2026-02-15,,Pay utilities bill,Assets:Cash,Assets,0.00,60.00,-60.00,-60.00

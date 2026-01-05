@@ -1,0 +1,10 @@
+date,period,entry_id,event,cash_change,cash_revenue,cash_expenses,cash_net_income_delta,accrual_revenue,accrual_expenses,accrual_net_income_delta
+2026-01-01,2026-01,E0001,owner_investment,1000.00,0.00,0.00,0.00,0.00,0.00,0.00
+2026-01-15,2026-01,E0002,prepay expense (cash expense),-200.00,0.00,200.00,-200.00,0.00,0.00,0.00
+2026-01-20,2026-01,E0003,cash sale,120.00,120.00,0.00,120.00,120.00,0.00,120.00
+2026-01-21,2026-01,E0004,cash expense,-30.00,0.00,30.00,-30.00,0.00,30.00,-30.00
+2026-01-28,2026-01,E0005,invoice (accrual revenue),0.00,0.00,0.00,0.00,500.00,0.00,500.00
+2026-01-31,2026-01,E0006,accrue expense (accrual expense),0.00,0.00,0.00,0.00,0.00,60.00,-60.00
+2026-02-01,2026-02,E0007,other,0.00,0.00,0.00,0.00,0.00,200.00,-200.00
+2026-02-10,2026-02,E0008,collect receivable (cash revenue),500.00,500.00,0.00,500.00,0.00,0.00,0.00
+2026-02-15,2026-02,E0009,pay payable (cash expense),-60.00,0.00,60.00,-60.00,0.00,0.00,0.00

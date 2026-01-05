@@ -1,0 +1,43 @@
+{
+  "artifacts": [
+    {
+      "bytes": 2117,
+      "file": "postings.csv",
+      "sha256": "3aab2a627cea526f2237bcee3b4bf7df78edf980c3faebf589824d79ed611fe0"
+    },
+    {
+      "bytes": 586,
+      "file": "balances_by_period.csv",
+      "sha256": "58266e93f1563a9b48e32b665acf9d7af631f4aafe5b3a35c7d0375d75bdf550"
+    },
+    {
+      "bytes": 91,
+      "file": "income_statement_accrual_by_period.csv",
+      "sha256": "cf27d80e75202a9bb894162f35819e49d2297b00225f0183a8c635255d799862"
+    },
+    {
+      "bytes": 93,
+      "file": "income_statement_cash_by_period.csv",
+      "sha256": "13e937f0f5a4e12ab4dcd0d29017ededf087b111037631df51d369c6b6eab735"
+    },
+    {
+      "bytes": 934,
+      "file": "cutoff_diagnostics.csv",
+      "sha256": "192d3fd37c3b94d1b27d5e2e32d7e3d58c1b89dee59d2e538ff6ce202681d36c"
+    },
+    {
+      "bytes": 408,
+      "file": "balances_as_of.csv",
+      "sha256": "a4855f2f14c1b35e412bccf0fe8ec76bdc4a734d3aba5cc3791c58d2e6805559"
+    },
+    {
+      "bytes": 828,
+      "file": "invariants.json",
+      "sha256": "6eab16d6453acda15725d70771838cb4a41e74f9c837e24be3229e2c5656dfa5"
+    }
+  ],
+  "meta": {
+    "chapter": "ch06",
+    "seed": 123
+  }
+}
