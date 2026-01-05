@@ -1,0 +1,7 @@
+account,root,balance
+Assets:AccountsReceivable,Assets,1200.00
+Assets:Cash,Assets,4300.00
+Assets:Supplies,Assets,300.00
+Equity:OwnerCapital,Equity,5000.00
+Expenses:Rent,Expenses,1000.00
+Revenue:Sales,Revenue,1800.00

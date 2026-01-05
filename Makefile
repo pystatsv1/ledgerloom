@@ -5,7 +5,7 @@ SEED ?= 123
 OUT_LL := outputs/ledgerloom
 
 
-.PHONY: help ll-ch05 ll-ch06
+.PHONY: help ll-ch05 ll-ch06 ll-ch07
 help:
 	@echo "LedgerLoom (developer-friendly accounting) — targets:"
 	@echo ""
@@ -17,6 +17,7 @@ help:
 	@echo "  ll-ch04    - Chapter 04 demo (GL as database) + artifacts"
 	@echo "  ll-ch05    - Chapter 05 demo (accounting equation invariant) + artifacts"
 	@echo "  ll-ch06    - Chapter 06 demo (periods, accrual, timing) + artifacts"
+	@echo "  ll-ch07    - Chapter 07 demo (adjusting entries as late-arriving data) + artifacts"
 	@echo "  ll-ci      - Tiny deterministic smoke (for CI)"
 	@echo "  docs       - build HTML docs"
 	@echo "  lint       - ruff check"
@@ -60,6 +61,9 @@ ll-ch05:
 
 ll-ch06:
 	$(PYTHON) -m ledgerloom.chapters.ch06_periods_accrual_timing --outdir $(OUT_LL) --seed $(SEED)
+
+ll-ch07:
+	$(PYTHON) -m ledgerloom.chapters.ch07_adjusting_entries_late_arriving_data --outdir $(OUT_LL) --seed $(SEED)
 
 
 .PHONY: lint ll-ch05

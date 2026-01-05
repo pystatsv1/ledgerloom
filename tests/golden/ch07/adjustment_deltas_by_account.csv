@@ -1,0 +1,12 @@
+account,root,unadjusted,adjusted,delta
+Assets:AccountsReceivable,Assets,1200.00,1200.00,0.00
+Assets:Cash,Assets,4300.00,4300.00,0.00
+Assets:PrepaidRent,Assets,0.00,1000.00,1000.00
+Assets:Supplies,Assets,300.00,180.00,-120.00
+Equity:OwnerCapital,Equity,5000.00,5000.00,0.00
+Expenses:Rent,Expenses,1000.00,0.00,-1000.00
+Expenses:Supplies,Expenses,0.00,120.00,120.00
+Expenses:Utilities,Expenses,0.00,150.00,150.00
+Liabilities:AccountsPayable,Liabilities,0.00,150.00,150.00
+Liabilities:UnearnedRevenue,Liabilities,0.00,400.00,400.00
+Revenue:Sales,Revenue,1800.00,1400.00,-400.00

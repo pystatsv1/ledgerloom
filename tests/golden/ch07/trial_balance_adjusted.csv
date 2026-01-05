@@ -1,0 +1,12 @@
+account,root,balance
+Assets:AccountsReceivable,Assets,1200.00
+Assets:Cash,Assets,4300.00
+Assets:PrepaidRent,Assets,1000.00
+Assets:Supplies,Assets,180.00
+Equity:OwnerCapital,Equity,5000.00
+Expenses:Rent,Expenses,0.00
+Expenses:Supplies,Expenses,120.00
+Expenses:Utilities,Expenses,150.00
+Liabilities:AccountsPayable,Liabilities,150.00
+Liabilities:UnearnedRevenue,Liabilities,400.00
+Revenue:Sales,Revenue,1400.00

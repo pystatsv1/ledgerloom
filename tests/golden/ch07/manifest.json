@@ -1,0 +1,73 @@
+{
+  "artifacts": [
+    {
+      "bytes": 1576,
+      "file": "postings_unadjusted.csv",
+      "sha256": "8c6aedd547f82cdca783e6307ee43658f6456cadce0bed02bbda2760eebb2815"
+    },
+    {
+      "bytes": 2684,
+      "file": "postings_adjusted.csv",
+      "sha256": "1d724058a9709a6e14b7e1aee1e27110622aef79cd43b6938dbfacecc192b6dc"
+    },
+    {
+      "bytes": 215,
+      "file": "trial_balance_unadjusted.csv",
+      "sha256": "b719fad088270bbac6ba28de17bcfc3822c3101ba9b6b23e8f92d6ed2da3343f"
+    },
+    {
+      "bytes": 409,
+      "file": "trial_balance_adjusted.csv",
+      "sha256": "823a165aab36fb4b83177ca7fab877085bb5ee2944a0a35e0a2da94434d4c646"
+    },
+    {
+      "bytes": 64,
+      "file": "income_statement_unadjusted.csv",
+      "sha256": "e73dc594b29e6be6126d4d1627c422cdbbecec4a986f3e36db97111107c7c1ac"
+    },
+    {
+      "bytes": 64,
+      "file": "income_statement_adjusted.csv",
+      "sha256": "f2bf390f6161f644dd552184104040508a8f3dc5bf70b9aba1e86ae37a38a2a7"
+    },
+    {
+      "bytes": 148,
+      "file": "balance_sheet_unadjusted.csv",
+      "sha256": "ae03bb6aab70380566fbed3d4f6cfc5116380756f858385214740f6ae71e04c5"
+    },
+    {
+      "bytes": 151,
+      "file": "balance_sheet_adjusted.csv",
+      "sha256": "3172edbbc59507f0ff793bca0120e46aa52cdf0d0b9f388b94f6970207edc6b1"
+    },
+    {
+      "bytes": 1404,
+      "file": "entry_register.csv",
+      "sha256": "ed5f4abb3479c7bc9a1853effc06f1f45f0dc9b577359f543bc99cbd7b8ef08f"
+    },
+    {
+      "bytes": 886,
+      "file": "adjustments_register.csv",
+      "sha256": "c12b5ab223bcf6646a068d6639171ce9a1085fc44432112bb63eec989f7b18f9"
+    },
+    {
+      "bytes": 272,
+      "file": "cutoff_audit.csv",
+      "sha256": "724e0e63986ec01f52cdd44e05e2069b871dd7ba07b67e1ee27b52a31fc3130d"
+    },
+    {
+      "bytes": 575,
+      "file": "adjustment_deltas_by_account.csv",
+      "sha256": "7f1f037ec11c1ac8e4cc8256ed9c6000c4df845d213738f2e7fa2420fe30bb49"
+    },
+    {
+      "bytes": 1831,
+      "file": "invariants.json",
+      "sha256": "732c8ca693ba13ee38274af066c9bd9b01552de09b3e7fff4de5e553be0b65b7"
+    }
+  ],
+  "meta": {
+    "chapter": "ch07",
+    "seed": 123
+  }
+}
