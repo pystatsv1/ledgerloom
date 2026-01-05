@@ -1,0 +1,5 @@
+entry_id,date,period,kind,posted_at,affects_period,department,narration,prepared_by,source,reason
+A0701,2026-01-31,2026-01,adjustment,2026-02-03,2026-01,HQ,Defer unearned revenue (move Jan prepayment to liability),Controller,Service contract,Cash received in Jan relates to Feb service delivery.
+A0702,2026-01-31,2026-01,adjustment,2026-02-03,2026-01,HQ,Reclass prepaid rent (Jan payment benefits Feb),Controller,Lease agreement,Rent paid in Jan is for Feb; expense should match period of benefit.
+A0703,2026-01-31,2026-01,adjustment,2026-02-04,2026-01,HQ,Accrue utilities expense (bill arrived after period end),Controller,Utility bill,Utilities were consumed in Jan; invoice received in Feb.
+A0704,2026-01-31,2026-01,adjustment,2026-02-05,2026-01,HQ,Recognize supplies used (month-end count),Controller,Supplies count,Supplies consumed should be expensed in the period they are used.
