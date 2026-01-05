@@ -15,6 +15,13 @@ This chapter turns journal lines into:
 
 If Chapters 01–02 helped you *record* transactions, Chapter 03 helps you *reason* about them.
 
+.. note::
+
+   This chapter shows a **standalone** “posting” implementation for learning purposes.
+   If you’re interested in a reusable ledger core (schema + postings fact table + balance views),
+   see :doc:`ledgerloom_ch03_chart_of_accounts_schema` and :doc:`ledgerloom_ch04_general_ledger_database`,
+   which use the **LedgerLoom Engine**.
+
 What you will build
 -------------------
 
@@ -57,7 +64,7 @@ You can also post an existing journal CSV:
 
    python -m ledgerloom.chapters.ch03_posting_to_ledger \
      --outdir outputs/ledgerloom \
-     --in_journal outputs/ledgerloom/ch02/journal.csv
+     --in_journal path/to/your/journal.csv
 
 (Any journal with columns ``entry_id, entry_date, memo, line_no, account, debit, credit`` will work.)
 

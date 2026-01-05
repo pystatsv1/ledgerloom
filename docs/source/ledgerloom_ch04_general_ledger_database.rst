@@ -20,15 +20,15 @@ worth of artifacts under ``outputs/ledgerloom/ch04``:
 
 - ``postings.csv`` — the **fact table** (one row per posting)
 - ``balances_by_account.csv`` — a **materialized view** (group by account)
-- ``balances_by_period_account.csv`` — group by period + account
-- ``balances_by_department_root.csv`` — group by segment + rollup root
+- ``balances_by_period.csv`` — group by period + root + account
+- ``balances_by_department.csv`` — group by segment (department) + root
 - ``running_balance_by_posting.csv`` — window function: running balance per account
-- ``trial_balance.csv`` — classic accounting view (debit/credit balances)
-- ``checks.json`` / ``checks.md`` — invariant checks (constraints)
+- ``invariants.json`` — constraint checks (double-entry + basic DB rules)
 - ``gl_schema.json`` — table schemas + index suggestions
 - ``sql_mental_model.md`` — “developer translation” (pandas ↔ SQL)
 - ``manifest.json`` — SHA-256 file digests for reproducibility
 - ``lineage.mmd`` — a small DAG of how artifacts are derived
+- ``run_meta.json`` — seed + environment info (reproducibility)
 
 Why this is “database thinking”
 -------------------------------
@@ -64,17 +64,18 @@ Example: balances by account
 In the runner we do the same operation with pandas groupby, then write the view
 to ``balances_by_account.csv``.
 
-Example: balances by period + account
+Example: balances by period + root + account
 
 .. code-block:: sql
 
    SELECT
      period,
+     root,
      account,
      SUM(signed_delta_cents) AS balance_cents
    FROM postings
-   GROUP BY period, account
-   ORDER BY period, account;
+   GROUP BY period, root, account
+   ORDER BY period, root, account;
 
 Example: running balance (window function)
 
@@ -84,10 +85,10 @@ Example: running balance (window function)
      *,
      SUM(signed_delta_cents) OVER (
        PARTITION BY account
-       ORDER BY posted_at, entry_id, line_no
+       ORDER BY date, entry_id, line_no
      ) AS running_balance_cents
    FROM postings
-   ORDER BY posted_at, entry_id, line_no;
+   ORDER BY date, entry_id, line_no;
 
 This view is written to ``running_balance_by_posting.csv``.
 
@@ -116,7 +117,7 @@ You should see:
 Invariant checks you can trust
 ------------------------------
 
-This chapter generates ``checks.json`` and ``checks.md`` that validate:
+This chapter generates ``invariants.json`` that validates:
 
 - **Double-entry**: every entry balances (debits == credits)
 - **Ledger-wide balance**: total (debit - credit) is exactly zero

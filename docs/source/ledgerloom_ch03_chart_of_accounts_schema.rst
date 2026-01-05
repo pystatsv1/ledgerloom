@@ -55,6 +55,14 @@ From the repo root:
 
    python -m ledgerloom.chapters.ch03_chart_of_accounts_schema --outdir outputs/ledgerloom --seed 123
 
+Or via Makefile:
+
+.. code-block:: bash
+
+   make ll-ch03-coa
+   # (alias)
+   make ll-ch03AccountsSchema
+
 Artifacts are written under:
 
 .. code-block:: text

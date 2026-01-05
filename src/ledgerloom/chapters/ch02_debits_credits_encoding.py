@@ -146,7 +146,7 @@ ARTIFACT_SPECS: list[dict[str, str]] = [
         "name": "income_statement.csv",
         "format": "csv",
         "kind": "report",
-        "description": "Income statement (Income/Expenses/NetIncome).",
+        "description": "Income statement (Revenue/Expenses/NetIncome).",
     },
     {
         "name": "balance_sheet.csv",
@@ -262,7 +262,7 @@ def build_demo_wide(seed: int = 123) -> pd.DataFrame:
             "narration": "Sell inventory (invoice customer)",
             "debit_account": "Assets:AccountsReceivable",
             "debit_amount": "800.00",
-            "credit_account": "Income:Sales",
+            "credit_account": "Revenue:Sales",
             "credit_amount": "800.00",
         },
         {
