@@ -1,0 +1,14 @@
+account,post_close_balance,opening_balance,diff
+Assets:AccountsReceivable,600.00,600.00,0.00
+Assets:Cash,4600.00,4600.00,0.00
+Assets:PrepaidRent,1000.00,1000.00,0.00
+Assets:Supplies,180.00,180.00,0.00
+Equity:IncomeSummary,0.00,0.00,0.00
+Equity:OwnerCapital,5000.00,5000.00,0.00
+Equity:RetainedEarnings,530.00,530.00,0.00
+Expenses:Rent,0.00,0.00,0.00
+Expenses:Supplies,0.00,0.00,0.00
+Expenses:Utilities,0.00,0.00,0.00
+Liabilities:AccountsPayable,450.00,450.00,0.00
+Liabilities:UnearnedRevenue,400.00,400.00,0.00
+Revenue:Sales,0.00,0.00,0.00

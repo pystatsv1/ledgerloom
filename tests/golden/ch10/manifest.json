@@ -1,0 +1,73 @@
+{
+  "artifacts": {
+    "ap_checklist.json": {
+      "bytes": 258,
+      "sha256": "c38685be838a52763104cafd411632a9e64c972ce76b16eb5b4fa2faeaf3c68b"
+    },
+    "ap_control_reconciliation.csv": {
+      "bytes": 91,
+      "sha256": "159d586f85ea6e2a289423d8a628c595d7845c93f604991512976be3bb581fc1"
+    },
+    "ap_open_items.csv": {
+      "bytes": 303,
+      "sha256": "b6cc44e928dca2ed31bf6bc60ef2a05bd745543fecbf94887f1acb8c6e293561"
+    },
+    "balance_sheet_current_period.csv": {
+      "bytes": 153,
+      "sha256": "7f360dd4c1c63d974c7269df293fc671485b3480fc4c1f95148cff7baf6ff651"
+    },
+    "cash_disbursements_register.csv": {
+      "bytes": 168,
+      "sha256": "043f256ec56f3bca7ecc8f96626380cbcf6956301c2d49ac41ced0bf8658f189"
+    },
+    "income_statement_current_period.csv": {
+      "bytes": 63,
+      "sha256": "387c45549af96fdf3daf8adbda1b211eb3f4716a6453f464669d1ada850fe5ff"
+    },
+    "invariants.json": {
+      "bytes": 1092,
+      "sha256": "f590f7d193abb96f61a00341340a6d78232bfa85772f0283116ff0cf9372985e"
+    },
+    "postings_ap.csv": {
+      "bytes": 1816,
+      "sha256": "8d74fea295a866893cf94ae22e32688a8759dc6ae4dcb27f7df04402f32cafd0"
+    },
+    "postings_opening.csv": {
+      "bytes": 1395,
+      "sha256": "3596d649581496b529d1de280befe4cb32536975b3b8c701ae32c6a7fa430043"
+    },
+    "postings_post_close.csv": {
+      "bytes": 3566,
+      "sha256": "37b168038d2bdf09a302052f94e35668f7a4d813db665079c7a1014bea7b525d"
+    },
+    "reconciliation_post_close_vs_opening.csv": {
+      "bytes": 540,
+      "sha256": "c091c51886148e4dc998e1b515d06b99c5f6b9719f6279f95136a350398b2586"
+    },
+    "trial_balance_end_period.csv": {
+      "bytes": 389,
+      "sha256": "f9bc6b07c591560407a9a2196eaf032abcb3f2b24b8d617a53aa47b65e443491"
+    },
+    "trial_balance_opening.csv": {
+      "bytes": 319,
+      "sha256": "b8b82bc6bef74c6f5ad17aa97376a5856391bd4a63e31258c197cb9e79308bd9"
+    },
+    "trial_balance_post_close.csv": {
+      "bytes": 472,
+      "sha256": "7c1b6d219a66b1316978d4200b860493a9799c5bc0373a82dfcd741091209fb4"
+    },
+    "vendor_bills_register.csv": {
+      "bytes": 218,
+      "sha256": "37eec039016455597fa2f034f29803368da02ef5d994ef44e3e6733de1e47a67"
+    },
+    "vendor_credits_register.csv": {
+      "bytes": 126,
+      "sha256": "8f11f3bf2c8e5b851f628404be9923366a1399a7d1adcaa6cd32667e7a063352"
+    }
+  },
+  "chapter": "ch10",
+  "notes": {
+    "line_endings": "LF",
+    "seed": 123
+  }
+}
