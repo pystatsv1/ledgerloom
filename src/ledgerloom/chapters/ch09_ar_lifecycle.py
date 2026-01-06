@@ -16,7 +16,7 @@ from __future__ import annotations
 import argparse
 from dataclasses import dataclass
 from decimal import Decimal
-from datetime import date
+from datetime import date, timedelta
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -24,12 +24,12 @@ import pandas as pd
 
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine, LedgerEngineConfig
+from ledgerloom.engine.money import cents_to_str, str_to_cents
 from ledgerloom.artifacts import sha256_file, write_csv_df, write_csv_dicts, write_json
 
-# We intentionally reuse the Chapter 08/08.5 code paths to keep continuity:
-# post-close -> opening next period -> operational events.
-from ledgerloom.chapters import ch08_closing_controlled_transformation as ch08
-from ledgerloom.chapters import ch085_opening_next_period as ch085
+# Scenario layer (public): provides the shared "bookset" pipeline without
+# cross-chapter imports.
+from ledgerloom.scenarios import bookset_v1 as bookset
 
 
 CHAPTER = "ch09"
@@ -95,26 +95,23 @@ class Receipt:
 
 
 def _cents_to_str(cents: int) -> str:
-    sign = "-" if cents < 0 else ""
-    cents = abs(cents)
-    return f"{sign}{cents // 100}.{cents % 100:02d}"
+    return cents_to_str(cents)
 
 
 def _str_to_cents(s: str) -> int:
-    # Reuse the Ch08 parser for consistency.
-    return ch08._str_to_cents(s)  # noqa: SLF001
+    return str_to_cents(s)
 
 
 def _trial_balance_from_postings(postings: pd.DataFrame) -> pd.DataFrame:
-    return ch08._trial_balance(postings)  # noqa: SLF001
+    return bookset.trial_balance(postings)
 
 
 def _income_statement_from_tb(tb: pd.DataFrame) -> pd.DataFrame:
-    return ch08._income_statement(tb)  # noqa: SLF001
+    return bookset.income_statement(tb)
 
 
 def _balance_sheet_from_tb(tb: pd.DataFrame) -> pd.DataFrame:
-    return ch08._balance_sheet_adjusted(tb)  # noqa: SLF001
+    return bookset.balance_sheet_adjusted(tb)
 
 
 def _df_to_csv(path: Path, df: pd.DataFrame) -> None:
@@ -157,11 +154,22 @@ def run(outdir: Path, seed: int = 123) -> Path:
     # ------------------------------------------------------------------
     # 1) Start from Chapter 08 post-close, then create opening entry
     # ------------------------------------------------------------------
-    baseline = ch085._compute_ch08_post_close(cfg)  # noqa: SLF001
-    postings_post_close: pd.DataFrame = baseline["postings_post_close"]
-    tb_post_close: pd.DataFrame = baseline["tb_post_close"]
+    close_date = PERIOD_START - timedelta(days=1)
+    close_period = close_date.strftime("%Y-%m")
+    snap = bookset.compute_post_close_snapshot(cfg=cfg, period=close_period, close_date=close_date)
+    postings_post_close: pd.DataFrame = snap.postings_post_close
+    tb_post_close: pd.DataFrame = snap.trial_balance_post_close
 
-    opening_entry = ch085._opening_entry_from_post_close_tb(tb_post_close, cfg)  # noqa: SLF001
+    # Keep the opening entry audit trail identical to the prior implementation:
+    # meta.chapter remains "ch085" (this is a carry-forward artifact).
+    opening_entry = bookset.compute_opening_from_post_close(
+        tb_post_close=tb_post_close,
+        opening_date=PERIOD_START,
+        cfg=cfg,
+        entry_id="OPEN-2026-02-01",
+        narration="Opening balance carry-forward (from Ch08 post-close)",
+        meta={"chapter": "ch085", "department": "HQ", "source": "ch08_post_close"},
+    )
 
     postings_opening = engine.postings_fact_table([opening_entry])
     tb_opening = _trial_balance_from_postings(postings_opening)
