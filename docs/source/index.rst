@@ -29,6 +29,7 @@ LedgerLoom is a developer-friendly accounting learning project. It includes:
    ledgerloom_ch06_periods_accrual_timing
    ledgerloom_ch07_adjusting_entries_late_arriving_data
    ledgerloom_ch08_closing_controlled_transformation
+   ledgerloom_ch085_opening_next_period
 
 
 .. toctree::

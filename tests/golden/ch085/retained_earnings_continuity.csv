@@ -1,0 +1,4 @@
+stage,account,amount
+post_close (Ch08),Equity:RetainedEarnings,530.00
+opening (Ch08.5),Equity:RetainedEarnings,530.00
+diff,Equity:RetainedEarnings,0.00
