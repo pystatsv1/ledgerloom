@@ -1,0 +1,9 @@
+{
+  "ar_control_equals_subledger": false,
+  "chapter": "ch09",
+  "has_opening_entry": true,
+  "invoices_count": 2,
+  "period_end": "2026-02-28",
+  "period_start": "2026-02-01",
+  "receipts_count": 2
+}

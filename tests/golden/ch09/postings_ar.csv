@@ -1,0 +1,9 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+ar_invoice:INV-1001:01,ar_invoice:INV-1001,1,2026-02-03,,Invoice INV-1001 to Acme Co,Assets:AccountsReceivable,Assets,1200.00,0.00,1200.00,1200.00
+ar_invoice:INV-1001:02,ar_invoice:INV-1001,2,2026-02-03,,Invoice INV-1001 to Acme Co,Revenue:Sales,Revenue,0.00,1200.00,-1200.00,1200.00
+ar_invoice:INV-1002:01,ar_invoice:INV-1002,1,2026-02-15,,Invoice INV-1002 to Beacon LLC,Assets:AccountsReceivable,Assets,800.00,0.00,800.00,800.00
+ar_invoice:INV-1002:02,ar_invoice:INV-1002,2,2026-02-15,,Invoice INV-1002 to Beacon LLC,Revenue:Sales,Revenue,0.00,800.00,-800.00,800.00
+ar_receipt:RCPT-2001:01,ar_receipt:RCPT-2001,1,2026-02-20,,Cash receipt RCPT-2001 from Acme Co (applied to INV-1001),Assets:Cash,Assets,1200.00,0.00,1200.00,1200.00
+ar_receipt:RCPT-2001:02,ar_receipt:RCPT-2001,2,2026-02-20,,Cash receipt RCPT-2001 from Acme Co (applied to INV-1001),Assets:AccountsReceivable,Assets,0.00,1200.00,-1200.00,-1200.00
+ar_receipt:RCPT-2002:01,ar_receipt:RCPT-2002,1,2026-02-25,,Cash receipt RCPT-2002 from Beacon LLC (applied to INV-1002),Assets:Cash,Assets,300.00,0.00,300.00,300.00
+ar_receipt:RCPT-2002:02,ar_receipt:RCPT-2002,2,2026-02-25,,Cash receipt RCPT-2002 from Beacon LLC (applied to INV-1002),Assets:AccountsReceivable,Assets,0.00,300.00,-300.00,-300.00
