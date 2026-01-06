@@ -1,0 +1,61 @@
+{
+  "artifacts": [
+    {
+      "bytes": 472,
+      "path": "ch085/trial_balance_post_close.csv",
+      "sha256": "7c1b6d219a66b1316978d4200b860493a9799c5bc0373a82dfcd741091209fb4"
+    },
+    {
+      "bytes": 130,
+      "path": "ch085/balance_sheet_post_close.csv",
+      "sha256": "9790e6de38edda077fdd9bd0f6497acdc50e2ac3f5153268540aba10807779aa"
+    },
+    {
+      "bytes": 209,
+      "path": "ch085/opening_entry_register.csv",
+      "sha256": "dfe9f568afed4a05d84b424579ba5edfe001296e22d4be43ce72ba583faf107e"
+    },
+    {
+      "bytes": 1395,
+      "path": "ch085/postings_opening.csv",
+      "sha256": "3596d649581496b529d1de280befe4cb32536975b3b8c701ae32c6a7fa430043"
+    },
+    {
+      "bytes": 472,
+      "path": "ch085/trial_balance_opening.csv",
+      "sha256": "7c1b6d219a66b1316978d4200b860493a9799c5bc0373a82dfcd741091209fb4"
+    },
+    {
+      "bytes": 61,
+      "path": "ch085/balance_sheet_opening.csv",
+      "sha256": "1090f6169b11fe6bf08a3ea208d7a532d00532de440445c083417340328a4564"
+    },
+    {
+      "bytes": 653,
+      "path": "ch085/reconciliation_post_close_vs_opening.csv",
+      "sha256": "05d5a3976ce4008078900fa5e9fbc54e2ac029a326124913d101aee4215dc8c6"
+    },
+    {
+      "bytes": 152,
+      "path": "ch085/retained_earnings_continuity.csv",
+      "sha256": "b266dfeca10e2bee85089eabe6abbf3f75022f38c26900be4600c119ceac4441"
+    },
+    {
+      "bytes": 366,
+      "path": "ch085/opening_checklist.json",
+      "sha256": "18349a8c2210b98f98aa2cc76f0175eeb1be29ef602e76578330e111a0a09764"
+    },
+    {
+      "bytes": 1318,
+      "path": "ch085/invariants.json",
+      "sha256": "34035f67be117fb834400bd452da2af993cd48ba7dda05f5e95f44d82edb75b8"
+    }
+  ],
+  "meta": {
+    "chapter": "ch085",
+    "close_date": "2026-01-31",
+    "open_date": "2026-02-01",
+    "seed": 123,
+    "source": "ch08_post_close"
+  }
+}

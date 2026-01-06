@@ -1,0 +1,11 @@
+{
+  "chapter": "ch085",
+  "close_date": "2026-01-31",
+  "expectations": [
+    "Post-close TB (Ch08) is the source-of-truth for carry-forward balances.",
+    "Opening TB (Ch08.5) matches Ch08 post-close for all permanent accounts.",
+    "Revenue/Expenses open at 0.00 for the new period.",
+    "Retained earnings continuity holds."
+  ],
+  "open_date": "2026-02-01"
+}
