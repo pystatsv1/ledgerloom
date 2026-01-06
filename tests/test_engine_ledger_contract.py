@@ -72,3 +72,39 @@ def test_invariants_include_contract_checks_and_pass_for_well_formed_input() -> 
     assert inv["missing_entry_ids"] == []
     assert inv["bad_posting_ids"] == []
     assert inv["bad_dates"] == []
+
+
+
+def test_generated_entry_ids_are_reported_when_policy_enabled() -> None:
+    import re
+
+    cfg = LedgerEngineConfig(entry_id_policy="generated")
+    eng = LedgerEngine(cfg)
+
+    # Missing entry_id in meta on purpose.
+    entries = [
+        Entry(
+            dt=date(2026, 1, 1),
+            narration="Unlabeled entry",  # no entry_id
+            postings=[
+                Posting(account="Assets:Cash", debit=Decimal("10.00")),
+                Posting(account="Equity:OwnerCapital", credit=Decimal("10.00")),
+            ],
+            meta={},
+        )
+    ]
+
+    postings = eng.postings_fact_table(entries)
+    inv = eng.invariants(entries, postings)
+
+    assert inv["entry_id_policy"] == "generated"
+    assert isinstance(inv["generated_entry_ids"], list)
+    assert len(inv["generated_entry_ids"]) == 1
+
+    generated = inv["generated_entry_ids"][0]
+    assert generated["date"] == "2026-01-01"
+    assert generated["narration"] == "Unlabeled entry"
+
+    # Engine currently produces IDs like H<12 hex chars>.
+    assert re.fullmatch(r"H[0-9a-f]{12}", generated["entry_id"])
+

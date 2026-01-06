@@ -107,14 +107,15 @@ def postings_fact_table(entries: list[Entry], cfg: LedgerEngineConfig) -> pd.Dat
     rows: list[dict[str, Any]] = []
     for e in entries:
         dept = entry_department(e, cfg)
+        eid = entry_id(e, cfg)
         for i, p in enumerate(e.postings, start=1):
             root = account_root(p.account)
             dr_c = to_cents(p.debit)
             cr_c = to_cents(p.credit)
             rows.append(
                 {
-                    "posting_id": f"{entry_id(e, cfg)}:{i:02d}",
-                    "entry_id": entry_id(e, cfg),
+                    "posting_id": f"{eid}:{i:02d}",
+                    "entry_id": eid,
                     "line_no": i,
                     "date": e.dt.isoformat(),
                     "department": dept,
@@ -240,10 +241,27 @@ def invariants(entries: list[Entry], postings: pd.DataFrame, cfg: LedgerEngineCo
     """Compute core invariants for a balanced ledger."""
 
     entry_rows = []
+    generated_entry_ids: list[dict[str, Any]] = []
+
     for e in entries:
         dr = sum((to_cents(p.debit) for p in e.postings), 0)
         cr = sum((to_cents(p.credit) for p in e.postings), 0)
-        entry_rows.append({"entry_id": entry_id(e, cfg), "debits": dr, "credits": cr, "ok": dr == cr})
+
+        raw_v = (e.meta or {}).get(cfg.entry_id_key)
+        has_explicit_id = raw_v is not None and str(raw_v) != ""
+        eid = entry_id(e, cfg)
+
+        if cfg.entry_id_policy == "generated" and not has_explicit_id:
+            generated_entry_ids.append(
+                {
+                    "entry_id": eid,
+                    "date": e.dt.isoformat(),
+                    "narration": e.narration,
+                    "reason": f"missing meta['{cfg.entry_id_key}']",
+                }
+            )
+
+        entry_rows.append({"entry_id": eid, "debits": dr, "credits": cr, "ok": dr == cr})
 
     entry_ok = all(r["ok"] for r in entry_rows)
 
@@ -305,6 +323,14 @@ def invariants(entries: list[Entry], postings: pd.DataFrame, cfg: LedgerEngineCo
             "Raw delta uses (debit-credit). It must sum to 0 for a balanced ledger.",
             "Signed delta uses a normal-balance convention by root (Assets/Expenses debit-normal; Liabilities/Equity/Revenue credit-normal).",
         ],
+        **(
+            {
+                "entry_id_policy": "generated",
+                "generated_entry_ids": generated_entry_ids,
+            }
+            if cfg.entry_id_policy == "generated"
+            else {}
+        ),
     }
 
 

@@ -20,28 +20,28 @@ Chapter roadmap (18 chapters)
      - Implemented
    * - 2
      - :doc:`Debits/Credits as encoding <ledgerloom_ch02_debits_credits_encoding>`
-     - Planned
+     - Implemented
    * - 3
      - :doc:`Chart of Accounts as schema <ledgerloom_ch03_chart_of_accounts_schema>`
-     - Planned
+     - Implemented
    * - 4
      - :doc:`General Ledger as a database <ledgerloom_ch04_general_ledger_database>`
-     - Planned
+     - Implemented
    * - 5
      - :doc:`The accounting equation as invariant <ledgerloom_ch05_accounting_equation_invariant>`
-     - Planned
+     - Implemented
    * - 6
      - :doc:`Periods, accrual, and timing <ledgerloom_ch06_periods_accrual_timing>`
-     - Planned
+     - Implemented
    * - 7
      - :doc:`Adjusting entries as late-arriving data <ledgerloom_ch07_adjusting_entries_late_arriving_data>`
-     - Planned
+     - Implemented
    * - 8
      - :doc:`Closing as a controlled transformation <ledgerloom_ch08_closing_controlled_transformation>`
-     - Planned
+     - Implemented
    * - 9
      - :doc:`Accounts receivable lifecycle <ledgerloom_ch09_ar_lifecycle>`
-     - Planned
+     - Implemented
    * - 10
      - :doc:`Accounts payable lifecycle <ledgerloom_ch10_ap_lifecycle>`
      - Planned
