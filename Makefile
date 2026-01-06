@@ -5,7 +5,7 @@ SEED ?= 123
 OUT_LL := outputs/ledgerloom
 
 
-.PHONY: help ll-ch05 ll-ch06 ll-ch07 ll-ch08 ll-ch085 ll-ch09 ll-ch10
+.PHONY: help ll-ch05 ll-ch06 ll-ch07 ll-ch08 ll-ch085 ll-ch09 ll-ch10 ll-ch11
 help:
 	@echo "LedgerLoom (developer-friendly accounting) — targets:"
 	@echo ""
@@ -22,6 +22,7 @@ help:
 	@echo "  ll-ch085  Run Chapter 08.5 demo (open next period + continuity)"
 	@echo "  ll-ch09    - Chapter 09 demo (accounts receivable lifecycle) + artifacts"
 	@echo "  ll-ch10    - Chapter 10 demo (accounts payable lifecycle) + artifacts"
+	@echo "  ll-ch11    - Chapter 11 demo (inventory + COGS) + artifacts"
 	@echo "  ll-ci      - Tiny deterministic smoke (for CI)"
 	@echo "  docs       - build HTML docs"
 	@echo "  lint       - ruff check"
@@ -80,6 +81,10 @@ ll-ch09: docs
 
 ll-ch10: docs
 	$(PYTHON) -m ledgerloom.chapters.ch10_ap_lifecycle --outdir $(OUT_LL) --seed $(SEED)
+
+ll-ch11: docs
+	$(PYTHON) -m ledgerloom.chapters.ch11_inventory_cogs --outdir $(OUT_LL) --seed $(SEED)
+
 
 
 .PHONY: lint ll-ch05

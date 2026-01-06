@@ -1,0 +1,14 @@
+{
+  "asof": "2026-02-28",
+  "chapter": "ch11",
+  "costing_method": "moving_average",
+  "ending_on_hand_qty": 48,
+  "limitations": [
+    "Single SKU example (extend to multiple SKUs by keying state per SKU).",
+    "Moving-average cost ignores lot tracking and exact FIFO/LIFO layers.",
+    "No backdated receipts or returns in this minimal dataset."
+  ],
+  "purchase_count": 2,
+  "sale_count": 2,
+  "sku": "WIDGET-A"
+}

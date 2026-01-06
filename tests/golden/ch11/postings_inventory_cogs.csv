@@ -1,0 +1,15 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+inv_purchase:PO-4001:01,inv_purchase:PO-4001,1,2026-02-02,,Inventory purchase receipt PO-4001 (100 units),Assets:Inventory,Assets,1000.00,0.00,1000.00,1000.00
+inv_purchase:PO-4001:02,inv_purchase:PO-4001,2,2026-02-02,,Inventory purchase receipt PO-4001 (100 units),Assets:Cash,Assets,0.00,1000.00,-1000.00,-1000.00
+inv_purchase:PO-4002:01,inv_purchase:PO-4002,1,2026-02-10,,Inventory purchase receipt PO-4002 (60 units),Assets:Inventory,Assets,720.00,0.00,720.00,720.00
+inv_purchase:PO-4002:02,inv_purchase:PO-4002,2,2026-02-10,,Inventory purchase receipt PO-4002 (60 units),Assets:Cash,Assets,0.00,720.00,-720.00,-720.00
+inv_sale:SALE-5001:01,inv_sale:SALE-5001,1,2026-02-12,,Sale SALE-5001 (80 units) with COGS,Assets:Cash,Assets,1600.00,0.00,1600.00,1600.00
+inv_sale:SALE-5001:02,inv_sale:SALE-5001,2,2026-02-12,,Sale SALE-5001 (80 units) with COGS,Revenue:Sales,Revenue,0.00,1600.00,-1600.00,1600.00
+inv_sale:SALE-5001:03,inv_sale:SALE-5001,3,2026-02-12,,Sale SALE-5001 (80 units) with COGS,Expenses:COGS,Expenses,860.00,0.00,860.00,860.00
+inv_sale:SALE-5001:04,inv_sale:SALE-5001,4,2026-02-12,,Sale SALE-5001 (80 units) with COGS,Assets:Inventory,Assets,0.00,860.00,-860.00,-860.00
+inv_sale:SALE-5002:01,inv_sale:SALE-5002,1,2026-02-20,,Sale SALE-5002 (30 units) with COGS,Assets:Cash,Assets,600.00,0.00,600.00,600.00
+inv_sale:SALE-5002:02,inv_sale:SALE-5002,2,2026-02-20,,Sale SALE-5002 (30 units) with COGS,Revenue:Sales,Revenue,0.00,600.00,-600.00,600.00
+inv_sale:SALE-5002:03,inv_sale:SALE-5002,3,2026-02-20,,Sale SALE-5002 (30 units) with COGS,Expenses:COGS,Expenses,322.50,0.00,322.50,322.50
+inv_sale:SALE-5002:04,inv_sale:SALE-5002,4,2026-02-20,,Sale SALE-5002 (30 units) with COGS,Assets:Inventory,Assets,0.00,322.50,-322.50,-322.50
+inv_adjust:COUNT-2026-02:01,inv_adjust:COUNT-2026-02,1,2026-02-28,,Inventory shrink (cycle count) COUNT-2026-02,Expenses:InventoryShrinkage,Expenses,21.50,0.00,21.50,21.50
+inv_adjust:COUNT-2026-02:02,inv_adjust:COUNT-2026-02,2,2026-02-28,,Inventory shrink (cycle count) COUNT-2026-02,Assets:Inventory,Assets,0.00,21.50,-21.50,-21.50
