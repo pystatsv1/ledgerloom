@@ -21,34 +21,19 @@ from __future__ import annotations
 
 
 import argparse
-import hashlib
-import json
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
-from typing import Dict, List, Tuple
+from typing import List, Tuple
 
 import pandas as pd
 
 from ledgerloom.core import Entry
 from ledgerloom.engine import LedgerEngine, LedgerEngineConfig
+from ledgerloom.artifacts import manifest_items, write_csv_df, write_json
 
 
-def _write_text(path: Path, text: str) -> None:
-    path.write_text(text, encoding="utf-8", newline="\n")
-
-
-def _write_json(path: Path, obj: Dict) -> None:
-    _write_text(path, json.dumps(obj, indent=2, sort_keys=True) + "\n")
-
-
-def _write_df_csv(path: Path, df: pd.DataFrame) -> None:
-    # Force LF and stable quoting; keep index out of artifacts.
-    df.to_csv(path, index=False, lineterminator="\n")
-
-
-def _sha256_bytes(b: bytes) -> str:
-    return hashlib.sha256(b).hexdigest()
+ # Chapter-owned deterministic I/O helpers live in ledgerloom.artifacts.
 
 
 def _sample_entries(seed: int) -> List[Entry]:
@@ -231,26 +216,21 @@ def run(outdir_root: str, seed: int) -> Path:
     artifacts: List[Path] = []
 
     postings_path = outdir / "postings.csv"
-    _write_df_csv(postings_path, postings)
+    write_csv_df(postings_path, postings)
     artifacts.append(postings_path)
 
     eq_path = outdir / "equation_check_by_entry.csv"
-    _write_df_csv(eq_path, equation_check)
+    write_csv_df(eq_path, equation_check)
     artifacts.append(eq_path)
 
     inv_path = outdir / "invariants.json"
-    _write_json(inv_path, inv2)
+    write_json(inv_path, inv2)
     artifacts.append(inv_path)
 
     # Manifest: stable order
-    manifest = {
-        "artifacts": [
-            {"file": p.name, "bytes": p.stat().st_size, "sha256": _sha256_bytes(p.read_bytes())}
-            for p in artifacts
-        ]
-    }
+    manifest = {"artifacts": manifest_items(outdir, artifacts, name_key="file")}
     manifest_path = outdir / "manifest.json"
-    _write_json(manifest_path, manifest)
+    write_json(manifest_path, manifest)
     artifacts.append(manifest_path)
 
     # Minimal run metadata (not golden-tested)
@@ -260,7 +240,7 @@ def run(outdir_root: str, seed: int) -> Path:
         "entries": len(entries),
         "outdir": str(outdir),
     }
-    _write_json(outdir / "run_meta.json", run_meta)
+    write_json(outdir / "run_meta.json", run_meta)
 
     return outdir
 

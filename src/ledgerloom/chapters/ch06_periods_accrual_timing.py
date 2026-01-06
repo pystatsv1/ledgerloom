@@ -25,8 +25,6 @@ Artifacts land under:
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -36,31 +34,10 @@ import pandas as pd
 
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine
+from ledgerloom.artifacts import manifest_items, write_csv_df, write_json
 
 
-# -------------------------
-# Chapter-owned I/O helpers
-# -------------------------
-
-
-def _write_text(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if not text.endswith("\n"):
-        text += "\n"
-    path.write_text(text, encoding="utf-8", newline="\n")
-
-
-def _write_json(path: Path, obj: Any) -> None:
-    _write_text(path, json.dumps(obj, indent=2, sort_keys=True))
-
-
-def _write_df_csv(path: Path, df: pd.DataFrame) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False, lineterminator="\n")
-
-
-def _sha256_bytes(b: bytes) -> str:
-    return hashlib.sha256(b).hexdigest()
+ # Chapter-owned I/O helpers are centralized in ledgerloom.artifacts.
 
 
 def _str_to_cents(s: str) -> int:
@@ -373,12 +350,12 @@ def main(argv: list[str] | None = None) -> int:
 
     def w_csv(name: str, df: pd.DataFrame) -> None:
         path = outdir / name
-        _write_df_csv(path, df)
+        write_csv_df(path, df)
         artifacts.append(path)
 
     def w_json(name: str, obj: Any) -> None:
         path = outdir / name
-        _write_json(path, obj)
+        write_json(path, obj)
         artifacts.append(path)
 
     w_csv("postings.csv", postings)
@@ -390,10 +367,7 @@ def main(argv: list[str] | None = None) -> int:
     w_json("invariants.json", inv2)
 
     manifest = {
-        "artifacts": [
-            {"file": p.name, "bytes": p.stat().st_size, "sha256": _sha256_bytes(p.read_bytes())}
-            for p in artifacts
-        ],
+        "artifacts": manifest_items(outdir, artifacts, name_key="file"),
         "meta": {
             "chapter": "ch06",
             "seed": args.seed,

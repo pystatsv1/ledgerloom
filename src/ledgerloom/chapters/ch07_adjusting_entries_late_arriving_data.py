@@ -24,8 +24,6 @@ Run:
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -35,27 +33,10 @@ import pandas as pd
 
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine
+from ledgerloom.artifacts import manifest_items, write_csv_df, write_json
 
 
-# -------------------------
-# Small file helpers
-# -------------------------
-
-
-def _write_text(path: Path, text: str) -> None:
-    path.write_text(text, encoding="utf-8", newline="\n")
-
-
-def _write_json(path: Path, obj: Any) -> None:
-    path.write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n", encoding="utf-8", newline="\n")
-
-
-def _write_df_csv(path: Path, df: pd.DataFrame) -> None:
-    path.write_text(df.to_csv(index=False, lineterminator="\n"), encoding="utf-8", newline="\n")
-
-
-def _sha256_bytes(b: bytes) -> str:
-    return hashlib.sha256(b).hexdigest()
+...
 
 
 # -------------------------
@@ -442,12 +423,12 @@ def main(argv: list[str] | None = None) -> int:
 
     def w_csv(name: str, df: pd.DataFrame) -> None:
         p = outdir / name
-        _write_df_csv(p, df)
+        write_csv_df(p, df)
         artifacts.append(p)
 
     def w_json(name: str, obj: Any) -> None:
         p = outdir / name
-        _write_json(p, obj)
+        write_json(p, obj)
         artifacts.append(p)
 
     w_csv("postings_unadjusted.csv", postings_unadj)
@@ -465,10 +446,7 @@ def main(argv: list[str] | None = None) -> int:
 
     w_json("invariants.json", invariants)
 
-    manifest = {
-        "artifacts": [{"file": p.name, "bytes": p.stat().st_size, "sha256": _sha256_bytes(p.read_bytes())} for p in artifacts],
-        "meta": {"chapter": "ch07", "seed": args.seed},
-    }
+    manifest = {"artifacts": manifest_items(outdir, artifacts, name_key="file"), "meta": {"chapter": "ch07", "seed": args.seed}}
     w_json("manifest.json", manifest)
 
     print(f"Wrote LedgerLoom Chapter 07 artifacts -> {outdir}")

@@ -17,6 +17,8 @@ from dataclasses import dataclass, field
 from datetime import date
 from typing import Any
 
+import hashlib
+
 import pandas as pd
 
 from ledgerloom.core import Entry
@@ -32,10 +34,53 @@ def account_root(account: str) -> str:
 
 
 def entry_id(entry: Entry, cfg: LedgerEngineConfig) -> str:
-    """Stable identifier for an entry (stored in ``entry.meta``)."""
+    """Return the stable identifier for an entry.
+
+    By default, LedgerLoom treats ``entry.meta[cfg.entry_id_key]`` as required.
+    This is a pragmatic constraint for real systems: it makes matching,
+    reconciliation, and traceability explicit.
+
+    The behavior is controlled by :attr:`ledgerloom.engine.config.LedgerEngineConfig.entry_id_policy`:
+
+    - ``"strict"``: raise if missing
+    - ``"generated"``: synthesize a deterministic id from entry content
+    """
 
     v = (entry.meta or {}).get(cfg.entry_id_key)
-    return str(v) if v is not None else ""
+    if v is not None and str(v) != "":
+        return str(v)
+
+    if cfg.entry_id_policy == "generated":
+        return _generated_entry_id(entry)
+
+    raise ValueError(
+        f"Entry is missing required meta['{cfg.entry_id_key}'] (entry_id_policy='strict'). "
+        "Set entry_id on every Entry, or use LedgerEngineConfig(entry_id_policy='generated')."
+    )
+
+
+def _generated_entry_id(entry: Entry) -> str:
+    """Synthesize a deterministic entry_id from entry content.
+
+    This is intended for teaching, migration, and exploratory notebooks.
+    Production systems should prefer explicit IDs so humans can join ledger
+    rows back to source documents.
+    """
+
+    h = hashlib.sha256()
+    h.update(entry.dt.isoformat().encode("utf-8"))
+    h.update(b"\x1f")
+    h.update(entry.narration.encode("utf-8"))
+    h.update(b"\x1f")
+    # postings are already validated by chapters/tests; still, stabilize order.
+    for p in entry.postings:
+        h.update(p.account.encode("utf-8"))
+        h.update(b"\x1e")
+        h.update(str(p.debit).encode("utf-8"))
+        h.update(b"\x1d")
+        h.update(str(p.credit).encode("utf-8"))
+        h.update(b"\x1f")
+    return "H" + h.hexdigest()[:12]
 
 
 def entry_department(entry: Entry, cfg: LedgerEngineConfig) -> str:
@@ -315,17 +360,44 @@ def gl_schema_description() -> dict[str, Any]:
 class LedgerEngine:
     """The reusable ledger compute engine.
 
-    v0.1 minimal API surface (methods):
-    - postings_fact_table
-    - balances_by_account
-    - balances_by_period
-    - balances_by_department
-    - running_balance_by_posting
-    - invariants
-    - gl_schema_description
+    The LedgerLoom engine is the *contract layer* between accounting ideas and
+    software engineering practice:
+
+    - Chapters are free to focus on pedagogy and artifacts.
+    - The engine provides a single, tested implementation of conventions
+      (normal balances, posting IDs, deterministic math).
+    - Tests and invariants make refactors safe and keep outputs reproducible.
+
+    Example
+    -------
+    >>> from ledgerloom.engine import LedgerEngine
+    >>> eng = LedgerEngine()  # or LedgerEngine(cfg=...), LedgerEngine(config=...)
+    >>> postings = eng.postings_fact_table(entries)
+
+    v0.1 minimal API surface (methods): postings_fact_table, balances_by_* ,
+    running_balance_by_posting, invariants, gl_schema_description.
     """
 
     cfg: LedgerEngineConfig = field(default_factory=LedgerEngineConfig)
+
+    def __init__(
+        self,
+        cfg: LedgerEngineConfig | None = None,
+        *,
+        config: LedgerEngineConfig | None = None,
+    ) -> None:
+        """Create a LedgerEngine.
+
+        ``config`` is accepted as an alias for ``cfg`` because it is the natural
+        name many users will try first.
+        """
+
+        if cfg is not None and config is not None:
+            raise TypeError("Provide only one of 'cfg' or 'config'.")
+        chosen = cfg if cfg is not None else config
+        if chosen is None:
+            chosen = LedgerEngineConfig()
+        object.__setattr__(self, "cfg", chosen)
 
     def postings_fact_table(self, entries: list[Entry]) -> pd.DataFrame:
         return postings_fact_table(entries, cfg=self.cfg)
