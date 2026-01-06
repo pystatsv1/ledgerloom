@@ -69,7 +69,7 @@ Artifacts are written under:
 
    outputs/ledgerloom/ch03AccountsSchema/
 
-Planned / produced artifacts
+Artifacts
 ----------------------------
 
 Core schema + tables

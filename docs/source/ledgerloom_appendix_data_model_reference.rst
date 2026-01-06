@@ -1,172 +1,127 @@
-Engine Data Model Reference
-===========================
+Appendix: Data model reference
+============================
 
-This appendix is the **single source of truth** for LedgerLoom’s engine data model.
-It defines the tables, columns, and invariants produced by the engine.
+This appendix describes the **canonical tables** produced by the LedgerLoom engine.
+It is written as a *contract*: if these structures are stable, chapter refactors and
+new report views remain safe.
 
-If you only read one technical document in LedgerLoom, make it this one.
+Stable identifiers
+------------------
 
-Vocabulary
-----------
+LedgerLoom uses stable identifiers so every number in a statement can be traced
+back to an exact event.
 
-Entry
-  A journal entry: dated narration + a set of postings that must balance.
+Entry IDs (``entry_id``)
+^^^^^^^^^^^^^^^^^^^^^^^^
 
-Posting
-  One line of an entry: an account and either a debit or credit amount.
+Each :class:`ledgerloom.core.Entry` should have a stable ID stored in
+``entry.meta[cfg.entry_id_key]`` (default key: ``"entry_id"``).
 
-Postings fact table
-  A normalized table with one row per posting line. This is the engine’s
-  canonical database representation.
+Two policies exist (see :class:`ledgerloom.engine.config.LedgerEngineConfig`):
 
-Roots
-  The left-most segment of an account string (e.g., ``Assets`` in
-  ``Assets:Cash``). Roots are used for rollups and conventions.
+- **Strict (default):** missing ``entry_id`` raises immediately. This mirrors real systems
+  where matching (A/R open items, A/P matching, reconciliations) depends on durable keys.
+- **Generated (optional):** ``entry_id_policy="generated"`` synthesizes a stable ID
+  (currently ``H<12 hex>``) from the entry's date, narration, and postings.
 
-Segments
-  Optional attributes (e.g., ``department``) stored on an entry and copied down
-  to postings so you can group/slice balances.
+When the generated policy is enabled, :meth:`ledgerloom.engine.ledger.LedgerEngine.invariants`
+adds a ``generated_entry_ids`` list so the run explicitly records what was synthesized.
 
-Stable IDs
-----------
+Posting IDs (``posting_id``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-``entry_id``
-  A stable identifier pulled from ``entry.meta[entry_id_key]``.
+Each posting line is uniquely identified as::
 
-``posting_id``
-  A stable identifier for a posting line, of the form ``{entry_id}:{line_no}``.
+  posting_id = "<entry_id>:<line_no>"
 
-These IDs are not just convenience:
+where ``line_no`` is formatted as two digits (01, 02, ...). The table also includes
+``line_no`` as an integer column.
 
-- They make debugging faster (you can trace a number back to a source line).
-- They enable deterministic tests.
-- They support reproducible ETL / analytics workflows.
+Postings fact table (``postings.csv``)
+-------------------------------------
 
-Postings fact table
--------------------
-
-The engine function :func:`ledgerloom.engine.ledger.postings_fact_table` returns
-a DataFrame with one row per posting.
+The engine compiles a list of entries into a single **fact table**: one row per posting line.
+This is the "append-only truth" you build reports from.
 
 Columns
-~~~~~~~
+^^^^^^^
 
-``posting_id``
-  Stable posting identifier.
+- ``posting_id`` — stable line identifier (``<entry_id>:<line_no two digits>``)
+- ``entry_id`` — stable entry identifier
+- ``line_no`` — posting line number within the entry (1, 2, ...)
+- ``date`` — ISO date string (``YYYY-MM-DD``)
+- ``department`` — optional segment (example dimension used in early chapters)
+- ``narration`` — human description of the event
+- ``account`` — full account path (e.g., ``Assets:Cash``)
+- ``root`` — first account segment (e.g., ``Assets``)
+- ``debit`` — decimal string, two places
+- ``credit`` — decimal string, two places
+- ``raw_delta`` — ``debit - credit`` as a signed decimal string
+- ``signed_delta`` — raw delta mapped into a "normal-balance" convention by root
 
-``entry_id``
-  Stable entry identifier (copied to every posting of that entry).
+Notes
+^^^^^
 
-``line_no``
-  Posting line number within the entry (01, 02, ...).
-
-``date``
-  Entry date as ISO string (YYYY-MM-DD).
-
-``period``
-  Accounting period as ISO month (YYYY-MM). Derived from ``date``.
-
-``narration``
-  Entry narration (human context).
-
-``account``
-  Colon-delimited account path (e.g., ``Assets:Cash``).
-
-``root``
-  Root segment of the account path (e.g., ``Assets``).
-
-``debit`` / ``credit``
-  Monetary amounts as **strings with 2 decimals** (e.g., ``"12.34"``).
-
-``raw_delta``
-  ``debit - credit`` as a string with 2 decimals.
-
-``signed_delta``
-  A sign-normalized delta using a root convention:
-
-  - Assets, Expenses: debit-normal (+ = increase)
-  - Liabilities, Equity, Revenue: credit-normal (+ = increase)
-
-``department``
-  Example segment copied from entry metadata (if present).
+- The engine is intentionally **not** a database. It produces database-shaped tables
+  that you can load into Pandas/SQL/BI tools.
+- **Period** is not stored in the fact table. Views (below) derive ``period`` by slicing
+  the ``date`` field.
 
 Derived views
 -------------
 
-The engine provides a few small, reusable views derived from the fact table.
-Think of these as "materialized queries" that chapters and users can reuse.
+The engine provides common "views" (materialized as DataFrames in chapters) derived from postings.
 
-:func:`ledgerloom.engine.ledger.balances_by_account`
-  Group postings by account and compute totals.
+Balances by account (``balances_by_account.csv``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`ledgerloom.engine.ledger.balances_by_period`
-  Group postings by period and compute totals.
+Groups postings by ``(root, account)`` and sums ``signed_delta``.
 
-:func:`ledgerloom.engine.ledger.balances_by_department`
-  Group postings by department and compute totals.
+Balances by period (``balances_by_period.csv``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-:func:`ledgerloom.engine.ledger.running_balance_by_posting`
-  Stable running balance (ordered by date, entry_id, line_no).
+Adds a derived ``period`` key (``YYYY-MM``) from ``date``, then groups by
+``(period, root, account)``.
+
+Balances by department (``balances_by_department.csv``)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+If a ``department`` column exists, this view groups by ``(department, root, account)``.
+(Other segment dimensions will appear in later chapters.)
 
 As-of filtering
 ---------------
 
-Many real-world questions are "as of" a point in time:
+For point-in-time reporting (e.g., "balance as of 2026-01-31"), the engine provides
+:meth:`ledgerloom.engine.ledger.LedgerEngine.postings_as_of`.
 
-- Balance sheet **as of** 2026-01-31
-- Revenue **as of** month-end
+The contract is:
 
-The helper :func:`ledgerloom.engine.ledger.postings_as_of` filters postings to
-``date <= as_of`` and is designed to be safe and deterministic when dates are in
-ISO format.
+- include postings where ``date <= as_of``
+- preserve stable ordering
 
-Invariants
-----------
+Invariants (``invariants.json``)
+--------------------------------
 
-The engine computes invariants with :func:`ledgerloom.engine.ledger.invariants`.
-These are **constraints** you can assert in unit tests, CI, or validation steps.
+Invariants are explicit checks you can treat as unit tests.
+Core invariants include:
 
-Core invariants
-~~~~~~~~~~~~~~~
+- ``entry_double_entry_ok`` — every entry balances (debits == credits)
+- ``ledger_raw_delta_zero`` — total ``raw_delta`` sums to 0 across the full ledger
+- ``posting_id_unique`` — stable IDs are unique
+- ``entry_id_present`` and ``entry_id_unique`` — entry IDs exist and are unique
+- ``posting_id_format_ok`` — ``posting_id`` matches ``<entry_id>:<two digits>``
 
-``entry_double_entry_ok``
-  Every entry has debits == credits.
+When ``entry_id_policy="generated"``, additional diagnostics are included:
 
-``ledger_raw_delta_zero``
-  The total of ``raw_delta`` across all postings equals zero.
+- ``entry_id_policy`` — the active policy (currently ``"generated"``)
+- ``generated_entry_ids`` — which entries required synthesized IDs and why
 
-``posting_id_unique``
-  Posting IDs are unique.
+Why this appendix matters
+-------------------------
 
-Schema hygiene
-~~~~~~~~~~~~~~
+If you are extending LedgerLoom, treat this appendix like a schema contract:
 
-``unknown_roots``
-  Roots not in the engine’s recognized set.
-
-Contract checks
-~~~~~~~~~~~~~~~
-
-These checks make refactors safer and debugging faster:
-
-- ``entry_id_present`` and ``entry_id_unique``
-- ``date_format_ok`` (YYYY-MM-DD)
-- ``posting_id_format_ok`` (``{entry_id}:{NN}``)
-- ``posting_id_entry_id_ok`` and ``posting_id_line_no_ok``
-
-When a check fails, the invariants dictionary includes small diagnostic lists
-(e.g., ``bad_posting_ids``).
-
-Why this model works for all three audiences
---------------------------------------------
-
-Accountants
-  You can interpret postings as a journal expanded into a ledger and trust the
-  constraints.
-
-Developers
-  You can treat the ledger as a pure function: inputs → facts → views,
-  with invariants as tests.
-
-Data professionals
-  You can treat postings as a fact table and build analytics with groupbys or SQL.
+- New chapters should prefer **new derived views** over changing the fact table.
+- Engine refactors should preserve these table shapes unless a version bump and doc update
+  are intentional.

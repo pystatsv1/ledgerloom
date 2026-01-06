@@ -85,8 +85,8 @@ The runner writes::
 How to read the outputs
 -----------------------
 **postings.csv**
-  The canonical fact table: one row per posting, with derived columns such as ``period``
-  and signed deltas.
+  The canonical fact table: one row per posting, with derived columns such as
+  ``raw_delta`` and ``signed_delta``. (Period is derived downstream by slicing ``date``.)
 
 **balances_by_period.csv**
   A materialized view: signed balances grouped by ``period`` and ``(root, account)``.

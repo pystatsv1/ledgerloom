@@ -1,28 +1,40 @@
-LedgerLoom Documentation
-======================
+LedgerLoom
+==========
 
-LedgerLoom is a developer-friendly accounting learning project. It includes:
+LedgerLoom is a small open-source project (MIT license) that teaches accounting
+*and* modern software engineering by building a deterministic, testable ledger
+pipeline.
 
-- a **small accounting engine** (pure compute + invariants)
-- **chapter runners** that generate deterministic artifacts
-- documentation that bridges accounting concepts and modern software engineering
+The documentation is organized into:
 
+- **Start here**: what LedgerLoom is and where it is going
+- **Engine**: the reusable core that powers the chapters
+- **Chapters**: runnable scripts that generate reproducible artifacts
+- **Appendices**: reference material (data model, glossary, cookbook)
 
 .. toctree::
-   :maxdepth: 2
-   :caption: Engine
+   :maxdepth: 1
+   :caption: Start here
+
+   ledgerloom_intro
+   ledgerloom_vision
+   ledgerloom_changelog
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Engine (the reusable core)
 
    ledgerloom_engine_overview
    ledgerloom_engine_design_principles
    ledgerloom_engine_api_reference
 
-
 .. toctree::
-   :maxdepth: 2
-   :caption: Chapters
+   :maxdepth: 1
+   :caption: Chapters (runnable demos)
 
    ledgerloom_ch01_journal_vs_eventlog
    ledgerloom_ch02_debits_credits_encoding
+   ledgerloom_ch03_posting_to_ledger
    ledgerloom_ch03_chart_of_accounts_schema
    ledgerloom_ch04_general_ledger_database
    ledgerloom_ch05_accounting_equation_invariant
@@ -32,18 +44,12 @@ LedgerLoom is a developer-friendly accounting learning project. It includes:
    ledgerloom_ch085_opening_next_period
    ledgerloom_ch09_ar_lifecycle
 
-
 .. toctree::
    :maxdepth: 1
    :caption: Appendices
 
+   ledgerloom_appendix_glossary
+   ledgerloom_appendix_faq
+   ledgerloom_appendix_cookbook
    ledgerloom_appendix_implementation_notes
    ledgerloom_appendix_data_model_reference
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`

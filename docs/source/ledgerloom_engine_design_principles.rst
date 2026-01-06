@@ -16,6 +16,11 @@ The engine lives under ``ledgerloom/engine`` and aims to be **pure compute**:
 - It does not write files.
 - It does not rely on global state.
 
+Chapters still need I/O (CSV/JSON outputs). LedgerLoom keeps that I/O outside the engine
+*but* centralizes the **deterministic writing contract** in :mod:`ledgerloom.artifacts`
+(stable column order, LF newlines, sorted JSON keys, sha256 manifests).
+
+
 Why it matters:
 
 - **Refactor-friendly:** you can change chapter artifact formats without breaking ledger math.
@@ -36,6 +41,11 @@ LedgerLoom encodes that as:
 - integer-cent arithmetic (no floating-point drift)
 - stable identifiers (``entry_id`` and ``posting_id``)
 - stable sorts (``kind="mergesort"``)
+
+By default, the engine is **strict**: entries must provide an ``entry_id`` in
+``entry.meta``. For quick demos or exploratory notebooks, you can opt into
+``entry_id_policy="generated"``, which synthesizes a stable hash-based ID; when enabled,
+engine invariants include a ``generated_entry_ids`` list so the run remains auditable.
 
 Principle 3 — Make invariants first-class
 -----------------------------------------
@@ -76,6 +86,10 @@ Principle 5 — Minimal public surface area
 -----------------------------------------
 
 The engine intentionally keeps a small API (``LedgerEngine`` and a few helpers).
+
+As the chapter count grows, cross-chapter reusable transformations should live in
+:mod:`ledgerloom.scenarios` (a small, stable layer that prevents chapters from importing
+private helpers from earlier chapters).
 A small API is easier to:
 
 - document
