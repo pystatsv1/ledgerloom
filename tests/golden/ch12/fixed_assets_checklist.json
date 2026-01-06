@@ -1,0 +1,16 @@
+{
+  "capitalization_threshold": "2500.00",
+  "capitalized_assets_count": 2,
+  "chapter": "ch12",
+  "depreciation_events_count": 6,
+  "fixed_assets_control_equals_subledger": true,
+  "has_disposal": true,
+  "limitations": [
+    "Straight-line depreciation only.",
+    "No partial-month conventions (month-end posting for the in-service month).",
+    "No componentization, revaluations, or impairment testing in the engine."
+  ],
+  "period_end": "2026-04-30",
+  "period_start": "2026-02-01",
+  "purchases_count": 3
+}
