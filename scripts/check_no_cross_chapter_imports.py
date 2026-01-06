@@ -1,4 +1,4 @@
-"""Refactor safety check: ensure Ch08.5/Ch09 don't import from other chapters.
+"""Refactor safety check: ensure Ch08.5/Ch09/Ch10 don't import from other chapters.
 
 Run locally after tests pass:
 
@@ -16,6 +16,7 @@ from pathlib import Path
 DEFAULT_TARGETS = [
     Path("src/ledgerloom/chapters/ch085_opening_next_period.py"),
     Path("src/ledgerloom/chapters/ch09_ar_lifecycle.py"),
+    Path("src/ledgerloom/chapters/ch10_ap_lifecycle.py"),
 ]
 
 

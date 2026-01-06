@@ -1,0 +1,11 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+ap_bill:BILL-1001:01,ap_bill:BILL-1001,1,2026-02-03,,Vendor bill BILL-1001 from BC Hydro,Expenses:Utilities,Expenses,1200.00,0.00,1200.00,1200.00
+ap_bill:BILL-1001:02,ap_bill:BILL-1001,2,2026-02-03,,Vendor bill BILL-1001 from BC Hydro,Liabilities:AccountsPayable,Liabilities,0.00,1200.00,-1200.00,1200.00
+ap_bill:BILL-1002:01,ap_bill:BILL-1002,1,2026-02-15,,Vendor bill BILL-1002 from Beacon Office Supply,Expenses:Supplies,Expenses,800.00,0.00,800.00,800.00
+ap_bill:BILL-1002:02,ap_bill:BILL-1002,2,2026-02-15,,Vendor bill BILL-1002 from Beacon Office Supply,Liabilities:AccountsPayable,Liabilities,0.00,800.00,-800.00,800.00
+ap_credit:CR-2001:01,ap_credit:CR-2001,1,2026-02-18,,Vendor credit CR-2001 from Beacon Office Supply (applied to BILL-1002),Liabilities:AccountsPayable,Liabilities,50.00,0.00,50.00,-50.00
+ap_credit:CR-2001:02,ap_credit:CR-2001,2,2026-02-18,,Vendor credit CR-2001 from Beacon Office Supply (applied to BILL-1002),Expenses:Supplies,Expenses,0.00,50.00,-50.00,-50.00
+ap_payment:PAY-3001:01,ap_payment:PAY-3001,1,2026-02-20,,Vendor payment PAY-3001 to BC Hydro (applied to BILL-1001),Liabilities:AccountsPayable,Liabilities,1200.00,0.00,1200.00,-1200.00
+ap_payment:PAY-3001:02,ap_payment:PAY-3001,2,2026-02-20,,Vendor payment PAY-3001 to BC Hydro (applied to BILL-1001),Assets:Cash,Assets,0.00,1200.00,-1200.00,-1200.00
+ap_payment:PAY-3002:01,ap_payment:PAY-3002,1,2026-02-25,,Vendor payment PAY-3002 to Beacon Office Supply (applied to BILL-1002),Liabilities:AccountsPayable,Liabilities,300.00,0.00,300.00,-300.00
+ap_payment:PAY-3002:02,ap_payment:PAY-3002,2,2026-02-25,,Vendor payment PAY-3002 to Beacon Office Supply (applied to BILL-1002),Assets:Cash,Assets,0.00,300.00,-300.00,-300.00

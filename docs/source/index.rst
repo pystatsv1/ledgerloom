@@ -18,7 +18,7 @@ The documentation is organized into:
 
    ledgerloom_intro
    ledgerloom_vision
-   ledgerloom_changelog
+changelog
 
 .. toctree::
    :maxdepth: 1
@@ -43,6 +43,7 @@ The documentation is organized into:
    ledgerloom_ch08_closing_controlled_transformation
    ledgerloom_ch085_opening_next_period
    ledgerloom_ch09_ar_lifecycle
+   ledgerloom_ch10_ap_lifecycle
 
 .. toctree::
    :maxdepth: 1

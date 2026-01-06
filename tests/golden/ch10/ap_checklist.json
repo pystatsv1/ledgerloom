@@ -1,0 +1,11 @@
+{
+  "all_bills_approved": false,
+  "ap_control_equals_subledger": false,
+  "bills_count": 2,
+  "chapter": "ch10",
+  "has_opening_entry": true,
+  "payments_count": 2,
+  "period_end": "2026-02-28",
+  "period_start": "2026-02-01",
+  "vendor_credits_count": 1
+}
