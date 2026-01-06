@@ -17,6 +17,7 @@ DEFAULT_TARGETS = [
     Path("src/ledgerloom/chapters/ch085_opening_next_period.py"),
     Path("src/ledgerloom/chapters/ch09_ar_lifecycle.py"),
     Path("src/ledgerloom/chapters/ch10_ap_lifecycle.py"),
+    Path("src/ledgerloom/chapters/ch11_inventory_cogs.py"),
 ]
 
 

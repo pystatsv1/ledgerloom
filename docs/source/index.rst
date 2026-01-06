@@ -44,6 +44,7 @@ changelog
    ledgerloom_ch085_opening_next_period
    ledgerloom_ch09_ar_lifecycle
    ledgerloom_ch10_ap_lifecycle
+   ledgerloom_ch11_inventory_cogs
 
 .. toctree::
    :maxdepth: 1

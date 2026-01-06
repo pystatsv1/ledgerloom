@@ -1,0 +1,42 @@
+{
+  "bad_dates": [],
+  "bad_posting_ids": [],
+  "checks": {
+    "cogs_links_to_sales": {
+      "ok": true
+    },
+    "inventory_control_reconciles": {
+      "gl_inventory_balance": "516.00",
+      "ok": true,
+      "subledger_inventory_value": "516.00"
+    },
+    "inventory_non_negative": {
+      "ending_qty": 48,
+      "ok": true
+    }
+  },
+  "date_format_ok": true,
+  "entry_double_entry_failures": [],
+  "entry_double_entry_ok": true,
+  "entry_id_present": true,
+  "entry_id_unique": true,
+  "ledger_raw_delta_total": "0.00",
+  "ledger_raw_delta_zero": true,
+  "missing_entry_ids": [],
+  "notes": [
+    "Raw delta uses (debit-credit). It must sum to 0 for a balanced ledger.",
+    "Signed delta uses a normal-balance convention by root (Assets/Expenses debit-normal; Liabilities/Equity/Revenue credit-normal)."
+  ],
+  "posting_id_entry_id_ok": true,
+  "posting_id_format_ok": true,
+  "posting_id_line_no_ok": true,
+  "posting_id_unique": true,
+  "roots_seen": [
+    "Assets",
+    "Equity",
+    "Expenses",
+    "Liabilities",
+    "Revenue"
+  ],
+  "unknown_roots": []
+}

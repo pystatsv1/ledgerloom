@@ -1,0 +1,9 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+OPEN-2026-02-01:01,OPEN-2026-02-01,1,2026-02-01,HQ,Opening balance carry-forward (from Ch08 post-close),Assets:AccountsReceivable,Assets,600.00,0.00,600.00,600.00
+OPEN-2026-02-01:02,OPEN-2026-02-01,2,2026-02-01,HQ,Opening balance carry-forward (from Ch08 post-close),Assets:Cash,Assets,4600.00,0.00,4600.00,4600.00
+OPEN-2026-02-01:03,OPEN-2026-02-01,3,2026-02-01,HQ,Opening balance carry-forward (from Ch08 post-close),Assets:PrepaidRent,Assets,1000.00,0.00,1000.00,1000.00
+OPEN-2026-02-01:04,OPEN-2026-02-01,4,2026-02-01,HQ,Opening balance carry-forward (from Ch08 post-close),Assets:Supplies,Assets,180.00,0.00,180.00,180.00
+OPEN-2026-02-01:05,OPEN-2026-02-01,5,2026-02-01,HQ,Opening balance carry-forward (from Ch08 post-close),Liabilities:AccountsPayable,Liabilities,0.00,450.00,-450.00,450.00
+OPEN-2026-02-01:06,OPEN-2026-02-01,6,2026-02-01,HQ,Opening balance carry-forward (from Ch08 post-close),Liabilities:UnearnedRevenue,Liabilities,0.00,400.00,-400.00,400.00
+OPEN-2026-02-01:07,OPEN-2026-02-01,7,2026-02-01,HQ,Opening balance carry-forward (from Ch08 post-close),Equity:OwnerCapital,Equity,0.00,5000.00,-5000.00,5000.00
+OPEN-2026-02-01:08,OPEN-2026-02-01,8,2026-02-01,HQ,Opening balance carry-forward (from Ch08 post-close),Equity:RetainedEarnings,Equity,0.00,530.00,-530.00,530.00

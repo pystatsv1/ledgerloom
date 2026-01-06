@@ -1,0 +1,3 @@
+sale_id,sale_date,sku,quantity,unit_price,revenue_amount
+SALE-5001,2026-02-12,WIDGET-A,80,20.00,1600.00
+SALE-5002,2026-02-20,WIDGET-A,30,20.00,600.00

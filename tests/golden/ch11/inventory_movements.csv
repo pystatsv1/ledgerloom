@@ -1,0 +1,6 @@
+movement_id,movement_date,sku,movement_type,qty_in,qty_out,unit_cost,extended_cost,source_doc_id,sale_id
+MOV-1001,2026-02-02,WIDGET-A,purchase_receipt,100,0,10.00,1000.00,PO-4001,
+MOV-1002,2026-02-10,WIDGET-A,purchase_receipt,60,0,12.00,720.00,PO-4002,
+MOV-2001,2026-02-12,WIDGET-A,sale_issue,0,80,10.75,860.00,INV-5001,SALE-5001
+MOV-2002,2026-02-20,WIDGET-A,sale_issue,0,30,10.75,322.50,INV-5002,SALE-5002
+MOV-3001,2026-02-28,WIDGET-A,shrink_adjustment,0,2,10.75,21.50,COUNT-2026-02,
