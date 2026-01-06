@@ -1,0 +1,10 @@
+{
+  "engine_invariants_adjusted_ok": false,
+  "engine_invariants_post_close_ok": false,
+  "equation_difference_adjusted_cents": 0,
+  "equation_difference_post_close_cents": 0,
+  "equity_increased_by_net_income": true,
+  "income_summary_zeroed": true,
+  "period": "2026-01",
+  "temporary_accounts_zeroed": true
+}

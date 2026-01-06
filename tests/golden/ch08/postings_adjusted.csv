@@ -1,0 +1,21 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+E0801:01,E0801,1,2026-01-02,HQ,Owner contribution (cash),Assets:Cash,Assets,5000.00,0.00,5000.00,5000.00
+E0801:02,E0801,2,2026-01-02,HQ,Owner contribution (cash),Equity:OwnerCapital,Equity,0.00,5000.00,-5000.00,5000.00
+E0802:01,E0802,1,2026-01-05,HQ,Customer prepays for February service (recorded as revenue at receipt),Assets:Cash,Assets,400.00,0.00,400.00,400.00
+E0802:02,E0802,2,2026-01-05,HQ,Customer prepays for February service (recorded as revenue at receipt),Revenue:Sales,Revenue,0.00,400.00,-400.00,400.00
+E0803:01,E0803,1,2026-01-08,HQ,Buy supplies on account,Assets:Supplies,Assets,300.00,0.00,300.00,300.00
+E0803:02,E0803,2,2026-01-08,HQ,Buy supplies on account,Liabilities:AccountsPayable,Liabilities,0.00,300.00,-300.00,300.00
+E0804:01,E0804,1,2026-01-12,HQ,Provide service on account (invoice customer),Assets:AccountsReceivable,Assets,600.00,0.00,600.00,600.00
+E0804:02,E0804,2,2026-01-12,HQ,Provide service on account (invoice customer),Revenue:Sales,Revenue,0.00,600.00,-600.00,600.00
+E0805:01,E0805,1,2026-01-20,HQ,Pay February rent in advance (recorded as expense),Expenses:Rent,Expenses,1000.00,0.00,1000.00,1000.00
+E0805:02,E0805,2,2026-01-20,HQ,Pay February rent in advance (recorded as expense),Assets:Cash,Assets,0.00,1000.00,-1000.00,-1000.00
+E0806:01,E0806,1,2026-01-25,HQ,Cash sale (earned and received),Assets:Cash,Assets,200.00,0.00,200.00,200.00
+E0806:02,E0806,2,2026-01-25,HQ,Cash sale (earned and received),Revenue:Sales,Revenue,0.00,200.00,-200.00,200.00
+A0801:01,A0801,1,2026-01-31,HQ,Defer unearned revenue (move Jan prepayment to liability),Revenue:Sales,Revenue,400.00,0.00,400.00,-400.00
+A0801:02,A0801,2,2026-01-31,HQ,Defer unearned revenue (move Jan prepayment to liability),Liabilities:UnearnedRevenue,Liabilities,0.00,400.00,-400.00,400.00
+A0802:01,A0802,1,2026-01-31,HQ,Reclass prepaid rent (Jan payment benefits Feb),Assets:PrepaidRent,Assets,1000.00,0.00,1000.00,1000.00
+A0802:02,A0802,2,2026-01-31,HQ,Reclass prepaid rent (Jan payment benefits Feb),Expenses:Rent,Expenses,0.00,1000.00,-1000.00,-1000.00
+A0803:01,A0803,1,2026-01-31,HQ,Accrue utilities expense (bill arrived after period end),Expenses:Utilities,Expenses,150.00,0.00,150.00,150.00
+A0803:02,A0803,2,2026-01-31,HQ,Accrue utilities expense (bill arrived after period end),Liabilities:AccountsPayable,Liabilities,0.00,150.00,-150.00,150.00
+A0804:01,A0804,1,2026-01-31,HQ,Recognize supplies used (month-end count),Expenses:Supplies,Expenses,120.00,0.00,120.00,120.00
+A0804:02,A0804,2,2026-01-31,HQ,Recognize supplies used (month-end count),Assets:Supplies,Assets,0.00,120.00,-120.00,-120.00
