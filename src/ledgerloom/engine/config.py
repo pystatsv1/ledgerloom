@@ -12,7 +12,7 @@ v0.1 design constraints
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import FrozenSet
+from typing import FrozenSet, Literal
 
 
 @dataclass(frozen=True)
@@ -35,6 +35,11 @@ class LedgerEngineConfig:
     # Metadata keys used by demo chapters (can be changed by apps).
     entry_id_key: str = "entry_id"
     department_key: str = "department"
+
+    # Entry ID policy:
+    # - "strict": raise if entry_id is missing (recommended for real systems)
+    # - "generated": synthesize a stable entry_id when missing (teaching / migration)
+    entry_id_policy: Literal["strict", "generated"] = "strict"
 
     @property
     def recognized_roots(self) -> FrozenSet[str]:

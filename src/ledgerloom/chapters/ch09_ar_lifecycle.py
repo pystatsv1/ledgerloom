@@ -14,9 +14,6 @@ Outputs are deterministic for a fixed seed.
 from __future__ import annotations
 
 import argparse
-import csv
-import hashlib
-import json
 from dataclasses import dataclass
 from decimal import Decimal
 from datetime import date
@@ -27,6 +24,7 @@ import pandas as pd
 
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine, LedgerEngineConfig
+from ledgerloom.artifacts import sha256_file, write_csv_df, write_csv_dicts, write_json
 
 # We intentionally reuse the Chapter 08/08.5 code paths to keep continuity:
 # post-close -> opening next period -> operational events.
@@ -43,32 +41,16 @@ CASH_ACCT = "Assets:Cash"
 SALES_ACCT = "Revenue:Sales"
 
 
-def _sha256_bytes(b: bytes) -> str:
-    h = hashlib.sha256()
-    h.update(b)
-    return h.hexdigest()
-
-
-def _read_bytes(path: Path) -> bytes:
-    return path.read_bytes()
-
-
 def _w_csv(rows: Iterable[dict[str, Any]], path: Path, fieldnames: list[str]) -> None:
-    """Write a CSV with LF newlines for platform-stable byte sizes."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8", newline="\n") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
-        w.writeheader()
-        for r in rows:
-            w.writerow(r)
+    """Backward-compatible wrapper around :func:`ledgerloom.artifacts.write_csv_dicts`."""
+
+    write_csv_dicts(path, rows, fieldnames=fieldnames)
 
 
 def _w_json(obj: Any, path: Path) -> None:
-    """Write JSON with LF newlines for platform-stable byte sizes."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    txt = json.dumps(obj, indent=2, sort_keys=True) + "\n"
-    with path.open("w", encoding="utf-8", newline="\n") as f:
-        f.write(txt)
+    """Backward-compatible wrapper around :func:`ledgerloom.artifacts.write_json`."""
+
+    write_json(path, obj)
 
 
 def _make_entry(
@@ -136,8 +118,9 @@ def _balance_sheet_from_tb(tb: pd.DataFrame) -> pd.DataFrame:
 
 
 def _df_to_csv(path: Path, df: pd.DataFrame) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False, lineterminator="\n")
+    """Backward-compatible wrapper around :func:`ledgerloom.artifacts.write_csv_df`."""
+
+    write_csv_df(path, df)
 
 
 def _period_days_past_due(asof: date, due: date) -> int:
@@ -461,11 +444,7 @@ def run(outdir: Path, seed: int = 123) -> Path:
 
     for name in artifact_names:
         p = out_ch / name
-        b = _read_bytes(p)
-        manifest["artifacts"][name] = {
-            "bytes": len(b),
-            "sha256": _sha256_bytes(b),
-        }
+        manifest["artifacts"][name] = {"bytes": p.stat().st_size, "sha256": sha256_file(p)}
 
     _w_json(manifest, out_ch / "manifest.json")
 

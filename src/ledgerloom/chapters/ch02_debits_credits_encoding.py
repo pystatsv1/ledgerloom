@@ -323,7 +323,7 @@ def wide_to_entries(df: pd.DataFrame) -> list[Entry]:
                     ),
                 ]
             ),
-            meta={"tx_id": str(row["tx_id"])},
+            meta={"entry_id": str(row["tx_id"]), "tx_id": str(row["tx_id"])},
         )
         entries.append(entry)
 
@@ -431,7 +431,7 @@ def signed_to_entries(df: pd.DataFrame) -> list[Entry]:
             dt=date.fromisoformat(str(g.loc[0, "dt"])),
             narration=str(g.loc[0, "narration"]),
             postings=postings,
-            meta={"tx_id": str(tx_id)},
+            meta={"entry_id": str(tx_id), "tx_id": str(tx_id)},
         )
         entries.append(entry)
 
@@ -466,7 +466,7 @@ def long_to_entries(df: pd.DataFrame) -> list[Entry]:
             dt=date.fromisoformat(str(g.iloc[0]["dt"])),
             narration=str(g.iloc[0]["narration"]),
             postings=postings,
-            meta={"tx_id": str(tx_id)},
+            meta={"entry_id": str(tx_id), "tx_id": str(tx_id)},
         )
         entries.append(entry)
 

@@ -44,42 +44,16 @@ Run
 from __future__ import annotations
 
 import argparse
-import csv
-import hashlib
-import json
 from pathlib import Path
 from typing import Sequence
 
 from ledgerloom.engine import COASchema
-
-
-def sha256_bytes(b: bytes) -> str:
-    h = hashlib.sha256()
-    h.update(b)
-    return h.hexdigest()
-
-
-def sha256_file(path: Path) -> str:
-    return sha256_bytes(path.read_bytes())
-
-
-def ensure_dir(p: Path) -> None:
-    p.mkdir(parents=True, exist_ok=True)
-
-
-def write_text(path: Path, s: str) -> None:
-    path.write_text(s, encoding="utf-8", newline="\n")
-
-
-def write_json(path: Path, obj: object) -> None:
-    write_text(path, json.dumps(obj, indent=2, sort_keys=True) + "\n")
+from ledgerloom.artifacts import sha256_file, write_csv_dicts, write_json, write_text
 
 
 def write_csv(path: Path, rows: Sequence[dict[str, str]], fieldnames: Sequence[str]) -> None:
-    with path.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
-        w.writeheader()
-        w.writerows(rows)
+    # Keep the chapter-local function name for readability in the narrative.
+    write_csv_dicts(path, rows, fieldnames=fieldnames)
 
 
 def md_table(rows: Sequence[dict[str, str]], cols: Sequence[str], max_rows: int = 10) -> str:
@@ -162,7 +136,7 @@ def artifact_manifest(outdir: Path, files: Sequence[Path]) -> dict[str, object]:
 
 def write_ch03_accounts_schema(out_root: Path, seed: int) -> Path:
     outdir = out_root / "ch03AccountsSchema"
-    ensure_dir(outdir)
+    outdir.mkdir(parents=True, exist_ok=True)
 
     coa = COASchema.default()
 

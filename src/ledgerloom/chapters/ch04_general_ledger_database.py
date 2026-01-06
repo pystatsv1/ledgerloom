@@ -22,42 +22,17 @@ Designed to be deterministic across platforms (LF line endings).
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
-from typing import Any
 
-import pandas as pd
 
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine
+from ledgerloom.artifacts import manifest_items, write_csv_df, write_json, write_text
 
 
-# -------------------------
-# CSV/JSON helpers (chapter-owned I/O)
-# -------------------------
-
-
-def _write_text(path: Path, text: str) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    if not text.endswith("\n"):
-        text += "\n"
-    path.write_text(text, encoding="utf-8", newline="\n")
-
-
-def _write_json(path: Path, obj: Any) -> None:
-    _write_text(path, json.dumps(obj, indent=2, sort_keys=True))
-
-
-def _write_df_csv(path: Path, df: pd.DataFrame) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    df.to_csv(path, index=False, lineterminator="\n")
-
-
-def _sha256_bytes(b: bytes) -> str:
-    return hashlib.sha256(b).hexdigest()
+# Chapter-owned I/O helpers are centralized in ledgerloom.artifacts.
 
 
 # -------------------------
@@ -289,13 +264,9 @@ flowchart TD
 
 
 def _write_manifest(outdir: Path) -> None:
-    items = []
-    for p in sorted(outdir.glob("*")):
-        if p.is_dir():
-            continue
-        b = p.read_bytes()
-        items.append({"file": p.name, "bytes": len(b), "sha256": _sha256_bytes(b)})
-    _write_json(outdir / "manifest.json", {"artifacts": items})
+    files = [p for p in sorted(outdir.glob("*")) if p.is_file()]
+    items = manifest_items(outdir, files, name_key="file")
+    write_json(outdir / "manifest.json", {"artifacts": items})
 
 
 # -------------------------
@@ -325,17 +296,17 @@ def run(outdir: Path, seed: int) -> Path:
     checks = engine.invariants(entries, postings)
 
     # Write artifacts
-    _write_df_csv(out / "postings.csv", postings)
-    _write_df_csv(out / "balances_by_account.csv", bal_acct)
-    _write_df_csv(out / "balances_by_period.csv", bal_period)
-    _write_df_csv(out / "balances_by_department.csv", bal_dept)
-    _write_df_csv(out / "running_balance_by_posting.csv", running)
+    write_csv_df(out / "postings.csv", postings)
+    write_csv_df(out / "balances_by_account.csv", bal_acct)
+    write_csv_df(out / "balances_by_period.csv", bal_period)
+    write_csv_df(out / "balances_by_department.csv", bal_dept)
+    write_csv_df(out / "running_balance_by_posting.csv", running)
 
-    _write_json(out / "invariants.json", checks)
-    _write_json(out / "gl_schema.json", engine.gl_schema_description())
+    write_json(out / "invariants.json", checks)
+    write_json(out / "gl_schema.json", engine.gl_schema_description())
 
-    _write_text(out / "sql_mental_model.md", _query_patterns_md())
-    _write_text(out / "lineage.mmd", _lineage_mermaid())
+    write_text(out / "sql_mental_model.md", _query_patterns_md())
+    write_text(out / "lineage.mmd", _lineage_mermaid())
 
     run_meta = {
         "chapter": "04",
@@ -344,7 +315,7 @@ def run(outdir: Path, seed: int) -> Path:
         "entries": len(entries),
         "postings": int(len(postings)),
     }
-    _write_json(out / "run_meta.json", run_meta)
+    write_json(out / "run_meta.json", run_meta)
 
     _write_manifest(out)
 

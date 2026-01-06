@@ -11,8 +11,6 @@ post-close trial balance.
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -23,6 +21,8 @@ import pandas as pd
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine.ledger import LedgerEngine
 from ledgerloom.engine.config import LedgerEngineConfig
+
+from ledgerloom.artifacts import sha256_file, write_csv_df, write_json
 
 # Re-use Ch08's scenario + report helpers to guarantee continuity.
 from ledgerloom.chapters import ch08_closing_controlled_transformation as ch08
@@ -35,28 +35,22 @@ OPEN_DATE = date(2026, 2, 1)
 CLOSE_PERIOD = "2026-01"
 
 
-def _sha256_file(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
 def _w_csv(df: pd.DataFrame, path: Path) -> None:
-    """Write CSV deterministically across platforms (LF newlines)."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    # Pandas may vary newline handling by platform when given a Path. We control it.
-    with path.open("w", encoding="utf-8", newline="\n") as f:
-        df.to_csv(f, index=False, lineterminator="\n")
+    """Backward-compatible wrapper around :func:`ledgerloom.artifacts.write_csv_df`.
+
+    Chapter 08.5 was used to validate cross-platform newline stability.
+    Keeping this wrapper makes diffs small while still centralizing I/O.
+    """
+
+    write_csv_df(path, df)
+
 
 def _w_json(obj: Any, path: Path) -> None:
-    """Write JSON deterministically across platforms (LF newlines + trailing newline)."""
-    path.parent.mkdir(parents=True, exist_ok=True)
-    txt = json.dumps(obj, indent=2, sort_keys=True) + "\n"
-    # Force LF newlines to keep manifest byte sizes stable across platforms.
-    with path.open("w", encoding="utf-8", newline="\n") as f:
-        f.write(txt)
+    """Backward-compatible wrapper around :func:`ledgerloom.artifacts.write_json`."""
+
+    write_json(path, obj)
+
+
 
 def _make_entry(entry_id: str, dt: date, narration: str, lines: list[tuple[str, str, str]], meta: dict[str, Any]) -> Entry:
     postings: list[Posting] = []
@@ -347,7 +341,7 @@ def main(argv: list[str] | None = None) -> int:
     artifacts = []
     for rel in artifact_files:
         p = outdir / rel
-        artifacts.append({"path": f"{OUTDIR_NAME}/{rel}", "sha256": _sha256_file(p), "bytes": p.stat().st_size})
+        artifacts.append({"path": f"{OUTDIR_NAME}/{rel}", "sha256": sha256_file(p), "bytes": p.stat().st_size})
 
     manifest = {
         "meta": {
