@@ -1,0 +1,4 @@
+item_id,purchase_date,description,cost,threshold,decision,rationale
+PO-FA-1001,2026-02-02,Laptop fleet,3000.00,2500.00,capitalize,Cost >= $2500.00 policy threshold
+PO-FA-1002,2026-02-15,Forklift,6000.00,2500.00,capitalize,Cost >= $2500.00 policy threshold
+PO-EXP-2001,2026-02-15,Hand tools (consumable),200.00,2500.00,expense,Below capitalization threshold

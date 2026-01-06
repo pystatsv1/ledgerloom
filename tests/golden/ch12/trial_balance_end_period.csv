@@ -1,0 +1,14 @@
+account,root,balance
+Assets:AccountsReceivable,Assets,600.00
+Assets:Cash,Assets,200.00
+Assets:FixedAssets:AccumulatedDepreciation,Assets,-249.99
+Assets:FixedAssets:Equipment,Assets,3000.00
+Assets:PrepaidRent,Assets,1000.00
+Assets:Supplies,Assets,180.00
+Equity:OwnerCapital,Equity,5000.00
+Equity:RetainedEarnings,Equity,530.00
+Expenses:Depreciation,Expenses,1599.99
+Expenses:ToolsSupplies,Expenses,200.00
+Liabilities:AccountsPayable,Liabilities,450.00
+Liabilities:UnearnedRevenue,Liabilities,400.00
+Revenue:GainOnDisposal,Revenue,150.00

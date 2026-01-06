@@ -1,0 +1,73 @@
+{
+  "artifacts": {
+    "balance_sheet_current_period.csv": {
+      "bytes": 152,
+      "sha256": "506960f47d184d9b7513ca2db2391c67a6e22e7a4b577bb8146fbd6e0ac84145"
+    },
+    "capitalization_decisions.csv": {
+      "bytes": 357,
+      "sha256": "852817572fc19da9044bd10c5e95a53f68990f66fbe2625c80316ce4ef8a56c1"
+    },
+    "depreciation_events.csv": {
+      "bytes": 417,
+      "sha256": "493b0c173b2c55929658a6235a835259b61359531a3395c42374762c77a16877"
+    },
+    "depreciation_schedule.csv": {
+      "bytes": 1660,
+      "sha256": "9ee6fb0311fbb2bc7df22fb70ad997e65b9a828e666c39bdc888e4b12394891a"
+    },
+    "fixed_assets_checklist.json": {
+      "bytes": 515,
+      "sha256": "5b3f4fc64d64d975077253cb449877f4493d3c3d7d82d66382a9665c42b58e28"
+    },
+    "fixed_assets_control_reconciliation.csv": {
+      "bytes": 149,
+      "sha256": "0473dafe86e3b3706146e0fb8727a310e4f113f01ef232d5f40160c975d20f4c"
+    },
+    "fixed_assets_register.csv": {
+      "bytes": 351,
+      "sha256": "9c2a776ddb5774821c672b2937293f416f427e42767de36557ccbde6b3f56a3f"
+    },
+    "income_statement_current_period.csv": {
+      "bytes": 65,
+      "sha256": "db84edb36e6e0be12349437617663ea336f153c47430cee79ef4327284b2b35e"
+    },
+    "invariants.json": {
+      "bytes": 1013,
+      "sha256": "985e7f6cc4e602c4d1cac9774a10909347a89d3e0966720a86512d3fefeefe9e"
+    },
+    "postings_fixed_assets.csv": {
+      "bytes": 3660,
+      "sha256": "5fc5b6a8d686f6148b9e529fededb89ac7a58f267d7ee434b7ee2eed440fa705"
+    },
+    "postings_opening.csv": {
+      "bytes": 1395,
+      "sha256": "3596d649581496b529d1de280befe4cb32536975b3b8c701ae32c6a7fa430043"
+    },
+    "postings_post_close.csv": {
+      "bytes": 3566,
+      "sha256": "37b168038d2bdf09a302052f94e35668f7a4d813db665079c7a1014bea7b525d"
+    },
+    "reconciliation_post_close_vs_opening.csv": {
+      "bytes": 501,
+      "sha256": "2165a44321b1b0561a58ed78c16a47b46720188fde21711d2752df1fab255721"
+    },
+    "trial_balance_end_period.csv": {
+      "bytes": 536,
+      "sha256": "6d5b1e3d8db0022e4138eb8de5fde5d49fcc4d1e054535a74a0796488b30f5f2"
+    },
+    "trial_balance_opening.csv": {
+      "bytes": 319,
+      "sha256": "b8b82bc6bef74c6f5ad17aa97376a5856391bd4a63e31258c197cb9e79308bd9"
+    },
+    "trial_balance_post_close.csv": {
+      "bytes": 472,
+      "sha256": "7c1b6d219a66b1316978d4200b860493a9799c5bc0373a82dfcd741091209fb4"
+    }
+  },
+  "chapter": "ch12",
+  "notes": {
+    "line_endings": "LF",
+    "seed": 123
+  }
+}

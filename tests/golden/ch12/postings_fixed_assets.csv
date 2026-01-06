@@ -1,0 +1,23 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+fa_acq:FA-1001:01,fa_acq:FA-1001,1,2026-02-02,,Capitalize fixed asset FA-1001: Laptop fleet,Assets:FixedAssets:Equipment,Assets,3000.00,0.00,3000.00,3000.00
+fa_acq:FA-1001:02,fa_acq:FA-1001,2,2026-02-02,,Capitalize fixed asset FA-1001: Laptop fleet,Assets:Cash,Assets,0.00,3000.00,-3000.00,-3000.00
+expense:PO-EXP-2001:01,expense:PO-EXP-2001,1,2026-02-15,,Expense purchase PO-EXP-2001: Hand tools (consumable),Expenses:ToolsSupplies,Expenses,200.00,0.00,200.00,200.00
+expense:PO-EXP-2001:02,expense:PO-EXP-2001,2,2026-02-15,,Expense purchase PO-EXP-2001: Hand tools (consumable),Assets:Cash,Assets,0.00,200.00,-200.00,-200.00
+fa_acq:FA-1002:01,fa_acq:FA-1002,1,2026-02-15,,Capitalize fixed asset FA-1002: Forklift,Assets:FixedAssets:Equipment,Assets,6000.00,0.00,6000.00,6000.00
+fa_acq:FA-1002:02,fa_acq:FA-1002,2,2026-02-15,,Capitalize fixed asset FA-1002: Forklift,Assets:Cash,Assets,0.00,6000.00,-6000.00,-6000.00
+depr:FA-1001:2026-02-28:01,depr:FA-1001:2026-02-28,1,2026-02-28,,Monthly depreciation FA-1001 (2026-02),Expenses:Depreciation,Expenses,83.33,0.00,83.33,83.33
+depr:FA-1001:2026-02-28:02,depr:FA-1001:2026-02-28,2,2026-02-28,,Monthly depreciation FA-1001 (2026-02),Assets:FixedAssets:AccumulatedDepreciation,Assets,0.00,83.33,-83.33,-83.33
+depr:FA-1002:2026-02-28:01,depr:FA-1002:2026-02-28,1,2026-02-28,,Monthly depreciation FA-1002 (2026-02),Expenses:Depreciation,Expenses,450.00,0.00,450.00,450.00
+depr:FA-1002:2026-02-28:02,depr:FA-1002:2026-02-28,2,2026-02-28,,Monthly depreciation FA-1002 (2026-02),Assets:FixedAssets:AccumulatedDepreciation,Assets,0.00,450.00,-450.00,-450.00
+depr:FA-1001:2026-03-31:01,depr:FA-1001:2026-03-31,1,2026-03-31,,Monthly depreciation FA-1001 (2026-03),Expenses:Depreciation,Expenses,83.33,0.00,83.33,83.33
+depr:FA-1001:2026-03-31:02,depr:FA-1001:2026-03-31,2,2026-03-31,,Monthly depreciation FA-1001 (2026-03),Assets:FixedAssets:AccumulatedDepreciation,Assets,0.00,83.33,-83.33,-83.33
+depr:FA-1002:2026-03-31:01,depr:FA-1002:2026-03-31,1,2026-03-31,,Monthly depreciation FA-1002 (2026-03),Expenses:Depreciation,Expenses,450.00,0.00,450.00,450.00
+depr:FA-1002:2026-03-31:02,depr:FA-1002:2026-03-31,2,2026-03-31,,Monthly depreciation FA-1002 (2026-03),Assets:FixedAssets:AccumulatedDepreciation,Assets,0.00,450.00,-450.00,-450.00
+depr:FA-1001:2026-04-30:01,depr:FA-1001:2026-04-30,1,2026-04-30,,Monthly depreciation FA-1001 (2026-04),Expenses:Depreciation,Expenses,83.33,0.00,83.33,83.33
+depr:FA-1001:2026-04-30:02,depr:FA-1001:2026-04-30,2,2026-04-30,,Monthly depreciation FA-1001 (2026-04),Assets:FixedAssets:AccumulatedDepreciation,Assets,0.00,83.33,-83.33,-83.33
+depr:FA-1002:2026-04-30:01,depr:FA-1002:2026-04-30,1,2026-04-30,,Monthly depreciation FA-1002 (2026-04),Expenses:Depreciation,Expenses,450.00,0.00,450.00,450.00
+depr:FA-1002:2026-04-30:02,depr:FA-1002:2026-04-30,2,2026-04-30,,Monthly depreciation FA-1002 (2026-04),Assets:FixedAssets:AccumulatedDepreciation,Assets,0.00,450.00,-450.00,-450.00
+fa_disp:FA-1002:01,fa_disp:FA-1002,1,2026-04-30,,Dispose fixed asset FA-1002: Forklift,Assets:Cash,Assets,4800.00,0.00,4800.00,4800.00
+fa_disp:FA-1002:02,fa_disp:FA-1002,2,2026-04-30,,Dispose fixed asset FA-1002: Forklift,Assets:FixedAssets:AccumulatedDepreciation,Assets,1350.00,0.00,1350.00,1350.00
+fa_disp:FA-1002:03,fa_disp:FA-1002,3,2026-04-30,,Dispose fixed asset FA-1002: Forklift,Assets:FixedAssets:Equipment,Assets,0.00,6000.00,-6000.00,-6000.00
+fa_disp:FA-1002:04,fa_disp:FA-1002,4,2026-04-30,,Dispose fixed asset FA-1002: Forklift,Revenue:GainOnDisposal,Revenue,0.00,150.00,-150.00,150.00
