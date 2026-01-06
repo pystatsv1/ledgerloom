@@ -1,0 +1,8 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+C0801:01,C0801,1,2026-01-31,HQ,Close revenue to IncomeSummary,Revenue:Sales,Revenue,800.00,0.00,800.00,-800.00
+C0801:02,C0801,2,2026-01-31,HQ,Close revenue to IncomeSummary,Equity:IncomeSummary,Equity,0.00,800.00,-800.00,800.00
+C0802:01,C0802,1,2026-01-31,HQ,Close expenses to IncomeSummary,Equity:IncomeSummary,Equity,270.00,0.00,270.00,-270.00
+C0802:02,C0802,2,2026-01-31,HQ,Close expenses to IncomeSummary,Expenses:Supplies,Expenses,0.00,120.00,-120.00,-120.00
+C0802:03,C0802,3,2026-01-31,HQ,Close expenses to IncomeSummary,Expenses:Utilities,Expenses,0.00,150.00,-150.00,-150.00
+C0803:01,C0803,1,2026-01-31,HQ,Close IncomeSummary (net income) to RetainedEarnings,Equity:IncomeSummary,Equity,530.00,0.00,530.00,-530.00
+C0803:02,C0803,2,2026-01-31,HQ,Close IncomeSummary (net income) to RetainedEarnings,Equity:RetainedEarnings,Equity,0.00,530.00,-530.00,530.00

@@ -1,0 +1,7 @@
+account,root,balance_before,balance_after
+Equity:IncomeSummary,Equity,0.00,0.00
+Equity:RetainedEarnings,Equity,0.00,530.00
+Expenses:Rent,Expenses,0.00,0.00
+Expenses:Supplies,Expenses,120.00,0.00
+Expenses:Utilities,Expenses,150.00,0.00
+Revenue:Sales,Revenue,800.00,0.00

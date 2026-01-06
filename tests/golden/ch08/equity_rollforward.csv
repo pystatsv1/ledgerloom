@@ -1,0 +1,5 @@
+metric,amount
+Equity_BeforeClosing,5000.00
+NetIncome_Transferred,530.00
+Equity_AfterClosing,5530.00
+Check_EqAfter_minus_EqBefore,530.00

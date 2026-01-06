@@ -1,0 +1,78 @@
+{
+  "artifacts": [
+    {
+      "bytes": 2702,
+      "file": "postings_adjusted.csv",
+      "sha256": "66ce849cdf39e70bd8997bcf950efd6b876b61f9c5c7dcf0f555a594d8c2467d"
+    },
+    {
+      "bytes": 967,
+      "file": "postings_closing.csv",
+      "sha256": "f0c7cf9dbf80523400f90f701d092f85b26cac46cfc3c8b58dc09d38c0513030"
+    },
+    {
+      "bytes": 3566,
+      "file": "postings_post_close.csv",
+      "sha256": "37b168038d2bdf09a302052f94e35668f7a4d813db665079c7a1014bea7b525d"
+    },
+    {
+      "bytes": 407,
+      "file": "trial_balance_adjusted.csv",
+      "sha256": "2baf8aca99029c781f487bc06c327e76fd4a722f69902ba048d01d5228aa7375"
+    },
+    {
+      "bytes": 472,
+      "file": "trial_balance_post_close.csv",
+      "sha256": "7c1b6d219a66b1316978d4200b860493a9799c5bc0373a82dfcd741091209fb4"
+    },
+    {
+      "bytes": 62,
+      "file": "income_statement_adjusted.csv",
+      "sha256": "ed437df67fed811c5cbcea266b5759b3c6e038098fafa17335a499fd1f6029a6"
+    },
+    {
+      "bytes": 56,
+      "file": "income_statement_post_close.csv",
+      "sha256": "bf5858370577ba17a886119b2ec58f8bcc50ec333e437d0cd4a1879927cb2160"
+    },
+    {
+      "bytes": 150,
+      "file": "balance_sheet_adjusted.csv",
+      "sha256": "f1b493f551df3f27553b765edfe90a715f54dd1e2de243ea7ab0d9a0953f3020"
+    },
+    {
+      "bytes": 130,
+      "file": "balance_sheet_post_close.csv",
+      "sha256": "9790e6de38edda077fdd9bd0f6497acdc50e2ac3f5153268540aba10807779aa"
+    },
+    {
+      "bytes": 627,
+      "file": "closing_entries_register.csv",
+      "sha256": "efe14253cda0df672d83a4425bf877b6926e5eab51db70482fa65ff56d60884f"
+    },
+    {
+      "bytes": 269,
+      "file": "temp_accounts_before_after.csv",
+      "sha256": "2eb5876376d5b020fb52aea66ac277f4fe1392f4840b8e2214fd76675f45fff1"
+    },
+    {
+      "bytes": 136,
+      "file": "equity_rollforward.csv",
+      "sha256": "ce50da282166296f94b1696aded6a992fc94300f4a75d81d3fcdb4036d61cd5a"
+    },
+    {
+      "bytes": 312,
+      "file": "closing_checklist.json",
+      "sha256": "215e21824c34b3f1bae5b26a6881df7ea67a4be156836535aba22d546548e6a8"
+    },
+    {
+      "bytes": 1936,
+      "file": "invariants.json",
+      "sha256": "4e575507bf807cbc2f8fe5f6014fae039b04be76ac196358efd483547fa6fb1d"
+    }
+  ],
+  "meta": {
+    "chapter": "ch08",
+    "seed": 123
+  }
+}

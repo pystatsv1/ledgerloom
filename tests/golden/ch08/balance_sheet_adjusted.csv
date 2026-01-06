@@ -1,0 +1,8 @@
+metric,amount
+Assets,6380.00
+Liabilities,850.00
+Equity,5000.00
+NetIncome,530.00
+EquationLHS_Assets,6380.00
+EquationRHS_L+E+NI,6380.00
+Difference,0.00

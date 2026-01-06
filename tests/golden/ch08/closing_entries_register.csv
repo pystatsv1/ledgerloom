@@ -1,0 +1,4 @@
+entry_id,date,narration,entry_kind,affects_period,posted_at,prepared_by,source,reason
+C0801,2026-01-31,Close revenue to IncomeSummary,closing,2026-01,2026-02-06,Controller,Adjusted trial balance,Reset revenue accounts to 0 and transfer totals to IncomeSummary.
+C0802,2026-01-31,Close expenses to IncomeSummary,closing,2026-01,2026-02-06,Controller,Adjusted trial balance,Reset expense accounts to 0 and transfer totals to IncomeSummary.
+C0803,2026-01-31,Close IncomeSummary (net income) to RetainedEarnings,closing,2026-01,2026-02-06,Controller,IncomeSummary balance,Transfer net income to permanent equity (RetainedEarnings).
