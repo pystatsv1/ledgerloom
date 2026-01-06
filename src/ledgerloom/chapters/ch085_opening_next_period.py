@@ -23,11 +23,10 @@ from ledgerloom.engine.ledger import LedgerEngine
 from ledgerloom.engine.config import LedgerEngineConfig
 
 from ledgerloom.artifacts import sha256_file, write_csv_df, write_json
+from ledgerloom.engine.money import cents_to_str, str_to_cents
+from ledgerloom.scenarios.bookset_v1 import compute_post_close_snapshot
 
 # Re-use Ch08's scenario + report helpers to guarantee continuity.
-from ledgerloom.chapters import ch08_closing_controlled_transformation as ch08
-
-
 CHAPTER = "ch085"
 OUTDIR_NAME = "ch085"
 CLOSE_DATE = date(2026, 1, 31)
@@ -64,40 +63,33 @@ def _trial_balance_from_postings(postings: pd.DataFrame) -> pd.DataFrame:
     """Trial balance in normal-sign convention (uses postings.signed_delta)."""
     g = (
         postings.groupby(["account", "root"], sort=True)["signed_delta"]
-        .apply(lambda s: sum(ch08._str_to_cents(x) for x in s))  # noqa: SLF001
+        .apply(lambda s: sum(str_to_cents(x) for x in s))
         .reset_index(name="balance_cents")
     )
-    g["balance"] = g["balance_cents"].apply(ch08._cents_to_str)  # noqa: SLF001
+    g["balance"] = g["balance_cents"].apply(cents_to_str)
     return g[["account", "root", "balance"]].sort_values(["root", "account"], ignore_index=True)
 
 
 def _compute_ch08_post_close(cfg: LedgerEngineConfig) -> dict[str, Any]:
-    """Compute Ch08 post-close artifacts in-memory (no filesystem dependency)."""
-    engine = LedgerEngine(cfg)
+    """Compute Ch08 post-close artifacts in-memory (no filesystem dependency).
 
-    adjusted_entries = ch08._base_entries() + ch08._adjusting_entries()  # noqa: SLF001
-    postings_adjusted = engine.postings_fact_table(adjusted_entries)
-    tb_adjusted = ch08._trial_balance(postings_adjusted)  # noqa: SLF001
+    This chapter previously reached into Chapter 08 private helpers. We now treat
+    the scenario layer as the shared, public API for "close → post-close snapshot".
+    """
 
-    closing_entries = ch08._closing_entries_from_adjusted_tb(tb_adjusted, CLOSE_PERIOD)  # noqa: SLF001
-    post_close_entries = adjusted_entries + closing_entries
-    postings_post_close = engine.postings_fact_table(post_close_entries)
-
-    tb_post_close = ch08._trial_balance(postings_post_close)  # noqa: SLF001
-    bs_post_close = ch08._balance_sheet_post_close(tb_post_close)  # noqa: SLF001
+    snap = compute_post_close_snapshot(cfg=cfg, period=CLOSE_PERIOD, close_date=CLOSE_DATE)
 
     return {
-        "adjusted_entries": adjusted_entries,
-        "post_close_entries": post_close_entries,
-        "postings_adjusted": postings_adjusted,
-        "postings_post_close": postings_post_close,
-        "tb_adjusted": tb_adjusted,
-        "tb_post_close": tb_post_close,
-        "bs_post_close": bs_post_close,
-        "engine": engine,
+        "adjusted_entries": snap.adjusted_entries,
+        "closing_entries": snap.closing_entries,
+        "post_close_entries": snap.post_close_entries,
+        "postings_adjusted": snap.postings_adjusted,
+        "postings_post_close": snap.postings_post_close,
+        "tb_adjusted": snap.trial_balance_adjusted,
+        "tb_post_close": snap.trial_balance_post_close,
+        "bs_post_close": snap.balance_sheet_post_close,
+        "engine": LedgerEngine(cfg),
     }
-
-
 def _opening_entry_from_post_close_tb(tb_post_close: pd.DataFrame, cfg: LedgerEngineConfig) -> Entry:
     """Build an opening balance entry from the post-close trial balance.
 
@@ -106,7 +98,7 @@ def _opening_entry_from_post_close_tb(tb_post_close: pd.DataFrame, cfg: LedgerEn
     opening trial balance output).
     """
     rows = tb_post_close.copy()
-    rows["balance_cents"] = rows["balance"].apply(ch08._str_to_cents)  # noqa: SLF001
+    rows["balance_cents"] = rows["balance"].apply(str_to_cents)
     rows = rows[rows["root"].isin({"Assets", "Liabilities", "Equity"})].copy()
     rows = rows[rows["balance_cents"] != 0].copy()
 
@@ -144,15 +136,15 @@ def _opening_entry_from_post_close_tb(tb_post_close: pd.DataFrame, cfg: LedgerEn
         lines.append(
             (
                 account,
-                ch08._cents_to_str(debit_cents),  # noqa: SLF001
-                ch08._cents_to_str(credit_cents),  # noqa: SLF001
+                cents_to_str(debit_cents),
+                cents_to_str(credit_cents),
             )
         )
 
     if total_debits != total_credits:
         raise ValueError(
             "Opening entry not balanced "
-            f"(debits={ch08._cents_to_str(total_debits)}, credits={ch08._cents_to_str(total_credits)})"  # noqa: SLF001
+            f"(debits={cents_to_str(total_debits)}, credits={cents_to_str(total_credits)})"
         )
 
     return _make_entry(
@@ -174,9 +166,9 @@ def _tb_full_template(tb_template: pd.DataFrame, tb_partial: pd.DataFrame) -> pd
 
 def _balance_sheet_from_tb(tb: pd.DataFrame) -> pd.DataFrame:
     rows = tb[tb["root"].isin({"Assets", "Liabilities", "Equity"})].copy()
-    rows["balance_cents"] = rows["balance"].apply(ch08._str_to_cents)  # noqa: SLF001
+    rows["balance_cents"] = rows["balance"].apply(str_to_cents)
     g = rows.groupby("root", sort=False)["balance_cents"].sum().reset_index()
-    g["amount"] = g["balance_cents"].apply(ch08._cents_to_str)  # noqa: SLF001
+    g["amount"] = g["balance_cents"].apply(cents_to_str)
     return g[["root", "amount"]]
 
 
@@ -188,10 +180,10 @@ def _continuity_tables(tb_post_close: pd.DataFrame, tb_opening: pd.DataFrame) ->
     merged["opening_balance"] = merged["opening_balance"].fillna("0.00")
 
     merged["diff_cents"] = merged.apply(
-        lambda r: ch08._str_to_cents(r["opening_balance"]) - ch08._str_to_cents(r["post_close_balance"]),  # noqa: SLF001
+        lambda r: str_to_cents(r["opening_balance"]) - str_to_cents(r["post_close_balance"]),
         axis=1,
     )
-    merged["diff"] = merged["diff_cents"].apply(ch08._cents_to_str)  # noqa: SLF001
+    merged["diff"] = merged["diff_cents"].apply(cents_to_str)
     merged = merged[["account", "root", "post_close_balance", "opening_balance", "diff"]]
 
     def _get_balance(tb_df: pd.DataFrame, account: str) -> str:
@@ -214,7 +206,7 @@ def _continuity_tables(tb_post_close: pd.DataFrame, tb_opening: pd.DataFrame) ->
             {
                 "stage": "diff",
                 "account": re_account,
-                "amount": ch08._cents_to_str(ch08._str_to_cents(re_open) - ch08._str_to_cents(re_post)),  # noqa: SLF001
+                "amount": cents_to_str(str_to_cents(re_open) - str_to_cents(re_post)),
             },
         ]
     )
@@ -252,8 +244,8 @@ def main(argv: list[str] | None = None) -> int:
     recon_by_account, re_continuity = _continuity_tables(tb_post_close, tb_opening)
 
     # Register: one entry summary
-    total_debits = sum(ch08._str_to_cents(x) for x in postings_opening["debit"])  # noqa: SLF001
-    total_credits = sum(ch08._str_to_cents(x) for x in postings_opening["credit"])  # noqa: SLF001
+    total_debits = sum(str_to_cents(x) for x in postings_opening["debit"])
+    total_credits = sum(str_to_cents(x) for x in postings_opening["credit"])
     entry_register = pd.DataFrame(
         [
             {
@@ -263,8 +255,8 @@ def main(argv: list[str] | None = None) -> int:
                 "post_close_date": CLOSE_DATE.isoformat(),
                 "open_date": OPEN_DATE.isoformat(),
                 "lines": len(opening_entry.postings),
-                "total_debits": ch08._cents_to_str(total_debits),  # noqa: SLF001
-                "total_credits": ch08._cents_to_str(total_credits),  # noqa: SLF001
+                "total_debits": cents_to_str(total_debits),
+                "total_credits": cents_to_str(total_credits),
             }
         ]
     )
@@ -295,23 +287,23 @@ def main(argv: list[str] | None = None) -> int:
 
     inv_open = engine_open.invariants(opening_entries, postings_opening)
 
-    diffs = recon_by_account["diff"].apply(ch08._str_to_cents)  # noqa: SLF001
+    diffs = recon_by_account["diff"].apply(str_to_cents)
     continuity = {
         "checks": [
             {
                 "name": "post_close_vs_opening_all_accounts_match",
                 "ok": bool((diffs == 0).all()),
-                "max_abs_diff": ch08._cents_to_str(int(diffs.abs().max() if len(diffs) else 0)),  # noqa: SLF001
+                "max_abs_diff": cents_to_str(int(diffs.abs().max() if len(diffs) else 0)),
             },
             {
                 "name": "opening_entry_balanced",
                 "ok": bool(total_debits == total_credits),
-                "debits": ch08._cents_to_str(total_debits),  # noqa: SLF001
-                "credits": ch08._cents_to_str(total_credits),  # noqa: SLF001
+                "debits": cents_to_str(total_debits),
+                "credits": cents_to_str(total_credits),
             },
             {
                 "name": "retained_earnings_continuity",
-                "ok": bool(ch08._str_to_cents(re_continuity.iloc[2]["amount"]) == 0),  # noqa: SLF001
+                "ok": bool(str_to_cents(re_continuity.iloc[2]["amount"]) == 0),
                 "post_close": str(re_continuity.iloc[0]["amount"]),
                 "opening": str(re_continuity.iloc[1]["amount"]),
                 "diff": str(re_continuity.iloc[2]["amount"]),
