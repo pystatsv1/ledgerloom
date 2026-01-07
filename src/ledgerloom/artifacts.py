@@ -22,9 +22,21 @@ import csv
 import hashlib
 import json
 from pathlib import Path
-from typing import Any, Iterable, Sequence
+from typing import Any, Iterable, Mapping, Sequence
 
 import pandas as pd
+
+
+# ---------------------------------------------------------------------------
+# Trust Pipeline v1 schemas
+# ---------------------------------------------------------------------------
+
+# These IDs are written into chapter-level trust artifacts (run_meta.json and
+# manifest.json). Keeping them as module-level constants makes the contract
+# explicit and gives us room to introduce future versions without ambiguity.
+
+MANIFEST_SCHEMA_V1 = "ledgerloom.manifest.v1"
+RUN_META_SCHEMA_V1 = "ledgerloom.run_meta.v1"
 
 
 def ensure_dir(path: Path) -> None:
@@ -131,7 +143,11 @@ def write_csv_df(path: Path, df: pd.DataFrame, *, columns: Sequence[str] | None 
     """
 
     ensure_dir(path)
-    csv_text = df.to_csv(index=False, columns=list(columns) if columns is not None else None, lineterminator="\n")
+    csv_text = df.to_csv(
+        index=False,
+        columns=list(columns) if columns is not None else None,
+        lineterminator="\n",
+    )
     # The string returned by pandas already contains \n line endings.
     write_text(path, csv_text, ensure_trailing_newline=False)
 
@@ -155,5 +171,99 @@ def manifest_items(
             rel = p.relative_to(outdir).as_posix()
         except Exception:
             rel = p.name
-        items.append({name_key: rel, "bytes": p.stat().st_size, "sha256": sha256_file(p)})
+        items.append(
+            {name_key: rel, "bytes": p.stat().st_size, "sha256": sha256_file(p)}
+        )
+    return items
+
+
+def specs_with_hashes(
+    outdir: Path,
+    specs: Sequence[Mapping[str, object]],
+    *,
+    name_key: str = "name",
+    bytes_key: str = "bytes",
+    sha_key: str = "sha256",
+) -> list[dict[str, object]]:
+    """Return a copy of each spec augmented with bytes + sha256 for the referenced file.
+
+    The file path is resolved as ``outdir / spec[name_key]``.
+    """
+
+    out: list[dict[str, object]] = []
+    for spec in specs:
+        if name_key not in spec:
+            raise KeyError(f"spec missing {name_key!r}: {spec}")
+        name = str(spec[name_key])
+        p = outdir / name
+        d = dict(spec)
+        d[bytes_key] = int(p.stat().st_size)
+        d[sha_key] = sha256_file(p)
+        out.append(d)
+    return out
+
+
+def _with_schema(obj: Any, schema: str) -> Any:
+    """Return *obj* with a top-level ``schema`` field injected if missing.
+
+    We avoid mutating caller objects. Only dict payloads are schema-tagged.
+    If a different schema is already present, we leave it unchanged.
+    """
+
+    if not isinstance(obj, dict):
+        return obj
+    if obj.get("schema") == schema:
+        return obj
+    if "schema" in obj and obj["schema"] != schema:
+        return obj
+    out = dict(obj)
+    out["schema"] = schema
+    return out
+
+
+def write_run_meta(path: Path, obj: Any) -> None:
+    """Write ``run_meta.json`` with schema injection and deterministic formatting."""
+
+    write_json(path, _with_schema(obj, RUN_META_SCHEMA_V1))
+
+
+def write_manifest(path: Path, obj: Any) -> None:
+    """Write ``manifest.json`` with schema injection and deterministic formatting."""
+
+    write_json(path, _with_schema(obj, MANIFEST_SCHEMA_V1))
+
+
+def artifacts_map(outdir: Path, artifact_names: Sequence[str]) -> dict[str, dict[str, Any]]:
+    """Return mapping-style manifest entries: ``{name: {bytes, sha256}}``."""
+
+    out: dict[str, dict[str, Any]] = {}
+    for name in artifact_names:
+        p = outdir / name
+        out[name] = {"bytes": p.stat().st_size, "sha256": sha256_file(p)}
+    return out
+
+
+def manifest_items_prefixed(
+    outdir: Path,
+    artifact_names: Sequence[str],
+    *,
+    prefix: str,
+    name_key: str = "path",
+) -> list[dict[str, Any]]:
+    """Build manifest items that record paths with a fixed prefix.
+
+    Used for chapters that historically record paths like ``"ch085/<file>"``
+    even though the files live at ``<outdir>/<file>``.
+    """
+
+    items: list[dict[str, Any]] = []
+    for name in artifact_names:
+        p = outdir / name
+        items.append(
+            {
+                name_key: f"{prefix}/{name}",
+                "bytes": p.stat().st_size,
+                "sha256": sha256_file(p),
+            }
+        )
     return items
