@@ -78,3 +78,31 @@ def test_ch02_encodings_compile_to_same_journal_and_reports(tmp_path: Path) -> N
     assert "checks.md" in names
     for a in manifest["artifacts"]:
         assert "sha256" in a and isinstance(a["sha256"], str) and len(a["sha256"]) == 64
+
+
+def test_ch02_golden_files(tmp_path: Path) -> None:
+    """Golden-file tests to catch byte-level drift across platforms."""
+
+    outdir = tmp_path / "outputs"
+    rc = main(["--outdir", str(outdir), "--seed", "123"])
+    assert rc == 0
+
+    out_ch_dir = outdir / "ch02"
+    golden_dir = Path(__file__).parent / "golden" / "ch02"
+    assert golden_dir.exists(), "missing golden directory for ch02"
+
+    golden_files = [
+        "encoding_wide.csv",
+        "encoding_long.csv",
+        "encoding_signed.csv",
+        "journal_from_wide.jsonl",
+        "trial_balance.csv",
+        "income_statement.csv",
+        "balance_sheet.csv",
+        "manifest.json",
+    ]
+
+    for name in golden_files:
+        got = (out_ch_dir / name).read_bytes()
+        exp = (golden_dir / name).read_bytes()
+        assert got == exp, f"golden mismatch for {name}"

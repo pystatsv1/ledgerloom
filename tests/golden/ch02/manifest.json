@@ -1,0 +1,118 @@
+{
+  "artifacts": [
+    {
+      "bytes": 636,
+      "description": "Wide D/C encoding (one row per tx).",
+      "format": "csv",
+      "kind": "encoding",
+      "name": "encoding_wide.csv",
+      "sha256": "1cb895bde153bf5901815742230f17ad180fb47eb7c8efdd0b8df77b83360485"
+    },
+    {
+      "bytes": 925,
+      "description": "Long encoding (many rows per tx; side + amount).",
+      "format": "csv",
+      "kind": "encoding",
+      "name": "encoding_long.csv",
+      "sha256": "8fc73bf320470dccc524ce095a58a0fd467f04fc52041faa9aae8596fa3998e6"
+    },
+    {
+      "bytes": 855,
+      "description": "Signed encoding (single signed_amount column).",
+      "format": "csv",
+      "kind": "encoding",
+      "name": "encoding_signed.csv",
+      "sha256": "2911efafc49b7642206ab9b8952cf0cb6578b96e5ddf44eb6f93124cdb6a3b3f"
+    },
+    {
+      "bytes": 1479,
+      "description": "Canonical journal compiled from wide encoding.",
+      "format": "jsonl",
+      "kind": "journal",
+      "name": "journal_from_wide.jsonl",
+      "sha256": "648c70ad8457eb81f67a36ac3bc2f98dd33cc146ea031ac74902ca0211f47d2f"
+    },
+    {
+      "bytes": 1479,
+      "description": "Canonical journal compiled from long encoding.",
+      "format": "jsonl",
+      "kind": "journal",
+      "name": "journal_from_long.jsonl",
+      "sha256": "648c70ad8457eb81f67a36ac3bc2f98dd33cc146ea031ac74902ca0211f47d2f"
+    },
+    {
+      "bytes": 1479,
+      "description": "Canonical journal compiled from signed encoding.",
+      "format": "jsonl",
+      "kind": "journal",
+      "name": "journal_from_signed.jsonl",
+      "sha256": "648c70ad8457eb81f67a36ac3bc2f98dd33cc146ea031ac74902ca0211f47d2f"
+    },
+    {
+      "bytes": 195,
+      "description": "Trial balance from canonical entries.",
+      "format": "csv",
+      "kind": "report",
+      "name": "trial_balance.csv",
+      "sha256": "0a06022c9e48c730d13588f9c382e2a95372330ed31149e36a737e697a0b5235"
+    },
+    {
+      "bytes": 63,
+      "description": "Income statement (Revenue/Expenses/NetIncome).",
+      "format": "csv",
+      "kind": "report",
+      "name": "income_statement.csv",
+      "sha256": "a1d48909acab8fdb94a0d2936611931f2d01d57f02999a4a9c2a1df6dcd1f148"
+    },
+    {
+      "bytes": 117,
+      "description": "Balance sheet (Assets/Liabilities/Equity + NetIncome).",
+      "format": "csv",
+      "kind": "report",
+      "name": "balance_sheet.csv",
+      "sha256": "72bddf7f7acf5cb89eca498b8eb03d695c686ad6efe5a44c5833140c94e96b47"
+    },
+    {
+      "bytes": 1459,
+      "description": "Hashes + narrative explanation of invariants and equivalence.",
+      "format": "md",
+      "kind": "proof",
+      "name": "diagnostics.md",
+      "sha256": "0a04c02e2d9eb9ff04c92bf48e06d0d95a5ca7f9ef62fc32589a76ce4fa6e3ac"
+    },
+    {
+      "bytes": 640,
+      "description": "PASS/FAIL invariant checks (human-readable).",
+      "format": "md",
+      "kind": "proof",
+      "name": "checks.md",
+      "sha256": "43dc4079c1761892a7a7ac22c9d3aaa96261efee1fdb30fa088a8e4fd2651f8b"
+    },
+    {
+      "bytes": 3830,
+      "description": "Markdown tables for encodings + reports (quick visual tour).",
+      "format": "md",
+      "kind": "tour",
+      "name": "tables.md",
+      "sha256": "0a01be684545b7cc6ebea09c4827f26e1bbb580c72ea1bccbe426ff64ec82252"
+    },
+    {
+      "bytes": 447,
+      "description": "Mermaid lineage diagram: encodings \u2192 journal \u2192 reports.",
+      "format": "mmd",
+      "kind": "diagram",
+      "name": "lineage.mmd",
+      "sha256": "e949eec86e26e77e6875129008b4a0fd7866fbc90cd7a2d89a51c27b7afcbff6"
+    },
+    {
+      "bytes": 433,
+      "description": "Reproducibility metadata (seed, counts, equivalence booleans).",
+      "format": "json",
+      "kind": "meta",
+      "name": "run_meta.json",
+      "sha256": "2f7b3f26fd8e27aed7ab01adbc6a06e6def5a5adab9f8e84f175a4f7c9e3a0c4"
+    }
+  ],
+  "chapter": "ch02",
+  "schema": "ledgerloom.manifest.v1"
+}

@@ -70,3 +70,21 @@ def test_ch01_script_writes_expected_artifacts(tmp_path: Path) -> None:
     assert "ledger.jsonl" in names
     assert "journal.csv" in names
     assert "run_meta.json" in names
+
+    # Golden-file checks (byte-for-byte) to prevent cross-platform drift.
+    golden_dir = Path(__file__).parent / "golden" / "ch01"
+    assert golden_dir.exists(), "missing golden directory for ch01"
+
+    golden_files = [
+        "ledger.jsonl",
+        "journal.csv",
+        "trial_balance.csv",
+        "income_statement.csv",
+        "balance_sheet.csv",
+        "manifest.json",
+    ]
+
+    for name in golden_files:
+        got = (outdir / name).read_bytes()
+        exp = (golden_dir / name).read_bytes()
+        assert got == exp, f"golden mismatch for {name}"

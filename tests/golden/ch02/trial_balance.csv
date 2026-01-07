@@ -1,0 +1,8 @@
+account,amount
+Assets:AccountsReceivable,0.00
+Assets:Cash,5500.00
+Assets:Inventory,700.00
+Equity:OwnerCapital,5000.00
+Expenses:COGS,500.00
+Liabilities:AccountsPayable,900.00
+Revenue:Sales,800.00

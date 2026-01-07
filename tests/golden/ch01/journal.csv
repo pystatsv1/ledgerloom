@@ -1,0 +1,7 @@
+entry_id,line_no,dt,narration,account,debit,credit,doc
+E001,1,2026-01-02,Invoice client for services,Assets:AccountsReceivable,1000.00,0,INV-0001
+E001,2,2026-01-02,Invoice client for services,Revenue:Services,0,1000.00,INV-0001
+E002,1,2026-01-10,Client payment received,Assets:Cash,1000.00,0,RCPT-0001
+E002,2,2026-01-10,Client payment received,Assets:AccountsReceivable,0,1000.00,RCPT-0001
+E003,1,2026-01-15,Pay SaaS subscription,Expenses:Software,50.00,0,BILL-0001
+E003,2,2026-01-15,Pay SaaS subscription,Assets:Cash,0,50.00,BILL-0001

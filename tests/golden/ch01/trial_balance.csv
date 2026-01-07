@@ -1,0 +1,5 @@
+account,amount
+Assets:AccountsReceivable,0.00
+Assets:Cash,950.00
+Expenses:Software,50.00
+Revenue:Services,1000.00

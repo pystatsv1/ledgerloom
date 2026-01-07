@@ -1,0 +1,13 @@
+tx_id,dt,narration,side,account,amount
+T001,2025-01-01,Owner invests cash,debit,Assets:Cash,5000.00
+T001,2025-01-01,Owner invests cash,credit,Equity:OwnerCapital,5000.00
+T002,2025-01-02,Buy inventory on credit,debit,Assets:Inventory,1200.00
+T002,2025-01-02,Buy inventory on credit,credit,Liabilities:AccountsPayable,1200.00
+T003,2025-01-05,Pay supplier (partial),debit,Liabilities:AccountsPayable,300.00
+T003,2025-01-05,Pay supplier (partial),credit,Assets:Cash,300.00
+T004,2025-01-10,Sell inventory (invoice customer),debit,Assets:AccountsReceivable,800.00
+T004,2025-01-10,Sell inventory (invoice customer),credit,Revenue:Sales,800.00
+T005,2025-01-10,Record cost of goods sold,debit,Expenses:COGS,500.00
+T005,2025-01-10,Record cost of goods sold,credit,Assets:Inventory,500.00
+T006,2025-01-15,Receive customer payment,debit,Assets:Cash,800.00
+T006,2025-01-15,Receive customer payment,credit,Assets:AccountsReceivable,800.00

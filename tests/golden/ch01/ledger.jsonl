@@ -1,0 +1,3 @@
+{"dt":"2026-01-02","meta":{"doc":"INV-0001","entry_id":"E001"},"narration":"Invoice client for services","postings":[{"account":"Assets:AccountsReceivable","credit":"0","debit":"1000.00"},{"account":"Revenue:Services","credit":"1000.00","debit":"0"}]}
+{"dt":"2026-01-10","meta":{"doc":"RCPT-0001","entry_id":"E002"},"narration":"Client payment received","postings":[{"account":"Assets:Cash","credit":"0","debit":"1000.00"},{"account":"Assets:AccountsReceivable","credit":"1000.00","debit":"0"}]}
+{"dt":"2026-01-15","meta":{"doc":"BILL-0001","entry_id":"E003"},"narration":"Pay SaaS subscription","postings":[{"account":"Expenses:Software","credit":"0","debit":"50.00"},{"account":"Assets:Cash","credit":"50.00","debit":"0"}]}
