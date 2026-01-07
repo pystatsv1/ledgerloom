@@ -105,12 +105,12 @@
       "sha256": "e949eec86e26e77e6875129008b4a0fd7866fbc90cd7a2d89a51c27b7afcbff6"
     },
     {
-      "bytes": 433,
+      "bytes": 471,
       "description": "Reproducibility metadata (seed, counts, equivalence booleans).",
       "format": "json",
       "kind": "meta",
       "name": "run_meta.json",
-      "sha256": "2f7b3f26fd8e27aed7ab01adbc6a06e6def5a5adab9f8e84f175a4f7c9e3a0c4"
+      "sha256": "b328dc9c8ee9754168de312e0f123fca4ed5330c7c44560b9c1e792f65d346a4"
     }
   ],
   "chapter": "ch02",

@@ -53,10 +53,11 @@ from typing import Iterable
 
 import pandas as pd
 
-from ledgerloom.artifacts import sha256_file, write_csv_df, write_json, write_text
+from ledgerloom.artifacts import sha256_file, write_csv_df, write_text
 from ledgerloom.core import Entry, Posting
 from ledgerloom.io_jsonl import write_jsonl
 from ledgerloom.reports import balance_sheet, income_statement, trial_balance
+from ledgerloom.trust.pipeline import emit_trust_artifacts, manifest_artifacts_from_specs
 
 
 def _d(x: object) -> Decimal:
@@ -188,28 +189,25 @@ ARTIFACT_SPECS: list[dict[str, str]] = [
     },
 ]
 
-def _write_manifest(out_ch_dir: Path) -> None:
-    # Do not attempt to hash manifest.json itself.
-    specs = [s for s in ARTIFACT_SPECS if s["name"] != "manifest.json"]
-    artifacts: list[dict[str, object]] = []
-    for spec in specs:
-        p = out_ch_dir / spec["name"]
-        if not p.exists():
-            continue
-        artifacts.append(
-            {
-                **spec,
-                "bytes": p.stat().st_size,
-                "sha256": sha256_file(p),
-            }
-        )
 
-    manifest = {
-        "schema": "ledgerloom.manifest.v1",
+def _manifest_payload(out_ch_dir: Path) -> dict[str, object]:
+    """Build the manifest payload (hashes + sizes) for the chapter.
+
+    The trust pipeline writer injects the schema field.
+    """
+
+    # Do not attempt to hash manifest.json itself.
+    # We also skip artifacts that do not yet exist (e.g., summary.md is written after
+    # the manifest in this chapter).
+    specs = [
+        s
+        for s in ARTIFACT_SPECS
+        if s["name"] != "manifest.json" and (out_ch_dir / s["name"]).exists()
+    ]
+    return {
         "chapter": "ch02",
-        "artifacts": artifacts,
+        "artifacts": manifest_artifacts_from_specs(out_ch_dir, specs),
     }
-    write_json(out_ch_dir / "manifest.json", manifest)
 
 
 def build_demo_wide(seed: int = 123) -> pd.DataFrame:
@@ -682,10 +680,10 @@ def main(argv: list[str] | None = None) -> int:
         "hash_long": long_hash,
         "hash_signed": signed_hash,
     }
-    write_json(out_ch_dir / "run_meta.json", meta)
-
-    # Manifest should be written last (after run_meta.json).
-    _write_manifest(out_ch_dir)
+    # Trust artifacts (run_meta.json + manifest.json).
+    # Note: We emit these *before* summary.md so the manifest only describes files
+    # that already exist at this point (preserving historic behavior).
+    emit_trust_artifacts(out_ch_dir, run_meta=meta, manifest=_manifest_payload)
 
     summary_lines = [
         "# LedgerLoom Chapter 02 — Debits/Credits as encoding\n\n",
