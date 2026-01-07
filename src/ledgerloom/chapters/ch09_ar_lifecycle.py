@@ -25,7 +25,8 @@ import pandas as pd
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine, LedgerEngineConfig
 from ledgerloom.engine.money import cents_to_str, str_to_cents
-from ledgerloom.artifacts import sha256_file, write_csv_df, write_csv_dicts, write_json
+from ledgerloom.artifacts import artifacts_map, write_csv_df, write_csv_dicts, write_json
+from ledgerloom.trust.pipeline import emit_trust_artifacts
 
 # Scenario layer (public): provides the shared "bookset" pipeline without
 # cross-chapter imports.
@@ -422,39 +423,41 @@ def run(outdir: Path, seed: int = 123) -> Path:
     }
     _w_json(checklist, out_ch / "ar_checklist.json")
 
-    # Manifest (exclude itself)
     artifact_names = [
-        "postings_post_close.csv",
-        "trial_balance_post_close.csv",
         "postings_opening.csv",
-        "trial_balance_opening.csv",
-        "reconciliation_post_close_vs_opening.csv",
+        "postings_ar.csv",
         "invoices_register.csv",
         "cash_receipts_register.csv",
-        "postings_ar.csv",
         "ar_open_items.csv",
-        "ar_control_reconciliation.csv",
+        "trial_balance_opening.csv",
         "trial_balance_end_period.csv",
         "income_statement_current_period.csv",
         "balance_sheet_current_period.csv",
         "invariants.json",
-        "ar_checklist.json",
+        "ar_control_reconciliation.csv",
+        "postings_post_close.csv",
+        "trial_balance_post_close.csv",
+        "reconciliation_post_close_vs_opening.csv",
     ]
 
-    manifest: dict[str, Any] = {
-        "chapter": CHAPTER,
-        "artifacts": {},
-        "notes": {
-            "line_endings": "LF",
-            "seed": seed,
-        },
+    # Trust artifacts (run_meta.json + manifest.json)
+    run_meta = {
+        'chapter': CHAPTER,
+        'module': 'ledgerloom.chapters.ch09_ar_lifecycle',
+        'seed': seed,
+        'period_start': PERIOD_START.isoformat(),
+        'period_end': PERIOD_END.isoformat(),
     }
 
-    for name in artifact_names:
-        p = out_ch / name
-        manifest["artifacts"][name] = {"bytes": p.stat().st_size, "sha256": sha256_file(p)}
+    def _manifest_payload(d: Path) -> dict[str, Any]:
+        names = list(artifact_names) + ['run_meta.json']
+        return {
+            'chapter': CHAPTER,
+            'artifacts': artifacts_map(d, names),
+            'notes': {'line_endings': 'LF', 'seed': seed},
+        }
 
-    _w_json(manifest, out_ch / "manifest.json")
+    emit_trust_artifacts(out_ch, run_meta=run_meta, manifest=_manifest_payload)
 
     return out_ch
 

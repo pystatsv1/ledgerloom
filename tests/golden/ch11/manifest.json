@@ -48,6 +48,10 @@
       "bytes": 501,
       "sha256": "2165a44321b1b0561a58ed78c16a47b46720188fde21711d2752df1fab255721"
     },
+    "run_meta.json": {
+      "bytes": 214,
+      "sha256": "82129834a681eb00fb4588f6ad74b50862215c8d413f5bda4e8da2e8ef9a0924"
+    },
     "sales_register.csv": {
       "bytes": 150,
       "sha256": "e481caa3fdee6b78ad6ff669afcdea1b48a6fadee3988fca7f0a663cdacaf83d"
@@ -69,5 +73,6 @@
   "notes": {
     "line_endings": "LF",
     "seed": 123
-  }
+  },
+  "schema": "ledgerloom.manifest.v1"
 }

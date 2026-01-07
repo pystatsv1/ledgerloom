@@ -1,0 +1,9 @@
+{
+  "asof_date": "2026-04-30",
+  "capitalization_threshold_cents": 250000,
+  "chapter": "ch12",
+  "method": "straight_line",
+  "module": "ledgerloom.chapters.ch12_fixed_assets_depreciation",
+  "schema": "ledgerloom.run_meta.v1",
+  "seed": 123
+}

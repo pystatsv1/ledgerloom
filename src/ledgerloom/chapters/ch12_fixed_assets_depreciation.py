@@ -29,7 +29,8 @@ from typing import Any
 
 import pandas as pd
 
-from ledgerloom.artifacts import sha256_file, write_csv_df, write_csv_dicts, write_json
+from ledgerloom.artifacts import artifacts_map, write_csv_df, write_csv_dicts, write_json
+from ledgerloom.trust.pipeline import emit_trust_artifacts
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine
 from ledgerloom.engine.config import LedgerEngineConfig
@@ -582,21 +583,26 @@ def run(outdir: Path, seed: int = 123) -> Path:
         "invariants.json",
         "fixed_assets_checklist.json",
     ]
-
-    manifest: dict[str, Any] = {
-        "chapter": CHAPTER,
-        "artifacts": {},
-        "notes": {
-            "line_endings": "LF",
-            "seed": seed,
-        },
+    # Trust artifacts (run_meta.json + manifest.json)
+    run_meta = {
+        'chapter': CHAPTER,
+        'module': 'ledgerloom.chapters.ch12_fixed_assets_depreciation',
+        'seed': seed,
+        'asof_date': ASOF_DATE.isoformat(),
+        'capitalization_threshold_cents': CAPITALIZATION_THRESHOLD_CENTS,
+        'method': 'straight_line',
     }
 
-    for name in artifact_names:
-        pth = out_ch / name
-        manifest["artifacts"][name] = {"bytes": pth.stat().st_size, "sha256": sha256_file(pth)}
+    def _manifest_payload(d: Path) -> dict[str, Any]:
+        names = list(artifact_names) + ['run_meta.json']
+        return {
+            'chapter': CHAPTER,
+            'artifacts': artifacts_map(d, names),
+            'notes': {'line_endings': 'LF', 'seed': seed},
+        }
 
-    _w_json(out_ch / "manifest.json", manifest)
+    emit_trust_artifacts(out_ch, run_meta=run_meta, manifest=_manifest_payload)
+
     return out_ch
 
 

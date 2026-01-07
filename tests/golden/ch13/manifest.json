@@ -48,6 +48,10 @@
       "bytes": 501,
       "sha256": "2165a44321b1b0561a58ed78c16a47b46720188fde21711d2752df1fab255721"
     },
+    "run_meta.json": {
+      "bytes": 196,
+      "sha256": "b3fc33018aa0091f8c1e2c0c8de8177b61737bc3b0c0f9d2ef2fe78ae72bb6d1"
+    },
     "trial_balance_end_period.csv": {
       "bytes": 842,
       "sha256": "24d890ee0a1997c9324cdcf62d15581e96baca6e4235ea00cf75ec5caa96905f"
@@ -65,5 +69,6 @@
   "notes": {
     "line_endings": "LF",
     "seed": 123
-  }
+  },
+  "schema": "ledgerloom.manifest.v1"
 }

@@ -1,9 +1,5 @@
 {
   "artifacts": {
-    "ar_checklist.json": {
-      "bytes": 201,
-      "sha256": "be343afc4204364d82e405b28fcd562b52c188a97a3e4aa76a4364da33654e8c"
-    },
     "ar_control_reconciliation.csv": {
       "bytes": 92,
       "sha256": "70b0d274663e7a3b2ed3abde0cd95cb7a5d14e1003178aff8fbf97a3e5078792"
@@ -48,6 +44,10 @@
       "bytes": 540,
       "sha256": "c091c51886148e4dc998e1b515d06b99c5f6b9719f6279f95136a350398b2586"
     },
+    "run_meta.json": {
+      "bytes": 192,
+      "sha256": "263a9c360af9c7672f90d016bb9bb61489e50b53f9f01d62f0b0baea797c6c3b"
+    },
     "trial_balance_end_period.csv": {
       "bytes": 350,
       "sha256": "ac24aab024216aa7d7fa82524d9862676f9d26ea00d9debfdca2012ece5aeedd"
@@ -65,5 +65,6 @@
   "notes": {
     "line_endings": "LF",
     "seed": 123
-  }
+  },
+  "schema": "ledgerloom.manifest.v1"
 }
