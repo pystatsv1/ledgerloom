@@ -22,7 +22,8 @@ from ledgerloom.core import Entry, Posting
 from ledgerloom.engine.ledger import LedgerEngine
 from ledgerloom.engine.config import LedgerEngineConfig
 
-from ledgerloom.artifacts import sha256_file, write_csv_df, write_json
+from ledgerloom.artifacts import manifest_items_prefixed, write_csv_df, write_json
+from ledgerloom.trust.pipeline import emit_trust_artifacts
 from ledgerloom.engine.money import cents_to_str, str_to_cents
 from ledgerloom.scenarios.bookset_v1 import compute_post_close_snapshot
 
@@ -318,7 +319,7 @@ def main(argv: list[str] | None = None) -> int:
     }
     _w_json(invariants_obj, outdir / "invariants.json")
 
-    artifact_files = [
+    artifact_names = [
         "trial_balance_post_close.csv",
         "balance_sheet_post_close.csv",
         "opening_entry_register.csv",
@@ -330,22 +331,31 @@ def main(argv: list[str] | None = None) -> int:
         "opening_checklist.json",
         "invariants.json",
     ]
-    artifacts = []
-    for rel in artifact_files:
-        p = outdir / rel
-        artifacts.append({"path": f"{OUTDIR_NAME}/{rel}", "sha256": sha256_file(p), "bytes": p.stat().st_size})
 
-    manifest = {
-        "meta": {
-            "chapter": CHAPTER,
-            "seed": args.seed,
-            "close_date": CLOSE_DATE.isoformat(),
-            "open_date": OPEN_DATE.isoformat(),
-            "source": "ch08_post_close",
-        },
-        "artifacts": artifacts,
+    # Trust artifacts (run_meta.json + manifest.json)
+    run_meta = {
+        "chapter": CHAPTER,
+        "module": "ledgerloom.chapters.ch085_opening_next_period",
+        "seed": args.seed,
+        "close_date": CLOSE_DATE.isoformat(),
+        "open_date": OPEN_DATE.isoformat(),
+        "source": "ch08_post_close",
     }
-    _w_json(manifest, outdir / "manifest.json")
+
+    def _manifest_payload(d: Path) -> dict[str, object]:
+        names = list(artifact_names) + ["run_meta.json"]
+        return {
+            "meta": {
+                "chapter": CHAPTER,
+                "seed": args.seed,
+                "close_date": CLOSE_DATE.isoformat(),
+                "open_date": OPEN_DATE.isoformat(),
+                "source": "ch08_post_close",
+            },
+            "artifacts": manifest_items_prefixed(d, names, prefix=OUTDIR_NAME, name_key="path"),
+        }
+
+    emit_trust_artifacts(outdir, run_meta=run_meta, manifest=_manifest_payload)
 
     print(f"Wrote LedgerLoom Chapter 08.5 artifacts -> {outdir}")
     return 0

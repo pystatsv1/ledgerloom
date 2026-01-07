@@ -31,6 +31,7 @@ import pandas as pd
 from ledgerloom.core import Entry
 from ledgerloom.engine import LedgerEngine, LedgerEngineConfig
 from ledgerloom.artifacts import manifest_items, write_csv_df, write_json
+from ledgerloom.trust.pipeline import emit_trust_artifacts
 
 
  # Chapter-owned deterministic I/O helpers live in ledgerloom.artifacts.
@@ -227,20 +228,20 @@ def run(outdir_root: str, seed: int) -> Path:
     write_json(inv_path, inv2)
     artifacts.append(inv_path)
 
-    # Manifest: stable order
-    manifest = {"artifacts": manifest_items(outdir, artifacts, name_key="file")}
-    manifest_path = outdir / "manifest.json"
-    write_json(manifest_path, manifest)
-    artifacts.append(manifest_path)
-
-    # Minimal run metadata (not golden-tested)
+    # Trust artifacts (run_meta.json + manifest.json)
     run_meta = {
-        "chapter": "ch05_accounting_equation_invariant",
-        "seed": seed,
-        "entries": len(entries),
-        "outdir": str(outdir),
+        'chapter': 'ch05',
+        'module': 'ledgerloom.chapters.ch05_accounting_equation_invariant',
+        'seed': seed,
+        'entries': len(entries),
+        'postings': int(len(postings)),
     }
-    write_json(outdir / "run_meta.json", run_meta)
+
+    def _manifest_payload(d: Path) -> dict[str, object]:
+        files = list(artifacts) + [d / 'run_meta.json']
+        return {'artifacts': manifest_items(d, files, name_key='file')}
+
+    emit_trust_artifacts(outdir, run_meta=run_meta, manifest=_manifest_payload)
 
     return outdir
 

@@ -45,6 +45,7 @@ import pandas as pd
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine
 from ledgerloom.artifacts import manifest_items, write_csv_df, write_json
+from ledgerloom.trust.pipeline import emit_trust_artifacts
 
 
 """I/O helpers are centralized in :mod:`ledgerloom.artifacts`."""
@@ -589,8 +590,12 @@ def main(argv: list[str] | None = None) -> int:
     w_json("closing_checklist.json", checklist)
     w_json("invariants.json", invariants)
 
-    manifest = {"artifacts": manifest_items(outdir, artifacts, name_key="file"), "meta": {"chapter": "ch08", "seed": args.seed}}
-    w_json("manifest.json", manifest)
+    run_meta = {"chapter": "ch08", "module": "ledgerloom.chapters.ch08_closing_controlled_transformation", "seed": args.seed}
+    def _manifest_payload(d: Path) -> dict[str, object]:
+        files = artifacts + [d / "run_meta.json"]
+        return {"artifacts": manifest_items(d, files, name_key="file"), "meta": {"chapter": "ch08", "seed": args.seed}}
+
+    emit_trust_artifacts(outdir, run_meta=run_meta, manifest=_manifest_payload)
 
     print(f"Wrote LedgerLoom Chapter 08 artifacts -> {outdir}")
     return 0

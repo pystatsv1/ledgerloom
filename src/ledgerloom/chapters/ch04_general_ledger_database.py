@@ -30,6 +30,7 @@ from pathlib import Path
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine
 from ledgerloom.artifacts import manifest_items, write_csv_df, write_json, write_text
+from ledgerloom.trust.pipeline import emit_trust_artifacts
 
 
 # Chapter-owned I/O helpers are centralized in ledgerloom.artifacts.
@@ -263,10 +264,12 @@ flowchart TD
 ```\n"""
 
 
-def _write_manifest(outdir: Path) -> None:
-    files = [p for p in sorted(outdir.glob("*")) if p.is_file()]
+def _manifest_payload(outdir: Path) -> dict[str, object]:
+    """Return the manifest payload (deterministic, excludes manifest itself)."""
+
+    files = [p for p in sorted(outdir.glob("*")) if p.is_file() and p.name != "manifest.json"]
     items = manifest_items(outdir, files, name_key="file")
-    write_json(outdir / "manifest.json", {"artifacts": items})
+    return {"artifacts": items}
 
 
 # -------------------------
@@ -315,9 +318,7 @@ def run(outdir: Path, seed: int) -> Path:
         "entries": len(entries),
         "postings": int(len(postings)),
     }
-    write_json(out / "run_meta.json", run_meta)
-
-    _write_manifest(out)
+    emit_trust_artifacts(out, run_meta=run_meta, manifest=_manifest_payload)
 
     return out
 

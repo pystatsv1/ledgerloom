@@ -49,6 +49,11 @@
       "bytes": 1318,
       "path": "ch085/invariants.json",
       "sha256": "34035f67be117fb834400bd452da2af993cd48ba7dda05f5e95f44d82edb75b8"
+    },
+    {
+      "bytes": 229,
+      "path": "ch085/run_meta.json",
+      "sha256": "afd63aed34b9ded740d6a01290619b20b42848d2aa94109a236a6cab249e61dc"
     }
   ],
   "meta": {
@@ -57,5 +62,6 @@
     "open_date": "2026-02-01",
     "seed": 123,
     "source": "ch08_post_close"
-  }
+  },
+  "schema": "ledgerloom.manifest.v1"
 }

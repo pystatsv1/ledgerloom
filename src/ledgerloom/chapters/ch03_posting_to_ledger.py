@@ -26,6 +26,8 @@ from decimal import Decimal, getcontext
 from pathlib import Path
 from typing import Iterable, Sequence
 
+from ledgerloom.trust.pipeline import emit_trust_artifacts
+
 getcontext().prec = 28
 
 
@@ -631,17 +633,13 @@ def write_ch03_artifacts(out_root: Path, seed: int, in_journal: Path | None) -> 
         + "\n"
     )
 
-    # run meta
-    run_meta = outdir / "run_meta.json"
-    write_json(
-        run_meta,
-        {
-            "chapter": "ch03",
-            "module": "ledgerloom.chapters.ch03_posting_to_ledger",
-            "seed": seed,
-            "source": source,
-        },
-    )
+    # run meta (written via trust pipeline)
+    run_meta = {
+        "chapter": "ch03",
+        "module": "ledgerloom.chapters.ch03_posting_to_ledger",
+        "seed": seed,
+        "source": source,
+    }
 
     # summary
     summary = outdir / "summary.md"
@@ -669,22 +667,33 @@ def write_ch03_artifacts(out_root: Path, seed: int, in_journal: Path | None) -> 
         + "\n"
     )
 
-    # manifest
-    manifest = outdir / "manifest.json"
-    files = [
-        journal_csv,
-        ledger_long_csv,
-        ledger_wide_csv,
-        balances_csv,
-        tb_csv,
-        checks_md,
-        tables_md,
-        diag,
-        lineage,
-        run_meta,
-        summary,
-    ]
-    write_json(manifest, artifact_manifest(outdir, files))
+    # manifest (written via trust pipeline; includes run_meta + summary)
+    def _manifest_payload(d: Path) -> dict[str, object]:
+        files = [
+            journal_csv,
+            ledger_long_csv,
+            ledger_wide_csv,
+            balances_csv,
+            tb_csv,
+            checks_md,
+            tables_md,
+            diag,
+            lineage,
+            d / "run_meta.json",
+            summary,
+        ]
+        # De-dupe in case of accidental repeats
+        seen: set[str] = set()
+        uniq: list[Path] = []
+        for p in files:
+            key = p.name
+            if key in seen:
+                continue
+            seen.add(key)
+            uniq.append(p)
+        return artifact_manifest(d, uniq)
+
+    emit_trust_artifacts(outdir, run_meta=run_meta, manifest=_manifest_payload)
 
     return outdir
 

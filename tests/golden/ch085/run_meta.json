@@ -1,0 +1,9 @@
+{
+  "chapter": "ch085",
+  "close_date": "2026-01-31",
+  "module": "ledgerloom.chapters.ch085_opening_next_period",
+  "open_date": "2026-02-01",
+  "schema": "ledgerloom.run_meta.v1",
+  "seed": 123,
+  "source": "ch08_post_close"
+}
