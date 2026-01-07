@@ -1,0 +1,9 @@
+{
+  "asof_date": "2026-02-28",
+  "chapter": "ch11",
+  "module": "ledgerloom.chapters.ch11_inventory_cogs",
+  "period_start": "2026-02-01",
+  "schema": "ledgerloom.run_meta.v1",
+  "seed": 123,
+  "sku": "WIDGET-A"
+}

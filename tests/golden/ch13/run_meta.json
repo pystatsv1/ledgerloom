@@ -1,0 +1,8 @@
+{
+  "chapter": "ch13",
+  "module": "ledgerloom.chapters.ch13_payroll_register",
+  "period_end": "2026-04-30",
+  "period_start": "2026-02-01",
+  "schema": "ledgerloom.run_meta.v1",
+  "seed": 123
+}

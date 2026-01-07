@@ -40,6 +40,7 @@ def test_ch10_golden_outputs(tmp_path: Path) -> None:
         "balance_sheet_current_period.csv",
         "invariants.json",
         "ap_checklist.json",
+        "run_meta.json",
         "manifest.json",
     ]
 

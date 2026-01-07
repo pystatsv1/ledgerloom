@@ -1,0 +1,8 @@
+{
+  "chapter": "ch09",
+  "module": "ledgerloom.chapters.ch09_ar_lifecycle",
+  "period_end": "2026-02-28",
+  "period_start": "2026-02-01",
+  "schema": "ledgerloom.run_meta.v1",
+  "seed": 123
+}
