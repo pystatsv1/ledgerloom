@@ -5,6 +5,7 @@ import subprocess
 import sys
 from pathlib import Path
 
+
 def test_ch03_posting_to_ledger_smoke(tmp_path: Path) -> None:
     out_root = tmp_path / "outputs"
     cmd = [
@@ -52,3 +53,16 @@ def test_ch03_posting_to_ledger_smoke(tmp_path: Path) -> None:
     assert "artifacts" in manifest and isinstance(manifest["artifacts"], list)
     paths = {a["path"] for a in manifest["artifacts"]}
     assert "trial_balance.csv" in paths
+
+    # Determinism guard: CSV artifacts must use LF line endings (no CRLF),
+    # so manifest hashes remain byte-stable across platforms.
+    for name in [
+        "journal.csv",
+        "ledger_long.csv",
+        "ledger_wide.csv",
+        "account_balances.csv",
+        "trial_balance.csv",
+    ]:
+        raw = (ch03 / name).read_bytes()
+        assert b"\r\n" not in raw, f"CRLF found in {name}"
+        assert raw.endswith(b"\n"), f"{name} must end with LF"
