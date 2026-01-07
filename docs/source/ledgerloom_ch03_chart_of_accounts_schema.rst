@@ -1,5 +1,5 @@
 Chapter 03: Chart of Accounts as Schema
-======================================
+=======================================
 
 This is an *alternate* Chapter 03 (for now).
 
@@ -91,7 +91,7 @@ Worked example
   A tiny *statement by segment* example to show why segments matter.
 
 WOW / developer artifacts
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 - ``checks.md``
   Invariant checks: uniqueness, rollup validity, mapping conventions.

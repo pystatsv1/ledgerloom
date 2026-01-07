@@ -1,5 +1,5 @@
 LedgerLoom Chapter 03 — Posting to the Ledger
-============================================
+=============================================
 
 Big idea
 --------
@@ -30,7 +30,7 @@ When you run Chapter 03, it writes a complete artifact set to:
 ``outputs/ledgerloom/ch03``
 
 Core accounting artifacts
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``journal.csv`` — canonical journal used for posting
 - ``ledger_long.csv`` — posted ledger (one row per journal line, with running balance)
@@ -39,7 +39,7 @@ Core accounting artifacts
 - ``trial_balance.csv`` — debit/credit totals that must match
 
 Wow / developer artifacts
-~~~~~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
 - ``checks.md`` — PASS/FAIL invariants (entry balancing, TB totals)
 - ``tables.md`` — quick tables so you can “see it” instantly

@@ -18,7 +18,7 @@ The documentation is organized into:
 
    ledgerloom_intro
    ledgerloom_vision
-changelog
+   changelog
 
 .. toctree::
    :maxdepth: 1

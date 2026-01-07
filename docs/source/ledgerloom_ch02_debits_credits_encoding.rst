@@ -1,5 +1,5 @@
 Chapter 02 — Debits & Credits as Encodings (Wide, Long, Signed)
-==============================================================
+===============================================================
 
 Chapter 01 introduced the idea that accounting can be represented as a **canonical journal**
 (entries + postings) and then reported in consistent ways (trial balance, income statement,
@@ -13,7 +13,7 @@ exact same canonical journal.**
 In other words: *accounting is defined by invariants, not by column names.*
 
 What you will build
-------------------
+-------------------
 
 You will generate a tiny, meaningful demo dataset and produce:
 
@@ -25,7 +25,7 @@ Three encodings of the same transactions
 - **Signed**: many rows per transaction with a single ``signed_amount`` column
 
 A canonical journal
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^
 
 From each encoding we compile **the same** canonical journal:
 

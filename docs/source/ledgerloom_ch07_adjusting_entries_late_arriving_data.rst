@@ -13,7 +13,7 @@ The key engineering principle:
 **Never overwrite history.** Append new events, record provenance, and rebuild derived views.
 
 Why this matters (accountants + engineers + data people)
--------------------------------------------------------
+--------------------------------------------------------
 
 *Accountants* get:
 - a clean “unadjusted” close vs. an “adjusted” close
@@ -89,7 +89,7 @@ Start with these three files:
    the entry effective date is period-end, but the ``posted_at`` date is later.
 
 Engineering takeaway: append-only + provenance + deterministic rebuild
----------------------------------------------------------------------
+----------------------------------------------------------------------
 
 LedgerLoom treats adjustments as first-class events. That lets you:
 

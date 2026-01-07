@@ -1,5 +1,5 @@
 LedgerLoom Chapter 10 — Accounts Payable Lifecycle
-=================================================
+==================================================
 
 This chapter introduces **Accounts Payable (A/P)** as a **control account + subledger** pattern.
 

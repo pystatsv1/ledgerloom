@@ -1,5 +1,5 @@
 LedgerLoom Chapter 11 — Inventory and COGS
-=========================================
+==========================================
 
 This chapter introduces **inventory** as an operational subsystem and shows how to
 link **inventory movements** to **Cost of Goods Sold (COGS)**.

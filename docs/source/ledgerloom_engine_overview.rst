@@ -1,5 +1,5 @@
 LedgerLoom Engine Overview
-=========================
+==========================
 
 LedgerLoom’s **engine** is the project’s "accounting kernel": a small, testable
 core that turns human-friendly journal entries into **canonical ledger tables**.
@@ -30,7 +30,7 @@ This mirrors how modern systems are built:
 - **constraints** (invariants) as continuously checked correctness rules
 
 Why an engine matters (software + accounting)
---------------------------------------------
+---------------------------------------------
 
 Accounting is fundamentally about *consistency*:
 

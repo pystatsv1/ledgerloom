@@ -5,7 +5,7 @@ SEED ?= 123
 OUT_LL := outputs/ledgerloom
 
 
-.PHONY: help ll-ch05 ll-ch06 ll-ch07 ll-ch08 ll-ch085 ll-ch09 ll-ch10 ll-ch11 ll-ch12 ll-ch13
+.PHONY: help ll-ch05 ll-ch06 ll-ch07 ll-ch08 ll-ch085 ll-ch09 ll-ch10 ll-ch11 ll-ch12 ll-ch13 docs docs-strict
 help:
 	@echo "LedgerLoom (developer-friendly accounting) — targets:"
 	@echo ""
@@ -37,6 +37,9 @@ docs:
 	python -m sphinx -b html docs/source docs/build/html
 
 
+
+docs-strict:
+	python -m sphinx -W --keep-going -b html docs/source docs/build/html
 # --- CI smokes (small, deterministic) ---
 .PHONY: ll-ci ll-ch05 ll-ch06
 ll-ci:

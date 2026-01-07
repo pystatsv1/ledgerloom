@@ -1,5 +1,5 @@
 Chapter 04: General Ledger as a database
-=======================================
+========================================
 
 Status: **WOW (early adopter pass)**
 

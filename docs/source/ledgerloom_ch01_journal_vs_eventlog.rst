@@ -82,13 +82,13 @@ Go to ``outputs/ledgerloom/ch01/`` and scan these first:
 
 
 Core artifacts
--------------
+--------------
 
 The chapter produces multiple representations of the same underlying facts.
 
 
 1) Event log (canonical truth)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 The event log is the canonical record:
 
@@ -121,7 +121,7 @@ The **journal table**, **ledger view**, and **reports** are derived from this im
 
 
 2) Journal view (classic accounting table)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``journal.csv`` is a traditional journal view:
 
