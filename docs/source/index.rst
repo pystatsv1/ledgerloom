@@ -46,6 +46,7 @@ changelog
    ledgerloom_ch10_ap_lifecycle
    ledgerloom_ch11_inventory_cogs
    ledgerloom_ch12_fixed_assets_depreciation
+   ledgerloom_ch13_payroll_register
 
 .. toctree::
    :maxdepth: 1

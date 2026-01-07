@@ -1,0 +1,21 @@
+{
+  "chapter": "ch13",
+  "employees": 2,
+  "liability_control_reconciles": true,
+  "limitations": [
+    "Toy numbers (not jurisdiction-specific payroll rules).",
+    "Remittance schedule is simplified (15th of next month).",
+    "No benefits provider subledger; benefits are treated as a single payable."
+  ],
+  "outstanding_months": [
+    "2026-04"
+  ],
+  "pay_runs": 6,
+  "period_end": "2026-04-30",
+  "period_start": "2026-02-01",
+  "register_rows": 12,
+  "remittances_posted": [
+    "2026-02",
+    "2026-03"
+  ]
+}

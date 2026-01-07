@@ -19,6 +19,7 @@ DEFAULT_TARGETS = [
     Path("src/ledgerloom/chapters/ch10_ap_lifecycle.py"),
     Path("src/ledgerloom/chapters/ch11_inventory_cogs.py"),
     Path("src/ledgerloom/chapters/ch12_fixed_assets_depreciation.py"),
+    Path("src/ledgerloom/chapters/ch13_payroll_register.py"),
 ]
 
 

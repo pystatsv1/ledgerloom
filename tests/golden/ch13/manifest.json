@@ -1,0 +1,69 @@
+{
+  "artifacts": {
+    "balance_sheet_current_period.csv": {
+      "bytes": 160,
+      "sha256": "9975a8ce18be73fe23f217c8d09f6ad6947fa540e78c530e35f8733f7798283e"
+    },
+    "income_statement_current_period.csv": {
+      "bytes": 65,
+      "sha256": "d55c376bba18d7d3d1be7212b4e464722c221fd237e36ed01930018d1aa7429f"
+    },
+    "invariants.json": {
+      "bytes": 1362,
+      "sha256": "8b1d12fcf2d11b0222ba104202e14af16965c6f7eef3c77506e371abb8ca10ac"
+    },
+    "payroll_checklist.json": {
+      "bytes": 518,
+      "sha256": "c5a148b1a55d6d43e80221edccd5a073e920e0202951a68c1c5fa484f53e3988"
+    },
+    "payroll_control_reconciliation.csv": {
+      "bytes": 482,
+      "sha256": "33b83407631ce27c63c9dae3ea0ed5f99272d4712b53d0c11e32f621ba945a3e"
+    },
+    "payroll_register.csv": {
+      "bytes": 1465,
+      "sha256": "14f79b17772ceb0a91cd0f46b1e635b9d48d1e017a029be13f247b3afb19a73a"
+    },
+    "payroll_remittances.csv": {
+      "bytes": 394,
+      "sha256": "da9da3ccd8f710d7762c44309df7c855ffb8fbe7e886344455e44ae0e1a252a7"
+    },
+    "payroll_runs_summary.csv": {
+      "bytes": 494,
+      "sha256": "798b44454af5e484c29f7824803646f0f05afcfd5be8cd673bea7255d074a9aa"
+    },
+    "postings_opening.csv": {
+      "bytes": 1395,
+      "sha256": "3596d649581496b529d1de280befe4cb32536975b3b8c701ae32c6a7fa430043"
+    },
+    "postings_payroll.csv": {
+      "bytes": 15043,
+      "sha256": "8c5c49198b6a46f488eafcf00226cb03e4ded5e196e68d24af6fecb96b2140c1"
+    },
+    "postings_post_close.csv": {
+      "bytes": 3566,
+      "sha256": "37b168038d2bdf09a302052f94e35668f7a4d813db665079c7a1014bea7b525d"
+    },
+    "reconciliation_post_close_vs_opening.csv": {
+      "bytes": 501,
+      "sha256": "2165a44321b1b0561a58ed78c16a47b46720188fde21711d2752df1fab255721"
+    },
+    "trial_balance_end_period.csv": {
+      "bytes": 842,
+      "sha256": "24d890ee0a1997c9324cdcf62d15581e96baca6e4235ea00cf75ec5caa96905f"
+    },
+    "trial_balance_opening.csv": {
+      "bytes": 319,
+      "sha256": "b8b82bc6bef74c6f5ad17aa97376a5856391bd4a63e31258c197cb9e79308bd9"
+    },
+    "trial_balance_post_close.csv": {
+      "bytes": 472,
+      "sha256": "7c1b6d219a66b1316978d4200b860493a9799c5bc0373a82dfcd741091209fb4"
+    }
+  },
+  "chapter": "ch13",
+  "notes": {
+    "line_endings": "LF",
+    "seed": 123
+  }
+}

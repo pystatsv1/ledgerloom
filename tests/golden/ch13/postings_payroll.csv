@@ -1,0 +1,89 @@
+posting_id,entry_id,line_no,date,department,narration,account,root,debit,credit,raw_delta,signed_delta
+paynet:PR-2026-02-15:01,paynet:PR-2026-02-15,1,2026-02-15,,Pay employees net wages for PR-2026-02-15,Liabilities:Payroll:NetPayPayable,Liabilities,3140.00,0.00,3140.00,-3140.00
+paynet:PR-2026-02-15:02,paynet:PR-2026-02-15,2,2026-02-15,,Pay employees net wages for PR-2026-02-15,Assets:Cash,Assets,0.00,3140.00,-3140.00,-3140.00
+payrun:PR-2026-02-15:01,payrun:PR-2026-02-15,1,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Expenses:Payroll:Wages,Expenses,4300.00,0.00,4300.00,4300.00
+payrun:PR-2026-02-15:02,payrun:PR-2026-02-15,2,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Expenses:Payroll:EmployerTaxes,Expenses,303.00,0.00,303.00,303.00
+payrun:PR-2026-02-15:03,payrun:PR-2026-02-15,3,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Liabilities:Payroll:Withholdings:Federal,Liabilities,0.00,540.00,-540.00,540.00
+payrun:PR-2026-02-15:04,payrun:PR-2026-02-15,4,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Liabilities:Payroll:Withholdings:Provincial,Liabilities,0.00,240.00,-240.00,240.00
+payrun:PR-2026-02-15:05,payrun:PR-2026-02-15,5,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Liabilities:Payroll:CPPEmployee,Liabilities,0.00,205.00,-205.00,205.00
+payrun:PR-2026-02-15:06,payrun:PR-2026-02-15,6,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Liabilities:Payroll:EIEmployee,Liabilities,0.00,70.00,-70.00,70.00
+payrun:PR-2026-02-15:07,payrun:PR-2026-02-15,7,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Liabilities:Payroll:BenefitsPayable,Liabilities,0.00,105.00,-105.00,105.00
+payrun:PR-2026-02-15:08,payrun:PR-2026-02-15,8,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Liabilities:Payroll:CPPEmployer,Liabilities,0.00,205.00,-205.00,205.00
+payrun:PR-2026-02-15:09,payrun:PR-2026-02-15,9,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Liabilities:Payroll:EIEmployer,Liabilities,0.00,98.00,-98.00,98.00
+payrun:PR-2026-02-15:10,payrun:PR-2026-02-15,10,2026-02-15,,Payroll run PR-2026-02-15 (2026-02-15),Liabilities:Payroll:NetPayPayable,Liabilities,0.00,3140.00,-3140.00,3140.00
+paynet:PR-2026-02-28:01,paynet:PR-2026-02-28,1,2026-02-28,,Pay employees net wages for PR-2026-02-28,Liabilities:Payroll:NetPayPayable,Liabilities,3140.00,0.00,3140.00,-3140.00
+paynet:PR-2026-02-28:02,paynet:PR-2026-02-28,2,2026-02-28,,Pay employees net wages for PR-2026-02-28,Assets:Cash,Assets,0.00,3140.00,-3140.00,-3140.00
+payrun:PR-2026-02-28:01,payrun:PR-2026-02-28,1,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Expenses:Payroll:Wages,Expenses,4300.00,0.00,4300.00,4300.00
+payrun:PR-2026-02-28:02,payrun:PR-2026-02-28,2,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Expenses:Payroll:EmployerTaxes,Expenses,303.00,0.00,303.00,303.00
+payrun:PR-2026-02-28:03,payrun:PR-2026-02-28,3,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Liabilities:Payroll:Withholdings:Federal,Liabilities,0.00,540.00,-540.00,540.00
+payrun:PR-2026-02-28:04,payrun:PR-2026-02-28,4,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Liabilities:Payroll:Withholdings:Provincial,Liabilities,0.00,240.00,-240.00,240.00
+payrun:PR-2026-02-28:05,payrun:PR-2026-02-28,5,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Liabilities:Payroll:CPPEmployee,Liabilities,0.00,205.00,-205.00,205.00
+payrun:PR-2026-02-28:06,payrun:PR-2026-02-28,6,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Liabilities:Payroll:EIEmployee,Liabilities,0.00,70.00,-70.00,70.00
+payrun:PR-2026-02-28:07,payrun:PR-2026-02-28,7,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Liabilities:Payroll:BenefitsPayable,Liabilities,0.00,105.00,-105.00,105.00
+payrun:PR-2026-02-28:08,payrun:PR-2026-02-28,8,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Liabilities:Payroll:CPPEmployer,Liabilities,0.00,205.00,-205.00,205.00
+payrun:PR-2026-02-28:09,payrun:PR-2026-02-28,9,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Liabilities:Payroll:EIEmployer,Liabilities,0.00,98.00,-98.00,98.00
+payrun:PR-2026-02-28:10,payrun:PR-2026-02-28,10,2026-02-28,,Payroll run PR-2026-02-28 (2026-02-28),Liabilities:Payroll:NetPayPayable,Liabilities,0.00,3140.00,-3140.00,3140.00
+paynet:PR-2026-03-15:01,paynet:PR-2026-03-15,1,2026-03-15,,Pay employees net wages for PR-2026-03-15,Liabilities:Payroll:NetPayPayable,Liabilities,3140.00,0.00,3140.00,-3140.00
+paynet:PR-2026-03-15:02,paynet:PR-2026-03-15,2,2026-03-15,,Pay employees net wages for PR-2026-03-15,Assets:Cash,Assets,0.00,3140.00,-3140.00,-3140.00
+payrun:PR-2026-03-15:01,payrun:PR-2026-03-15,1,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Expenses:Payroll:Wages,Expenses,4300.00,0.00,4300.00,4300.00
+payrun:PR-2026-03-15:02,payrun:PR-2026-03-15,2,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Expenses:Payroll:EmployerTaxes,Expenses,303.00,0.00,303.00,303.00
+payrun:PR-2026-03-15:03,payrun:PR-2026-03-15,3,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Liabilities:Payroll:Withholdings:Federal,Liabilities,0.00,540.00,-540.00,540.00
+payrun:PR-2026-03-15:04,payrun:PR-2026-03-15,4,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Liabilities:Payroll:Withholdings:Provincial,Liabilities,0.00,240.00,-240.00,240.00
+payrun:PR-2026-03-15:05,payrun:PR-2026-03-15,5,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Liabilities:Payroll:CPPEmployee,Liabilities,0.00,205.00,-205.00,205.00
+payrun:PR-2026-03-15:06,payrun:PR-2026-03-15,6,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Liabilities:Payroll:EIEmployee,Liabilities,0.00,70.00,-70.00,70.00
+payrun:PR-2026-03-15:07,payrun:PR-2026-03-15,7,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Liabilities:Payroll:BenefitsPayable,Liabilities,0.00,105.00,-105.00,105.00
+payrun:PR-2026-03-15:08,payrun:PR-2026-03-15,8,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Liabilities:Payroll:CPPEmployer,Liabilities,0.00,205.00,-205.00,205.00
+payrun:PR-2026-03-15:09,payrun:PR-2026-03-15,9,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Liabilities:Payroll:EIEmployer,Liabilities,0.00,98.00,-98.00,98.00
+payrun:PR-2026-03-15:10,payrun:PR-2026-03-15,10,2026-03-15,,Payroll run PR-2026-03-15 (2026-03-15),Liabilities:Payroll:NetPayPayable,Liabilities,0.00,3140.00,-3140.00,3140.00
+remit:2026-02:01,remit:2026-02,1,2026-03-15,,Remit payroll withholdings and contributions for 2026-02,Liabilities:Payroll:Withholdings:Federal,Liabilities,1080.00,0.00,1080.00,-1080.00
+remit:2026-02:02,remit:2026-02,2,2026-03-15,,Remit payroll withholdings and contributions for 2026-02,Liabilities:Payroll:Withholdings:Provincial,Liabilities,480.00,0.00,480.00,-480.00
+remit:2026-02:03,remit:2026-02,3,2026-03-15,,Remit payroll withholdings and contributions for 2026-02,Liabilities:Payroll:CPPEmployee,Liabilities,410.00,0.00,410.00,-410.00
+remit:2026-02:04,remit:2026-02,4,2026-03-15,,Remit payroll withholdings and contributions for 2026-02,Liabilities:Payroll:EIEmployee,Liabilities,140.00,0.00,140.00,-140.00
+remit:2026-02:05,remit:2026-02,5,2026-03-15,,Remit payroll withholdings and contributions for 2026-02,Liabilities:Payroll:CPPEmployer,Liabilities,410.00,0.00,410.00,-410.00
+remit:2026-02:06,remit:2026-02,6,2026-03-15,,Remit payroll withholdings and contributions for 2026-02,Liabilities:Payroll:EIEmployer,Liabilities,196.00,0.00,196.00,-196.00
+remit:2026-02:07,remit:2026-02,7,2026-03-15,,Remit payroll withholdings and contributions for 2026-02,Liabilities:Payroll:BenefitsPayable,Liabilities,210.00,0.00,210.00,-210.00
+remit:2026-02:08,remit:2026-02,8,2026-03-15,,Remit payroll withholdings and contributions for 2026-02,Assets:Cash,Assets,0.00,2926.00,-2926.00,-2926.00
+paynet:PR-2026-03-31:01,paynet:PR-2026-03-31,1,2026-03-31,,Pay employees net wages for PR-2026-03-31,Liabilities:Payroll:NetPayPayable,Liabilities,3487.50,0.00,3487.50,-3487.50
+paynet:PR-2026-03-31:02,paynet:PR-2026-03-31,2,2026-03-31,,Pay employees net wages for PR-2026-03-31,Assets:Cash,Assets,0.00,3487.50,-3487.50,-3487.50
+payrun:PR-2026-03-31:01,payrun:PR-2026-03-31,1,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Expenses:Payroll:Wages,Expenses,4750.00,0.00,4750.00,4750.00
+payrun:PR-2026-03-31:02,payrun:PR-2026-03-31,2,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Expenses:Payroll:EmployerTaxes,Expenses,318.50,0.00,318.50,318.50
+payrun:PR-2026-03-31:03,payrun:PR-2026-03-31,3,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Liabilities:Payroll:Withholdings:Federal,Liabilities,0.00,600.00,-600.00,600.00
+payrun:PR-2026-03-31:04,payrun:PR-2026-03-31,4,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Liabilities:Payroll:Withholdings:Provincial,Liabilities,0.00,270.00,-270.00,270.00
+payrun:PR-2026-03-31:05,payrun:PR-2026-03-31,5,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Liabilities:Payroll:CPPEmployee,Liabilities,0.00,210.00,-210.00,210.00
+payrun:PR-2026-03-31:06,payrun:PR-2026-03-31,6,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Liabilities:Payroll:EIEmployee,Liabilities,0.00,77.50,-77.50,77.50
+payrun:PR-2026-03-31:07,payrun:PR-2026-03-31,7,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Liabilities:Payroll:BenefitsPayable,Liabilities,0.00,105.00,-105.00,105.00
+payrun:PR-2026-03-31:08,payrun:PR-2026-03-31,8,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Liabilities:Payroll:CPPEmployer,Liabilities,0.00,210.00,-210.00,210.00
+payrun:PR-2026-03-31:09,payrun:PR-2026-03-31,9,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Liabilities:Payroll:EIEmployer,Liabilities,0.00,108.50,-108.50,108.50
+payrun:PR-2026-03-31:10,payrun:PR-2026-03-31,10,2026-03-31,,Payroll run PR-2026-03-31 (2026-03-31),Liabilities:Payroll:NetPayPayable,Liabilities,0.00,3487.50,-3487.50,3487.50
+paynet:PR-2026-04-15:01,paynet:PR-2026-04-15,1,2026-04-15,,Pay employees net wages for PR-2026-04-15,Liabilities:Payroll:NetPayPayable,Liabilities,3140.00,0.00,3140.00,-3140.00
+paynet:PR-2026-04-15:02,paynet:PR-2026-04-15,2,2026-04-15,,Pay employees net wages for PR-2026-04-15,Assets:Cash,Assets,0.00,3140.00,-3140.00,-3140.00
+payrun:PR-2026-04-15:01,payrun:PR-2026-04-15,1,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Expenses:Payroll:Wages,Expenses,4300.00,0.00,4300.00,4300.00
+payrun:PR-2026-04-15:02,payrun:PR-2026-04-15,2,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Expenses:Payroll:EmployerTaxes,Expenses,303.00,0.00,303.00,303.00
+payrun:PR-2026-04-15:03,payrun:PR-2026-04-15,3,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Liabilities:Payroll:Withholdings:Federal,Liabilities,0.00,540.00,-540.00,540.00
+payrun:PR-2026-04-15:04,payrun:PR-2026-04-15,4,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Liabilities:Payroll:Withholdings:Provincial,Liabilities,0.00,240.00,-240.00,240.00
+payrun:PR-2026-04-15:05,payrun:PR-2026-04-15,5,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Liabilities:Payroll:CPPEmployee,Liabilities,0.00,205.00,-205.00,205.00
+payrun:PR-2026-04-15:06,payrun:PR-2026-04-15,6,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Liabilities:Payroll:EIEmployee,Liabilities,0.00,70.00,-70.00,70.00
+payrun:PR-2026-04-15:07,payrun:PR-2026-04-15,7,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Liabilities:Payroll:BenefitsPayable,Liabilities,0.00,105.00,-105.00,105.00
+payrun:PR-2026-04-15:08,payrun:PR-2026-04-15,8,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Liabilities:Payroll:CPPEmployer,Liabilities,0.00,205.00,-205.00,205.00
+payrun:PR-2026-04-15:09,payrun:PR-2026-04-15,9,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Liabilities:Payroll:EIEmployer,Liabilities,0.00,98.00,-98.00,98.00
+payrun:PR-2026-04-15:10,payrun:PR-2026-04-15,10,2026-04-15,,Payroll run PR-2026-04-15 (2026-04-15),Liabilities:Payroll:NetPayPayable,Liabilities,0.00,3140.00,-3140.00,3140.00
+remit:2026-03:01,remit:2026-03,1,2026-04-15,,Remit payroll withholdings and contributions for 2026-03,Liabilities:Payroll:Withholdings:Federal,Liabilities,1140.00,0.00,1140.00,-1140.00
+remit:2026-03:02,remit:2026-03,2,2026-04-15,,Remit payroll withholdings and contributions for 2026-03,Liabilities:Payroll:Withholdings:Provincial,Liabilities,510.00,0.00,510.00,-510.00
+remit:2026-03:03,remit:2026-03,3,2026-04-15,,Remit payroll withholdings and contributions for 2026-03,Liabilities:Payroll:CPPEmployee,Liabilities,415.00,0.00,415.00,-415.00
+remit:2026-03:04,remit:2026-03,4,2026-04-15,,Remit payroll withholdings and contributions for 2026-03,Liabilities:Payroll:EIEmployee,Liabilities,147.50,0.00,147.50,-147.50
+remit:2026-03:05,remit:2026-03,5,2026-04-15,,Remit payroll withholdings and contributions for 2026-03,Liabilities:Payroll:CPPEmployer,Liabilities,415.00,0.00,415.00,-415.00
+remit:2026-03:06,remit:2026-03,6,2026-04-15,,Remit payroll withholdings and contributions for 2026-03,Liabilities:Payroll:EIEmployer,Liabilities,206.50,0.00,206.50,-206.50
+remit:2026-03:07,remit:2026-03,7,2026-04-15,,Remit payroll withholdings and contributions for 2026-03,Liabilities:Payroll:BenefitsPayable,Liabilities,210.00,0.00,210.00,-210.00
+remit:2026-03:08,remit:2026-03,8,2026-04-15,,Remit payroll withholdings and contributions for 2026-03,Assets:Cash,Assets,0.00,3044.00,-3044.00,-3044.00
+paynet:PR-2026-04-30:01,paynet:PR-2026-04-30,1,2026-04-30,,Pay employees net wages for PR-2026-04-30,Liabilities:Payroll:NetPayPayable,Liabilities,3218.50,0.00,3218.50,-3218.50
+paynet:PR-2026-04-30:02,paynet:PR-2026-04-30,2,2026-04-30,,Pay employees net wages for PR-2026-04-30,Assets:Cash,Assets,0.00,3218.50,-3218.50,-3218.50
+payrun:PR-2026-04-30:01,payrun:PR-2026-04-30,1,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Expenses:Payroll:Wages,Expenses,4400.00,0.00,4400.00,4400.00
+payrun:PR-2026-04-30:02,payrun:PR-2026-04-30,2,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Expenses:Payroll:EmployerTaxes,Expenses,310.10,0.00,310.10,310.10
+payrun:PR-2026-04-30:03,payrun:PR-2026-04-30,3,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Liabilities:Payroll:Withholdings:Federal,Liabilities,0.00,550.00,-550.00,550.00
+payrun:PR-2026-04-30:04,payrun:PR-2026-04-30,4,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Liabilities:Payroll:Withholdings:Provincial,Liabilities,0.00,245.00,-245.00,245.00
+payrun:PR-2026-04-30:05,payrun:PR-2026-04-30,5,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Liabilities:Payroll:CPPEmployee,Liabilities,0.00,210.00,-210.00,210.00
+payrun:PR-2026-04-30:06,payrun:PR-2026-04-30,6,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Liabilities:Payroll:EIEmployee,Liabilities,0.00,71.50,-71.50,71.50
+payrun:PR-2026-04-30:07,payrun:PR-2026-04-30,7,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Liabilities:Payroll:BenefitsPayable,Liabilities,0.00,105.00,-105.00,105.00
+payrun:PR-2026-04-30:08,payrun:PR-2026-04-30,8,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Liabilities:Payroll:CPPEmployer,Liabilities,0.00,210.00,-210.00,210.00
+payrun:PR-2026-04-30:09,payrun:PR-2026-04-30,9,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Liabilities:Payroll:EIEmployer,Liabilities,0.00,100.10,-100.10,100.10
+payrun:PR-2026-04-30:10,payrun:PR-2026-04-30,10,2026-04-30,,Payroll run PR-2026-04-30 (2026-04-30),Liabilities:Payroll:NetPayPayable,Liabilities,0.00,3218.50,-3218.50,3218.50

@@ -1,0 +1,9 @@
+account,expected_subledger_balance,gl_balance,diff
+Liabilities:Payroll:Withholdings:Federal,1090.00,1090.00,0.00
+Liabilities:Payroll:Withholdings:Provincial,485.00,485.00,0.00
+Liabilities:Payroll:CPPEmployee,415.00,415.00,0.00
+Liabilities:Payroll:EIEmployee,141.50,141.50,0.00
+Liabilities:Payroll:CPPEmployer,415.00,415.00,0.00
+Liabilities:Payroll:EIEmployer,198.10,198.10,0.00
+Liabilities:Payroll:BenefitsPayable,210.00,210.00,0.00
+Liabilities:Payroll:NetPayPayable,0.00,0.00,0.00
