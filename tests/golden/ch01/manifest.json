@@ -121,12 +121,12 @@
       "sha256": "61446ea9170ac088df178d0fc679fa56866f639e12cde45e7c136cb755a82db3"
     },
     {
-      "bytes": 2473,
+      "bytes": 2511,
       "description": "Reproducible metadata: hashes, sizes, and counts.",
       "format": "json",
       "kind": "manifest",
       "name": "run_meta.json",
-      "sha256": "0a7beaf880267ea4017dd34d66e79c948b4c33b6cee0ca24c7bb79c06f87a980"
+      "sha256": "948490324cfb84103f64de0395f390f2cb203a46cca6ab013e67e0bdd9e4f7ff"
     },
     {
       "bytes": 2208,
@@ -148,5 +148,6 @@
     "determinism": "All artifacts are derived solely from entries and are stable across platforms.",
     "event_log": "The canonical event log is ledger.jsonl; eventlog.jsonl is an alias."
   },
+  "schema": "ledgerloom.manifest.v1",
   "seed": 123
 }

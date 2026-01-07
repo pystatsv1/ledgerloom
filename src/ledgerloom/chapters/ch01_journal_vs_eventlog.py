@@ -8,12 +8,17 @@ from typing import Any
 
 import pandas as pd
 
-from ledgerloom.artifacts import sha256_file, write_csv_df, write_json, write_text
+from ledgerloom.artifacts import write_csv_df, write_text
 from ledgerloom.core import Entry, Posting
 from ledgerloom.io_jsonl import write_jsonl
 from ledgerloom.reports import balance_sheet, income_statement, trial_balance
 from ledgerloom.chart import account_root
 from ledgerloom.engine import LedgerEngine
+from ledgerloom.trust.pipeline import (
+    emit_trust_artifacts,
+    manifest_artifacts_from_specs,
+    run_meta_artifacts_from_names,
+)
 
 
 def build_demo_entries() -> list[Entry]:
@@ -510,42 +515,36 @@ def main() -> int:
         "seed": int(args.seed),
         "n_entries": len(entries),
         "n_postings": int(sum(len(e.postings) for e in entries)),
-        "artifacts": [
-            {
-                "name": name,
-                "sha256": sha256_file(outdir / name),
-                "bytes": int((outdir / name).stat().st_size),
-            }
-            for name in run_meta_names
-        ],
+        "artifacts": run_meta_artifacts_from_names(outdir, run_meta_names),
     }
-    write_json(outdir / "run_meta.json", run_meta)
 
     # manifest.json can include run_meta.json, but should not attempt to hash itself.
-    manifest_specs = [spec for spec in ARTIFACT_SPECS if spec["name"] != "manifest.json"]
-    manifest = {
-        "chapter": "01",
-        "seed": int(args.seed),
-        "n_entries": len(entries),
-        "n_postings": int(sum(len(e.postings) for e in entries)),
-        "artifacts": [
-            {
-                **spec,
-                "sha256": sha256_file(outdir / spec["name"]),
-                "bytes": int((outdir / spec["name"]).stat().st_size),
-            }
-            for spec in manifest_specs
-        ],
-        "manifest_file": {
-            "name": "manifest.json",
-            "note": "The manifest does not include a hash (or size) of itself to avoid recursion.",
-        },
-        "notes": {
-            "determinism": "All artifacts are derived solely from entries and are stable across platforms.",
-            "event_log": "The canonical event log is ledger.jsonl; eventlog.jsonl is an alias.",
-        },
-    }
-    write_json(outdir / "manifest.json", manifest)
+    manifest_specs = [
+        spec for spec in ARTIFACT_SPECS if spec["name"] != "manifest.json"
+    ]
+
+    def _manifest_payload(p: Path) -> dict[str, Any]:
+        return {
+            "chapter": "01",
+            "seed": int(args.seed),
+            "n_entries": len(entries),
+            "n_postings": int(sum(len(e.postings) for e in entries)),
+            "artifacts": manifest_artifacts_from_specs(p, manifest_specs),
+            "manifest_file": {
+                "name": "manifest.json",
+                "note": "The manifest does not include a hash (or size) of itself to avoid recursion.",
+            },
+            "notes": {
+                "determinism": (
+                    "All artifacts are derived solely from entries and are stable across platforms."
+                ),
+                "event_log": (
+                    "The canonical event log is ledger.jsonl; eventlog.jsonl is an alias."
+                ),
+            },
+        }
+
+    emit_trust_artifacts(outdir, run_meta=run_meta, manifest=_manifest_payload)
 
     print(f"Wrote LedgerLoom Chapter 01 artifacts -> {outdir}")
     return 0
