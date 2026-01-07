@@ -36,9 +36,9 @@
       "sha256": "b51306a53789cd1b4dd415560f3c5fea26be6dc02ee738bf24d80622100e2124"
     },
     {
-      "bytes": 136,
+      "bytes": 174,
       "file": "run_meta.json",
-      "sha256": "432c918a67d0c36b88ae12077ae6958562377f3d6b1921839290d652fca3cf36"
+      "sha256": "8f28fa2ac30cd67d21c336452cb2fa8d4aedfc3ea5433e15a9fdef2cc515538f"
     },
     {
       "bytes": 1750,
@@ -50,5 +50,6 @@
       "file": "sql_mental_model.md",
       "sha256": "75b5eaa0db3610937b531201c1c04d61474271318d0cf5e4da4beb38aabfa217"
     }
-  ]
+  ],
+  "schema": "ledgerloom.manifest.v1"
 }

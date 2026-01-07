@@ -64,10 +64,16 @@
       "bytes": 1831,
       "file": "invariants.json",
       "sha256": "732c8ca693ba13ee38274af066c9bd9b01552de09b3e7fff4de5e553be0b65b7"
+    },
+    {
+      "bytes": 114,
+      "file": "run_meta.json",
+      "sha256": "7e9c259bd636bee805dbfabeb259d903d5e9ee7984ad898777eaaeb8971d7e03"
     }
   ],
   "meta": {
     "chapter": "ch07",
     "seed": 123
-  }
+  },
+  "schema": "ledgerloom.manifest.v1"
 }

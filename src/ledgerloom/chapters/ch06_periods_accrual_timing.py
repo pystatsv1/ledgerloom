@@ -35,6 +35,7 @@ import pandas as pd
 from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine
 from ledgerloom.artifacts import manifest_items, write_csv_df, write_json
+from ledgerloom.trust.pipeline import emit_trust_artifacts
 
 
  # Chapter-owned I/O helpers are centralized in ledgerloom.artifacts.
@@ -365,15 +366,25 @@ def main(argv: list[str] | None = None) -> int:
     w_csv("cutoff_diagnostics.csv", cash_by_entry)
     w_csv("balances_as_of.csv", balances_asof)
     w_json("invariants.json", inv2)
-
-    manifest = {
-        "artifacts": manifest_items(outdir, artifacts, name_key="file"),
-        "meta": {
-            "chapter": "ch06",
-            "seed": args.seed,
-        },
+    # Trust artifacts (run_meta.json + manifest.json)
+    run_meta = {
+        "chapter": "ch06",
+        "module": "ledgerloom.chapters.ch06_periods_accrual_timing",
+        "seed": args.seed,
+        "entries": len(entries),
     }
-    w_json("manifest.json", manifest)
+
+    def _manifest_payload(d: Path) -> dict[str, object]:
+        files = list(artifacts) + [d / "run_meta.json"]
+        return {
+            "artifacts": manifest_items(d, files, name_key="file"),
+            "meta": {
+                "chapter": "ch06",
+                "seed": args.seed,
+            },
+        }
+
+    emit_trust_artifacts(outdir, run_meta=run_meta, manifest=_manifest_payload)
 
     print(f"Wrote LedgerLoom Chapter 06 artifacts -> {outdir}")
     return 0

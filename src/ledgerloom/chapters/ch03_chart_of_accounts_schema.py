@@ -48,7 +48,8 @@ from pathlib import Path
 from typing import Sequence
 
 from ledgerloom.engine import COASchema
-from ledgerloom.artifacts import sha256_file, write_csv_dicts, write_json, write_text
+from ledgerloom.artifacts import manifest_items, sha256_file, write_csv_dicts, write_json, write_text
+from ledgerloom.trust.pipeline import emit_trust_artifacts
 
 
 def write_csv(path: Path, rows: Sequence[dict[str, str]], fieldnames: Sequence[str]) -> None:
@@ -118,20 +119,6 @@ def build_lineage_mermaid() -> str:
   D --> H
   E --> H
 """
-
-
-def artifact_manifest(outdir: Path, files: Sequence[Path]) -> dict[str, object]:
-    items = []
-    for f in files:
-        rel = f.relative_to(outdir).as_posix()
-        items.append(
-            {
-                "path": rel,
-                "bytes": f.stat().st_size,
-                "sha256": sha256_file(f),
-            }
-        )
-    return {"root": outdir.as_posix(), "items": items}
 
 
 def write_ch03_accounts_schema(out_root: Path, seed: int) -> Path:
@@ -213,16 +200,12 @@ def write_ch03_accounts_schema(out_root: Path, seed: int) -> Path:
     lineage_path = outdir / "lineage.mmd"
     write_text(lineage_path, build_lineage_mermaid())
 
-    # run meta
-    run_meta_path = outdir / "run_meta.json"
-    write_json(
-        run_meta_path,
-        {
-            "chapter": "ch03AccountsSchema",
-            "module": "ledgerloom.chapters.ch03_chart_of_accounts_schema",
-            "seed": seed,
-        },
-    )
+    # run meta (written via trust pipeline)
+    run_meta = {
+        "chapter": "ch03AccountsSchema",
+        "module": "ledgerloom.chapters.ch03_chart_of_accounts_schema",
+        "seed": seed,
+    }
 
     # summary
     summary_path = outdir / "summary.md"
@@ -250,22 +233,27 @@ def write_ch03_accounts_schema(out_root: Path, seed: int) -> Path:
         + "\n",
     )
 
-    # manifest
-    manifest_path = outdir / "manifest.json"
-    files = [
-        schema_path,
-        master_path,
-        seg_dims_path,
-        seg_vals_path,
-        is_dept_path,
-        checks_path,
-        tables_path,
-        diag_path,
-        lineage_path,
-        run_meta_path,
-        summary_path,
-    ]
-    write_json(manifest_path, artifact_manifest(outdir, files))
+    # manifest (written via trust pipeline; includes run_meta + summary)
+    def _manifest_payload(d: Path) -> dict[str, object]:
+        files = [
+            schema_path,
+            master_path,
+            seg_dims_path,
+            seg_vals_path,
+            is_dept_path,
+            checks_path,
+            tables_path,
+            diag_path,
+            lineage_path,
+            d / "run_meta.json",
+            summary_path,
+        ]
+        return {
+            "root": d.as_posix(),
+            "items": manifest_items(d, files, name_key="path"),
+        }
+
+    emit_trust_artifacts(outdir, run_meta=run_meta, manifest=_manifest_payload)
 
     return outdir
 

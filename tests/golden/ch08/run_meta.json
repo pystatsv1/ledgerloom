@@ -1,0 +1,6 @@
+{
+  "chapter": "ch08",
+  "module": "ledgerloom.chapters.ch08_closing_controlled_transformation",
+  "schema": "ledgerloom.run_meta.v1",
+  "seed": 123
+}

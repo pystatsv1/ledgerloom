@@ -14,6 +14,12 @@
       "bytes": 965,
       "file": "invariants.json",
       "sha256": "ef8b9b638074de519099894237ffde71ce14dadf31e9d1755c0635facc35b596"
+    },
+    {
+      "bytes": 181,
+      "file": "run_meta.json",
+      "sha256": "ec18aedc3be5d7987f7facde929aa8fc50597fdefb34d82469a29b2f6f1af8e9"
     }
-  ]
+  ],
+  "schema": "ledgerloom.manifest.v1"
 }
