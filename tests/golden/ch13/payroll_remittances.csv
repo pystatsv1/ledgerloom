@@ -1,0 +1,4 @@
+month,remittance_date,posted_in_period,federal_withholding,provincial_withholding,cpp_employee,ei_employee,cpp_employer,ei_employer,benefits,total_cash
+2026-02,2026-03-15,yes,1080.00,480.00,410.00,140.00,410.00,196.00,210.00,2926.00
+2026-03,2026-04-15,yes,1140.00,510.00,415.00,147.50,415.00,206.50,210.00,3044.00
+2026-04,2026-05-15,no,1090.00,485.00,415.00,141.50,415.00,198.10,210.00,2954.60
