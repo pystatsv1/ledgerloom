@@ -77,7 +77,8 @@ def write_json(path: Path, obj: object) -> None:
 
 def write_csv(path: Path, rows: Sequence[dict[str, str]], fieldnames: Sequence[str]) -> None:
     with path.open("w", encoding="utf-8", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fieldnames)
+        # Force LF line endings for byte-stable artifacts across platforms.
+        w = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
 
