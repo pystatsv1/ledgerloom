@@ -46,8 +46,6 @@ WOW artifacts (developer-friendly proofs + tour):
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -55,6 +53,7 @@ from typing import Iterable
 
 import pandas as pd
 
+from ledgerloom.artifacts import sha256_file, write_csv_df, write_json, write_text
 from ledgerloom.core import Entry, Posting
 from ledgerloom.io_jsonl import write_jsonl
 from ledgerloom.reports import balance_sheet, income_statement, trial_balance
@@ -63,15 +62,6 @@ from ledgerloom.reports import balance_sheet, income_statement, trial_balance
 def _d(x: object) -> Decimal:
     """Convert a number-like value to a 2-decimal Decimal."""
     return Decimal(str(x)).quantize(Decimal("0.01"))
-
-
-def _sha256(p: Path) -> str:
-    return hashlib.sha256(p.read_bytes()).hexdigest()
-
-
-def _write_text(p: Path, s: str) -> None:
-    p.parent.mkdir(parents=True, exist_ok=True)
-    p.write_text(s if s.endswith("\n") else (s + "\n"), encoding="utf-8")
 
 
 def _md_table(df: pd.DataFrame, max_rows: int | None = None) -> str:
@@ -210,7 +200,7 @@ def _write_manifest(out_ch_dir: Path) -> None:
             {
                 **spec,
                 "bytes": p.stat().st_size,
-                "sha256": _sha256(p),
+                "sha256": sha256_file(p),
             }
         )
 
@@ -219,7 +209,7 @@ def _write_manifest(out_ch_dir: Path) -> None:
         "chapter": "ch02",
         "artifacts": artifacts,
     }
-    _write_text(out_ch_dir / "manifest.json", json.dumps(manifest, indent=2, sort_keys=True))
+    write_json(out_ch_dir / "manifest.json", manifest)
 
 
 def build_demo_wide(seed: int = 123) -> pd.DataFrame:
@@ -485,24 +475,9 @@ def _write_reports(out_ch_dir: Path, reports: dict[str, dict[str, Decimal]]) -> 
     is_ = reports["income_statement"]
     bs = reports["balance_sheet"]
 
-    (
-        pd.Series(tb)
-        .rename_axis("account")
-        .reset_index(name="amount")
-        .to_csv(out_ch_dir / "trial_balance.csv", index=False)
-    )
-    (
-        pd.Series(is_)
-        .rename_axis("account")
-        .reset_index(name="amount")
-        .to_csv(out_ch_dir / "income_statement.csv", index=False)
-    )
-    (
-        pd.Series(bs)
-        .rename_axis("account")
-        .reset_index(name="amount")
-        .to_csv(out_ch_dir / "balance_sheet.csv", index=False)
-    )
+    write_csv_df(out_ch_dir / "trial_balance.csv", pd.Series(tb).rename_axis("account").reset_index(name="amount"))
+    write_csv_df(out_ch_dir / "income_statement.csv", pd.Series(is_).rename_axis("account").reset_index(name="amount"))
+    write_csv_df(out_ch_dir / "balance_sheet.csv", pd.Series(bs).rename_axis("account").reset_index(name="amount"))
 
 
 
@@ -523,7 +498,7 @@ def _write_lineage(out_ch_dir: Path) -> None:
   D --> T
   T --> M[manifest.json\n(run_meta.json)]
 """
-    _write_text(out_ch_dir / "lineage.mmd", mermaid)
+    write_text(out_ch_dir / "lineage.mmd", mermaid)
 
 
 def _write_tables(
@@ -559,7 +534,7 @@ def _write_tables(
     lines.append("## Balance sheet\n\n")
     lines.append(_md_table(bs.reset_index(drop=True), max_rows=None) + "\n")
 
-    _write_text(out_ch_dir / "tables.md", "".join(lines))
+    write_text(out_ch_dir / "tables.md", "".join(lines))
 
 
 def _write_checks(
@@ -609,7 +584,7 @@ def _write_checks(
         f"- Trial balance / statements are identical across encodings: **{fmt(reports_match)}**\n\n",
         "If a check fails, inspect `diagnostics.md` and `tables.md`.\n",
     ]
-    _write_text(out_ch_dir / "checks.md", "".join(lines))
+    write_text(out_ch_dir / "checks.md", "".join(lines))
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -633,9 +608,9 @@ def main(argv: list[str] | None = None) -> int:
     entries_from_signed = signed_to_entries(df_signed)
 
     # Write encodings
-    df_wide.to_csv(out_ch_dir / "encoding_wide.csv", index=False)
-    df_long.to_csv(out_ch_dir / "encoding_long.csv", index=False)
-    df_signed.to_csv(out_ch_dir / "encoding_signed.csv", index=False)
+    write_csv_df(out_ch_dir / "encoding_wide.csv", df_wide)
+    write_csv_df(out_ch_dir / "encoding_long.csv", df_long)
+    write_csv_df(out_ch_dir / "encoding_signed.csv", df_signed)
 
     # Write compiled journals (deterministic JSONL)
     write_jsonl(out_ch_dir / "journal_from_wide.jsonl", entries_from_wide)
@@ -643,9 +618,9 @@ def main(argv: list[str] | None = None) -> int:
     write_jsonl(out_ch_dir / "journal_from_signed.jsonl", entries_from_signed)
 
     # Hashes (for equivalence proofs)
-    wide_hash = _sha256(out_ch_dir / "journal_from_wide.jsonl")
-    long_hash = _sha256(out_ch_dir / "journal_from_long.jsonl")
-    signed_hash = _sha256(out_ch_dir / "journal_from_signed.jsonl")
+    wide_hash = sha256_file(out_ch_dir / "journal_from_wide.jsonl")
+    long_hash = sha256_file(out_ch_dir / "journal_from_long.jsonl")
+    signed_hash = sha256_file(out_ch_dir / "journal_from_signed.jsonl")
 
     # Reports (use the canonical entries, but all journals should match)
     reports_w = _compute_reports(entries_from_wide)
@@ -686,7 +661,7 @@ def main(argv: list[str] | None = None) -> int:
             "for the artifact flow.\n",
         ]
     )
-    _write_text(out_ch_dir / "diagnostics.md", "".join(diag_lines))
+    write_text(out_ch_dir / "diagnostics.md", "".join(diag_lines))
 
     # WOW artifacts
     _write_checks(out_ch_dir, df_wide, df_long, df_signed, wide_hash, long_hash, signed_hash, reports_match)
@@ -707,7 +682,7 @@ def main(argv: list[str] | None = None) -> int:
         "hash_long": long_hash,
         "hash_signed": signed_hash,
     }
-    _write_text(out_ch_dir / "run_meta.json", json.dumps(meta, indent=2, sort_keys=True))
+    write_json(out_ch_dir / "run_meta.json", meta)
 
     # Manifest should be written last (after run_meta.json).
     _write_manifest(out_ch_dir)
@@ -729,7 +704,7 @@ def main(argv: list[str] | None = None) -> int:
         "## Next\n",
         "Chapter 03 will introduce a Chart of Accounts schema to validate account names and types.\n",
     ]
-    _write_text(out_ch_dir / "summary.md", "".join(summary_lines))
+    write_text(out_ch_dir / "summary.md", "".join(summary_lines))
 
     print(f"Wrote LedgerLoom Chapter 02 artifacts -> {out_ch_dir}")
     return 0

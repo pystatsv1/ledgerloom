@@ -50,6 +50,17 @@ The documentation is organized into:
 
 .. toctree::
    :maxdepth: 1
+   :caption: Future chapters (stubs)
+
+   ledgerloom_ch13_payroll_multiline_event
+   ledgerloom_ch14_reconciliations_quality_control
+   ledgerloom_ch15_materiality_misstatements
+   ledgerloom_ch16_audit_trail_provenance_explainability
+   ledgerloom_ch17_statement_analysis_summary_statistics
+   ledgerloom_ch18_forecasting_planning_basics
+
+.. toctree::
+   :maxdepth: 1
    :caption: Appendices
 
    ledgerloom_appendix_glossary

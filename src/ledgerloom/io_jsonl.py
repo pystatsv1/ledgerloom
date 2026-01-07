@@ -6,6 +6,7 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Iterable, List
 
+from .artifacts import write_jsonl as write_jsonl_dicts
 from .core import Entry, Posting
 
 
@@ -14,10 +15,11 @@ def _encode_decimal(d: Decimal) -> str:
 
 
 def write_jsonl(path: Path, entries: Iterable[Entry]) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
+    """Write entries to JSONL with stable ordering and LF line endings."""
+
+    def rows() -> Iterable[dict[str, object]]:
         for e in entries:
-            obj = {
+            yield {
                 "dt": e.dt.isoformat(),
                 "narration": e.narration,
                 "postings": [
@@ -26,17 +28,9 @@ def write_jsonl(path: Path, entries: Iterable[Entry]) -> None:
                 ],
                 "meta": e.meta,
             }
-            # Defensive normalization: stable key ordering and predictable JSON.
-            # This keeps outputs deterministic across platforms/Python versions.
-            f.write(
-                json.dumps(
-                    obj,
-                    sort_keys=True,
-                    ensure_ascii=False,
-                    separators=(",", ":"),
-                )
-                + "\n"
-            )
+
+    # Delegate the byte-level details (newline handling, compact JSON) to artifacts.
+    write_jsonl_dicts(path, rows(), sort_keys=True, ensure_ascii=False)
 
 
 def read_jsonl(path: Path) -> List[Entry]:
