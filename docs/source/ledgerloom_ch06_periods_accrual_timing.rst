@@ -1,5 +1,5 @@
 Chapter 06: Periods, accrual, and timing
-================================
+========================================
 
 A modern ledger is an **append-only event log** plus a set of **derived views**.
 

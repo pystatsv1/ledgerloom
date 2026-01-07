@@ -24,7 +24,7 @@ A ledger can be “double-entry correct” (each entry balances) but still produ
 The accounting equation is a structural check that your schema + postings make sense together.
 
 Expanded equation (because we keep Revenue/Expenses open)
---------------------------------------------------------
+---------------------------------------------------------
 
 LedgerLoom keeps temporary accounts (Revenue/Expenses) open through these early chapters, so we use the expanded form:
 
@@ -72,6 +72,7 @@ Artifacts
   - The ledger “fact table” (one row per posting).
 - ``equation_check_by_entry.csv``
   - Running totals by root (Assets/Liabilities/Equity/Revenue/Expenses) and:
+
     - ``rhs_liab_plus_equity_plus_rev_minus_exp``
     - ``diff_assets_minus_rhs`` (must be ``0.00``)
 - ``invariants.json``

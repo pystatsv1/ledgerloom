@@ -1,5 +1,5 @@
 LedgerLoom Chapter 08 — Closing as a controlled transformation
-=============================================================
+==============================================================
 
 Chapter 07 ended with the **adjusted close**:
 

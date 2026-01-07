@@ -1,5 +1,5 @@
 LedgerLoom intro
-===============
+================
 
 LedgerLoom is a small open-source project intended to help learners understand:
 

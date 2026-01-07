@@ -1,5 +1,5 @@
 Appendix: Data model reference
-============================
+==============================
 
 This appendix describes the **canonical tables** produced by the LedgerLoom engine.
 It is written as a *contract*: if these structures are stable, chapter refactors and
@@ -38,7 +38,7 @@ where ``line_no`` is formatted as two digits (01, 02, ...). The table also inclu
 ``line_no`` as an integer column.
 
 Postings fact table (``postings.csv``)
--------------------------------------
+--------------------------------------
 
 The engine compiles a list of entries into a single **fact table**: one row per posting line.
 This is the "append-only truth" you build reports from.

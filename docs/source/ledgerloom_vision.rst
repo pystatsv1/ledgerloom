@@ -71,7 +71,7 @@ Chapter roadmap (18 chapters)
      - Planned
 
 Implementation cadence
----------------------
+----------------------
 
 Each chapter ships with:
 
