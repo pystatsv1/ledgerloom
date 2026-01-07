@@ -1,0 +1,152 @@
+{
+  "artifacts": [
+    {
+      "bytes": 726,
+      "description": "Canonical append-only event log (one JSON object per entry).",
+      "format": "jsonl",
+      "kind": "event_log",
+      "name": "ledger.jsonl",
+      "sha256": "6259811631e70b6bc24601e1db7ba2d07149234290bcb9ad7870c144035b93e6"
+    },
+    {
+      "bytes": 726,
+      "description": "Alias of ledger.jsonl (friendly name used in README/VISION).",
+      "format": "jsonl",
+      "kind": "event_log",
+      "name": "eventlog.jsonl",
+      "sha256": "6259811631e70b6bc24601e1db7ba2d07149234290bcb9ad7870c144035b93e6"
+    },
+    {
+      "bytes": 536,
+      "description": "Traditional journal view (one row per posting, debit/credit columns).",
+      "format": "csv",
+      "kind": "view",
+      "name": "journal.csv",
+      "sha256": "95f196d88d2baf87f8c92e9d44353fb74eed590b9f2bcf12fea91009738a406f"
+    },
+    {
+      "bytes": 714,
+      "description": "Derived ledger view (running balances; think: database view).",
+      "format": "csv",
+      "kind": "view",
+      "name": "ledger_view.csv",
+      "sha256": "80444aee2e5fe3c551bda84b3c69e54953b48e252128779fe3c764c39039286f"
+    },
+    {
+      "bytes": 114,
+      "description": "Trial balance (account totals; validates double-entry + aggregation).",
+      "format": "csv",
+      "kind": "check",
+      "name": "trial_balance.csv",
+      "sha256": "a74a132c2b3954d7ae89ea1288e89016dd0a1e676f204ddc7cb1c0f79807f028"
+    },
+    {
+      "bytes": 63,
+      "description": "Income statement derived from the trial balance.",
+      "format": "csv",
+      "kind": "report",
+      "name": "income_statement.csv",
+      "sha256": "9a101dea3098479037a3872b5cce7b1c8c8dd6cb97d80b545cc3e0ecced484b1"
+    },
+    {
+      "bytes": 104,
+      "description": "Balance sheet derived from the trial balance (includes Check = A-(L+E)).",
+      "format": "csv",
+      "kind": "report",
+      "name": "balance_sheet.csv",
+      "sha256": "6102d759b87aa3035e721a23d44c4945fc86572a875385b05f131f415f5166b4"
+    },
+    {
+      "bytes": 657,
+      "description": "Human-friendly explanation of each entry (inspectable + teachable).",
+      "format": "md",
+      "kind": "memo",
+      "name": "entry_explanations.md",
+      "sha256": "2ab795179d372751ae2f308ca5c5de9f87d2dd2f58eea9180f79c7862f5ec5e5"
+    },
+    {
+      "bytes": 748,
+      "description": "Small-scope assumptions + what is intentionally NOT modeled yet.",
+      "format": "md",
+      "kind": "memo",
+      "name": "assumptions.md",
+      "sha256": "f66f988511f485f7969f0c0274aa5d68233df1da905709712f65778c10d15921"
+    },
+    {
+      "bytes": 445,
+      "description": "Invariant results (balanced entries, equation check, row counts).",
+      "format": "md",
+      "kind": "check",
+      "name": "checks.md",
+      "sha256": "10f550f345989f374311ee81b51e267ce2b1c18cfe8c25999f93a656cdf21991"
+    },
+    {
+      "bytes": 257,
+      "description": "Per-entry debit/credit totals (should net to 0 for every entry).",
+      "format": "csv",
+      "kind": "check",
+      "name": "entry_balancing.csv",
+      "sha256": "71be4da929a9d9b6a46a2b6f676ff1b510c56e15f420af84ee87e0850a6ce665"
+    },
+    {
+      "bytes": 57,
+      "description": "Roll-up totals by account root (Assets/Liabilities/Equity/Revenue/Expenses).",
+      "format": "csv",
+      "kind": "view",
+      "name": "account_rollup.csv",
+      "sha256": "bbfb9298c0733dd59e7c23c5096b88fcebce8d43a5ebdba0cf3c33502e3df8a4"
+    },
+    {
+      "bytes": 321,
+      "description": "Tiny text chart (bars) for root roll-ups\u2014quick visual sanity check.",
+      "format": "md",
+      "kind": "chart",
+      "name": "root_bar_chart.md",
+      "sha256": "2a5f6480568763ab783ee2982865a3b4768f7e0ea168e2dbdcb4b3641942027f"
+    },
+    {
+      "bytes": 1345,
+      "description": "Key tables rendered as Markdown (journal, trial balance, statements).",
+      "format": "md",
+      "kind": "table",
+      "name": "tables.md",
+      "sha256": "7a139d83496d4a0ea6de3a11b3e2eeb7adc5214a070556ca60e9fe444615add7"
+    },
+    {
+      "bytes": 522,
+      "description": "Mermaid diagram showing lineage: events \u2192 views \u2192 checks/reports.",
+      "format": "mmd",
+      "kind": "diagram",
+      "name": "lineage.mmd",
+      "sha256": "61446ea9170ac088df178d0fc679fa56866f639e12cde45e7c136cb755a82db3"
+    },
+    {
+      "bytes": 2473,
+      "description": "Reproducible metadata: hashes, sizes, and counts.",
+      "format": "json",
+      "kind": "manifest",
+      "name": "run_meta.json",
+      "sha256": "0a7beaf880267ea4017dd34d66e79c948b4c33b6cee0ca24c7bb79c06f87a980"
+    },
+    {
+      "bytes": 2208,
+      "description": "Short chapter memo: what was generated + why it matters.",
+      "format": "md",
+      "kind": "memo",
+      "name": "summary.md",
+      "sha256": "8dec849a511736d98a94c64d038c1153c6952eeb988ddb0bd2aae28e29205a3f"
+    }
+  ],
+  "chapter": "01",
+  "manifest_file": {
+    "name": "manifest.json",
+    "note": "The manifest does not include a hash (or size) of itself to avoid recursion."
+  },
+  "n_entries": 3,
+  "n_postings": 6,
+  "notes": {
+    "determinism": "All artifacts are derived solely from entries and are stable across platforms.",
+    "event_log": "The canonical event log is ledger.jsonl; eventlog.jsonl is an alias."
+  },
+  "seed": 123
+}
