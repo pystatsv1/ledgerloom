@@ -16,6 +16,28 @@ from typing import FrozenSet, Literal
 
 
 @dataclass(frozen=True)
+class Dimension:
+    """A configurable segment (dimension) materialized into the postings fact table.
+
+    Dimensions are read from ``Entry.meta`` and written as separate string columns
+    on the postings table (e.g., department, project, location).
+
+    This stays intentionally simple in v0.1:
+    - Entry-level metadata only (no posting-level overrides).
+    - Deterministic: dimension columns appear in the configured order.
+    """
+
+    # Column name written to postings fact table (e.g., "department", "project").
+    name: str
+    # Key read from Entry.meta (e.g., "department", "project_code").
+    key: str
+    # Value used when the key is missing (default keeps current behavior).
+    default: str = ""
+    # Strict-mode validation can require this dimension later (engine is opt-in).
+    required: bool = False
+
+
+@dataclass(frozen=True)
 class LedgerEngineConfig:
     """Configuration for :class:`~ledgerloom.engine.ledger.LedgerEngine`.
 
@@ -36,10 +58,32 @@ class LedgerEngineConfig:
     entry_id_key: str = "entry_id"
     department_key: str = "department"
 
+    # Optional multi-dimensional segmentation (cost center, project, location, etc.).
+    # If None, defaults to a single 'department' dimension using department_key.
+    dimensions: tuple[Dimension, ...] | None = None
+
+    # Optional stricter validation (opt-in):
+    # - enforce required dimensions (Dimension.required)
+    # - enforce posting line rules (non-negative + exactly one of debit/credit > 0)
+    # - enforce balanced entries and strict entry_id if configured
+    strict_validation: bool = False
+
     # Entry ID policy:
     # - "strict": raise if entry_id is missing (recommended for real systems)
     # - "generated": synthesize a stable entry_id when missing (teaching / migration)
     entry_id_policy: Literal["strict", "generated"] = "strict"
+
+    @property
+    def effective_dimensions(self) -> tuple[Dimension, ...]:
+        """Return configured dimension specs in deterministic order.
+
+        If ``dimensions`` is None, fall back to a single department dimension
+        using ``department_key`` (backward-compatible with earlier chapters/apps).
+        """
+
+        if self.dimensions is None:
+            return (Dimension(name="department", key=self.department_key),)
+        return self.dimensions
 
     @property
     def recognized_roots(self) -> FrozenSet[str]:

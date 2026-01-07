@@ -83,11 +83,26 @@ def _generated_entry_id(entry: Entry) -> str:
     return "H" + h.hexdigest()[:12]
 
 
-def entry_department(entry: Entry, cfg: LedgerEngineConfig) -> str:
-    """Simple segment value used for grouping (stored in ``entry.meta``)."""
+def entry_dimensions(entry: Entry, cfg: LedgerEngineConfig) -> dict[str, str]:
+    """Return configured dimension values for this entry.
 
-    v = (entry.meta or {}).get(cfg.department_key)
-    return str(v) if v is not None else ""
+    Dimensions are read from ``Entry.meta`` and materialized as columns on the
+    postings fact table. Missing keys fall back to each dimension's ``default``.
+    """
+
+    out: dict[str, str] = {}
+    meta = entry.meta or {}
+    for dim in cfg.effective_dimensions:
+        v = meta.get(dim.key, dim.default)
+        out[dim.name] = str(v) if v is not None else dim.default
+    return out
+
+
+def entry_department(entry: Entry, cfg: LedgerEngineConfig) -> str:
+    """Backward-compatible helper: the configured "department" dimension value."""
+
+    dims = entry_dimensions(entry, cfg)
+    return dims.get("department", "")
 
 
 def signed_cents(cfg: LedgerEngineConfig, root: str, debit_cents: int, credit_cents: int) -> int:
@@ -101,24 +116,79 @@ def signed_cents(cfg: LedgerEngineConfig, root: str, debit_cents: int, credit_ce
     return debit_cents - credit_cents
 
 
+
+def validate_entries(entries: list[Entry], cfg: LedgerEngineConfig) -> None:
+    """Optional strict validation for real-world usage (opt-in).
+
+    This function is intentionally separate from invariants:
+    - invariants are *reports* you can assert in tests
+    - strict validation is an *exception-throwing gate* you can enable in apps
+
+    Enabled by setting ``LedgerEngineConfig.strict_validation = True`` or by
+    calling :meth:`ledgerloom.engine.ledger.LedgerEngine.validate_entries`.
+    """
+
+    errors: list[str] = []
+
+    for ei, e in enumerate(entries):
+        # Balanced entry check (double-entry invariant).
+        try:
+            e.validate_balanced()
+        except Exception as ex:  # noqa: BLE001
+            errors.append(f"entry[{ei}] {ex}")
+
+        # Strict entry_id presence if configured.
+        if cfg.entry_id_policy == "strict":
+            v = (e.meta or {}).get(cfg.entry_id_key)
+            if v is None or str(v).strip() == "":
+                errors.append(f"entry[{ei}] missing required meta['{cfg.entry_id_key}']")
+
+        # Required dimensions (read from Entry.meta).
+        meta = e.meta or {}
+        for dim in cfg.effective_dimensions:
+            if not dim.required:
+                continue
+            v = meta.get(dim.key)
+            if v is None or str(v).strip() == "":
+                errors.append(f"entry[{ei}] missing required dimension '{dim.name}' (meta['{dim.key}'])")
+
+        # Posting line rules.
+        for li, p in enumerate(e.postings, start=1):
+            if p.debit < 0 or p.credit < 0:
+                errors.append(f"entry[{ei}] posting line {li}: debit/credit must be non-negative")
+            if (p.debit > 0) == (p.credit > 0):
+                errors.append(f"entry[{ei}] posting line {li}: must have exactly one of debit or credit > 0")
+
+    if errors:
+        msg = "LedgerEngine strict validation failed:\n- " + "\n- ".join(errors)
+        raise ValueError(msg)
+
+
 def postings_fact_table(entries: list[Entry], cfg: LedgerEngineConfig) -> pd.DataFrame:
     """Build the postings fact table (one row per posting line)."""
 
+    if cfg.strict_validation:
+        validate_entries(entries, cfg)
+
     rows: list[dict[str, Any]] = []
     for e in entries:
-        dept = entry_department(e, cfg)
+        dims = entry_dimensions(e, cfg)
         eid = entry_id(e, cfg)
         for i, p in enumerate(e.postings, start=1):
             root = account_root(p.account)
             dr_c = to_cents(p.debit)
             cr_c = to_cents(p.credit)
-            rows.append(
+
+            # Keep column order stable (important for golden artifacts).
+            row: dict[str, Any] = {
+                "posting_id": f"{eid}:{i:02d}",
+                "entry_id": eid,
+                "line_no": i,
+                "date": e.dt.isoformat(),
+            }
+            row.update(dims)
+            row.update(
                 {
-                    "posting_id": f"{eid}:{i:02d}",
-                    "entry_id": eid,
-                    "line_no": i,
-                    "date": e.dt.isoformat(),
-                    "department": dept,
                     "narration": e.narration,
                     "account": p.account,
                     "root": root,
@@ -128,6 +198,7 @@ def postings_fact_table(entries: list[Entry], cfg: LedgerEngineConfig) -> pd.Dat
                     "signed_delta": cents_to_str(signed_cents(cfg, root, dr_c, cr_c)),
                 }
             )
+            rows.append(row)
 
     df = pd.DataFrame(rows)
     df = df.sort_values(["date", "entry_id", "line_no"], kind="mergesort").reset_index(drop=True)
@@ -197,23 +268,38 @@ def balances_by_period(postings: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def balances_by_department(postings: pd.DataFrame) -> pd.DataFrame:
-    """Materialized view: balances grouped by department and root."""
+def balances_by_dimension(postings: pd.DataFrame, dimension: str) -> pd.DataFrame:
+    """Materialized view: balances grouped by a dimension and root."""
+
+    if dimension not in postings.columns:
+        raise KeyError(f"postings table does not have dimension column: {dimension!r}")
 
     tmp = postings.copy()
     tmp["signed_cents"] = tmp["signed_delta"].map(str_to_cents)
 
-    g = tmp.groupby(["department", "root"], sort=True, as_index=False).agg(
+    g = tmp.groupby([dimension, "root"], sort=True, as_index=False).agg(
         signed_cents=("signed_cents", "sum"),
     )
     g["balance"] = g["signed_cents"].map(cents_to_str)
-    out = g[["department", "root", "balance"]]
-    out = out.sort_values(["department", "root"], kind="mergesort").reset_index(drop=True)
+
+    out = g[[dimension, "root", "balance"]]
+    out = out.sort_values([dimension, "root"], kind="mergesort").reset_index(drop=True)
     return out
 
 
-def running_balance_by_posting(postings: pd.DataFrame) -> pd.DataFrame:
+def balances_by_department(postings: pd.DataFrame) -> pd.DataFrame:
+    """Materialized view: balances grouped by department and root."""
+
+    return balances_by_dimension(postings, dimension="department")
+
+
+def running_balance_by_posting(postings: pd.DataFrame, cfg: LedgerEngineConfig | None = None) -> pd.DataFrame:
     """Window-function style running balances per account."""
+
+    if cfg is None:
+        dim_cols = ["department"] if "department" in postings.columns else []
+    else:
+        dim_cols = [d.name for d in cfg.effective_dimensions if d.name in postings.columns]
 
     tmp = postings.copy()
     tmp["signed_cents"] = tmp["signed_delta"].map(str_to_cents)
@@ -222,18 +308,17 @@ def running_balance_by_posting(postings: pd.DataFrame) -> pd.DataFrame:
     tmp["running_balance_cents"] = tmp.groupby("account", sort=True)["signed_cents"].cumsum()
     tmp["running_balance"] = tmp["running_balance_cents"].map(cents_to_str)
 
-    out = tmp[
-        [
-            "posting_id",
-            "date",
-            "account",
-            "signed_delta",
-            "running_balance",
-            "department",
-            "narration",
-        ]
+    out_cols = [
+        "posting_id",
+        "date",
+        "account",
+        "signed_delta",
+        "running_balance",
+        *dim_cols,
+        "narration",
     ]
-    out = out.sort_values(["account", "date", "posting_id"], kind="mergesort").reset_index(drop=True)
+    out = tmp[out_cols]
+    out = out.reset_index(drop=True)
     return out
 
 
@@ -334,8 +419,15 @@ def invariants(entries: list[Entry], postings: pd.DataFrame, cfg: LedgerEngineCo
     }
 
 
-def gl_schema_description() -> dict[str, Any]:
+def gl_schema_description(cfg: LedgerEngineConfig | None = None) -> dict[str, Any]:
     """A tiny schema description for the GL tables (for docs/tooling)."""
+
+    if cfg is None:
+        dim_names = ["department"]
+    else:
+        dim_names = [d.name for d in cfg.effective_dimensions]
+
+    dim_columns = [{"name": n, "type": "string"} for n in dim_names]
 
     return {
         "tables": {
@@ -347,7 +439,7 @@ def gl_schema_description() -> dict[str, Any]:
                     {"name": "entry_id", "type": "string"},
                     {"name": "line_no", "type": "int"},
                     {"name": "date", "type": "date (YYYY-MM-DD)"},
-                    {"name": "department", "type": "string"},
+                    *dim_columns,
                     {"name": "narration", "type": "string"},
                     {"name": "account", "type": "string"},
                     {"name": "root", "type": "string"},
@@ -363,7 +455,7 @@ def gl_schema_description() -> dict[str, Any]:
                 "index_suggestions": [
                     ["date"],
                     ["account", "date"],
-                    ["department", "date"],
+                    *[[n, "date"] for n in dim_names],
                 ],
             },
             "balances_by_account": {
@@ -380,6 +472,7 @@ def gl_schema_description() -> dict[str, Any]:
             },
         }
     }
+
 
 
 @dataclass(frozen=True)
@@ -428,6 +521,12 @@ class LedgerEngine:
     def postings_fact_table(self, entries: list[Entry]) -> pd.DataFrame:
         return postings_fact_table(entries, cfg=self.cfg)
 
+    def validate_entries(self, entries: list[Entry]) -> None:
+        """Run strict validation checks (does not mutate entries)."""
+
+        validate_entries(entries, cfg=self.cfg)
+
+
     def balances_by_account(self, postings: pd.DataFrame) -> pd.DataFrame:
         return balances_by_account(postings, cfg=self.cfg)
 
@@ -436,6 +535,10 @@ class LedgerEngine:
 
     def balances_by_department(self, postings: pd.DataFrame) -> pd.DataFrame:
         return balances_by_department(postings)
+
+    def balances_by_dimension(self, postings: pd.DataFrame, dimension: str) -> pd.DataFrame:
+        return balances_by_dimension(postings, dimension=dimension)
+
 
     def postings_as_of(self, postings: pd.DataFrame, as_of: date | str) -> pd.DataFrame:
         """Filter postings to rows with ``date <= as_of``."""
@@ -448,10 +551,10 @@ class LedgerEngine:
         return balances_by_account(postings_as_of(postings, as_of=as_of), cfg=self.cfg)
 
     def running_balance_by_posting(self, postings: pd.DataFrame) -> pd.DataFrame:
-        return running_balance_by_posting(postings)
+        return running_balance_by_posting(postings, cfg=self.cfg)
 
     def invariants(self, entries: list[Entry], postings: pd.DataFrame) -> dict[str, Any]:
         return invariants(entries, postings, cfg=self.cfg)
 
     def gl_schema_description(self) -> dict[str, Any]:
-        return gl_schema_description()
+        return gl_schema_description(cfg=self.cfg)

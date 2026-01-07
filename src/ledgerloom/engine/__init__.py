@@ -10,13 +10,14 @@ Public v0.1 API (intentionally small):
 """
 
 from .coa import Account, COASchema, SegmentValue
-from .config import LedgerEngineConfig
+from .config import Dimension, LedgerEngineConfig
 from .ledger import LedgerEngine
 
 __all__ = [
     "Account",
     "SegmentValue",
     "COASchema",
+    "Dimension",
     "LedgerEngineConfig",
     "LedgerEngine",
 ]
