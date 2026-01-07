@@ -39,7 +39,8 @@ docs:
 
 
 docs-strict:
-	python -m sphinx -W --keep-going -b html docs/source docs/build/html
+	# Force a clean rebuild so warnings can't be hidden by cached doctrees.
+	python -m sphinx -a -E -W --keep-going -b html docs/source docs/build/html
 # --- CI smokes (small, deterministic) ---
 .PHONY: ll-ci ll-ch05 ll-ch06
 ll-ci:

@@ -31,3 +31,7 @@ jobs:
 
       - name: Tests
         run: pytest -q
+
+      - name: Docs (warnings as errors)
+        if: matrix.python-version == '3.12'
+        run: make docs-strict

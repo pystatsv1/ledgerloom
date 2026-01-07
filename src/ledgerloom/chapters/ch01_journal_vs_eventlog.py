@@ -1,8 +1,6 @@
 from __future__ import annotations
 
 import argparse
-import hashlib
-import json
 from datetime import date
 from decimal import Decimal
 from pathlib import Path
@@ -10,6 +8,7 @@ from typing import Any
 
 import pandas as pd
 
+from ledgerloom.artifacts import sha256_file, write_csv_df, write_json, write_text
 from ledgerloom.core import Entry, Posting
 from ledgerloom.io_jsonl import write_jsonl
 from ledgerloom.reports import balance_sheet, income_statement, trial_balance
@@ -180,14 +179,6 @@ def _fmt(d: Decimal) -> str:
     return format(d, "f")
 
 
-def _sha256(path: Path) -> str:
-    h = hashlib.sha256()
-    with path.open("rb") as f:
-        for chunk in iter(lambda: f.read(1024 * 1024), b""):
-            h.update(chunk)
-    return h.hexdigest()
-
-
 def _md_table(df: pd.DataFrame, max_rows: int | None = None) -> str:
     """Render a DataFrame as a Markdown table (deterministic)."""
     if max_rows is not None:
@@ -219,12 +210,8 @@ def _root_rollup(tb: dict[str, Decimal]) -> dict[str, Decimal]:
     return dict(sorted(out.items()))
 
 
-def _write_text(path: Path, text: str) -> None:
-    path.write_text(text.rstrip() + "\n", encoding="utf-8")
-
-
 def _write_assumptions(outdir: Path) -> None:
-    _write_text(
+    write_text(
         outdir / "assumptions.md",
         """# Assumptions + scope (Chapter 01)
 
@@ -256,7 +243,7 @@ Those arrive in later chapters. The goal here is to nail the mental model:
 
 
 def _write_lineage(outdir: Path) -> None:
-    _write_text(
+    write_text(
         outdir / "lineage.mmd",
         """%% LedgerLoom Chapter 01 lineage
 flowchart LR
@@ -304,7 +291,7 @@ def _write_tables(
     parts.append(_md_table(bs_df))
     parts.append("\n\n")
 
-    _write_text(outdir / "tables.md", "".join(parts))
+    write_text(outdir / "tables.md", "".join(parts))
 
 
 def _write_checks(
@@ -333,7 +320,7 @@ def _write_checks(
     lines.append(f"- Check value: `{check}`\n\n")
     lines.append("## Reproducibility\n\n")
     lines.append("- Artifact hashes and sizes are in `run_meta.json` and `manifest.json`.\n")
-    _write_text(outdir / "checks.md", "".join(lines))
+    write_text(outdir / "checks.md", "".join(lines))
 
 
 def _write_root_rollup(outdir: Path, tb: dict[str, Decimal]) -> None:
@@ -342,7 +329,7 @@ def _write_root_rollup(outdir: Path, tb: dict[str, Decimal]) -> None:
         [{"root": k, "amount": _fmt(v)} for k, v in rr.items()],
         columns=["root", "amount"],
     )
-    df.to_csv(outdir / "account_rollup.csv", index=False)
+    write_csv_df(outdir / "account_rollup.csv", df)
 
     # A tiny text chart: bars scaled to the max absolute value.
     max_abs = max((abs(v) for v in rr.values()), default=Decimal("0"))
@@ -354,7 +341,7 @@ def _write_root_rollup(outdir: Path, tb: dict[str, Decimal]) -> None:
     for root, amt in rr.items():
         bar = _bar(amt, scale)
         lines.append(f"| `{root}` | {amt} | {bar} |\n")
-    _write_text(outdir / "root_bar_chart.md", "".join(lines))
+    write_text(outdir / "root_bar_chart.md", "".join(lines))
 
 
 def entries_to_journal_df(entries: list[Entry]) -> pd.DataFrame:
@@ -436,28 +423,22 @@ def main() -> int:
     eventlog_path = outdir / "eventlog.jsonl"  # name used in VISION.md
     write_jsonl(ledger_path, entries)
     # Duplicate the same content under the VISION/README-friendly name.
-    eventlog_path.write_text(ledger_path.read_text(encoding="utf-8"), encoding="utf-8")
+    eventlog_path.write_bytes(ledger_path.read_bytes())
 
     # --- Journal + derived ledger view ---
     journal_df = entries_to_journal_df(entries)
-    journal_df.to_csv(outdir / "journal.csv", index=False)
+    write_csv_df(outdir / "journal.csv", journal_df)
 
     ledger_view_df = entries_to_ledger_view_df(entries)
-    ledger_view_df.to_csv(outdir / "ledger_view.csv", index=False)
+    write_csv_df(outdir / "ledger_view.csv", ledger_view_df)
 
     tb = trial_balance(entries)
     is_ = income_statement(tb)
     bs = balance_sheet(tb)
 
-    pd.Series(tb).rename_axis("account").reset_index(name="amount").to_csv(
-        outdir / "trial_balance.csv", index=False
-    )
-    pd.Series(is_).rename_axis("account").reset_index(name="amount").to_csv(
-        outdir / "income_statement.csv", index=False
-    )
-    pd.Series(bs).rename_axis("account").reset_index(name="amount").to_csv(
-        outdir / "balance_sheet.csv", index=False
-    )
+    write_csv_df(outdir / "trial_balance.csv", pd.Series(tb).rename_axis("account").reset_index(name="amount"))
+    write_csv_df(outdir / "income_statement.csv", pd.Series(is_).rename_axis("account").reset_index(name="amount"))
+    write_csv_df(outdir / "balance_sheet.csv", pd.Series(bs).rename_axis("account").reset_index(name="amount"))
 
     # --- Extra "wow" artifacts (tables, checks, chart) ---
     entry_balance_rows: list[dict[str, str]] = []
@@ -477,7 +458,7 @@ def main() -> int:
             }
         )
     entry_balance_df = pd.DataFrame(entry_balance_rows)
-    entry_balance_df.to_csv(outdir / "entry_balancing.csv", index=False)
+    write_csv_df(outdir / "entry_balancing.csv", entry_balance_df)
 
     _write_assumptions(outdir)
     _write_root_rollup(outdir, tb)
@@ -492,7 +473,7 @@ def main() -> int:
     _write_checks(outdir, entries, entry_balance_df, bs)
 
     expl = "\n".join(explain_entry(e) for e in entries)
-    (outdir / "entry_explanations.md").write_text(expl, encoding="utf-8")
+    write_text(outdir / "entry_explanations.md", expl)
 
     # Write summary before hashing artifacts in run_meta/manifest.
     summary_lines = [
@@ -515,7 +496,7 @@ def main() -> int:
         "## Next\n",
         "Chapter 02 shows that debits/credits are an **encoding choice** — including a signed representation.\n",
     ]
-    (outdir / "summary.md").write_text("".join(summary_lines), encoding="utf-8")
+    write_text(outdir / "summary.md", "".join(summary_lines))
 
     # --- Meta + summary ("wow" + reproducibility) ---
     artifact_names = [spec["name"] for spec in ARTIFACT_SPECS]
@@ -532,13 +513,13 @@ def main() -> int:
         "artifacts": [
             {
                 "name": name,
-                "sha256": _sha256(outdir / name),
+                "sha256": sha256_file(outdir / name),
                 "bytes": int((outdir / name).stat().st_size),
             }
             for name in run_meta_names
         ],
     }
-    _write_text(outdir / "run_meta.json", json.dumps(run_meta, indent=2, sort_keys=True))
+    write_json(outdir / "run_meta.json", run_meta)
 
     # manifest.json can include run_meta.json, but should not attempt to hash itself.
     manifest_specs = [spec for spec in ARTIFACT_SPECS if spec["name"] != "manifest.json"]
@@ -550,7 +531,7 @@ def main() -> int:
         "artifacts": [
             {
                 **spec,
-                "sha256": _sha256(outdir / spec["name"]),
+                "sha256": sha256_file(outdir / spec["name"]),
                 "bytes": int((outdir / spec["name"]).stat().st_size),
             }
             for spec in manifest_specs
@@ -564,7 +545,7 @@ def main() -> int:
             "event_log": "The canonical event log is ledger.jsonl; eventlog.jsonl is an alias.",
         },
     }
-    _write_text(outdir / "manifest.json", json.dumps(manifest, indent=2, sort_keys=True))
+    write_json(outdir / "manifest.json", manifest)
 
     print(f"Wrote LedgerLoom Chapter 01 artifacts -> {outdir}")
     return 0

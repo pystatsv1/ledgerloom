@@ -78,6 +78,36 @@ def write_json(
     )
 
 
+def write_jsonl(
+    path: Path,
+    rows: Iterable[dict[str, Any]],
+    *,
+    sort_keys: bool = True,
+    ensure_ascii: bool = False,
+) -> None:
+    """Write JSONL (one JSON object per line) with LF newlines.
+
+    Notes
+    -----
+    - This function intentionally writes *bytes deterministically* across platforms.
+    - Each row is dumped with compact separators (no spaces) and (optionally) sorted keys.
+    """
+
+    ensure_dir(path)
+    # newline='\n' prevents Windows newline translation (\n -> \r\n).
+    with path.open("w", encoding="utf-8", newline="\n") as f:
+        for row in rows:
+            f.write(
+                json.dumps(
+                    row,
+                    sort_keys=sort_keys,
+                    ensure_ascii=ensure_ascii,
+                    separators=(",", ":"),
+                )
+            )
+            f.write("\n")
+
+
 def write_csv_dicts(
     path: Path,
     rows: Iterable[dict[str, Any]],
