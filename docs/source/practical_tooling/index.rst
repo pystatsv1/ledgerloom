@@ -7,3 +7,4 @@ This section documents LedgerLoom's "practical tool" surface area.
    :maxdepth: 2
 
    project_config
+   chart_of_accounts
