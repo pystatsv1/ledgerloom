@@ -42,8 +42,8 @@ docs = [
 ]
 
 [project.scripts]
-ledgerloom = "ledgerloom.__main__:main"
-ledgerloom-docs = "ledgerloom.__main__:open_docs_cli"
+ledgerloom = "ledgerloom.cli:main"
+ledgerloom-docs = "ledgerloom.cli:open_docs_cli"
 
 [project.urls]
 Homepage = "https://github.com/pystatsv1/ledgerloom"

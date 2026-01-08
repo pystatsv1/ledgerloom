@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from ledgerloom.__main__ import main
+from ledgerloom.cli import main
 
 
 def _write(path: Path, text: str) -> None:
