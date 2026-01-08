@@ -47,7 +47,9 @@ Example::
    sources:
      - source_type: "bank_feed.v1"
        name: "Chase Checking"
-       file_pattern: "inputs/2026-01/chase_*.csv"
+       # Pattern is evaluated within ``inputs/<period>/`` by default.
+       # (So you typically **do not** include the inputs folder prefix here.)
+       file_pattern: "chase_*.csv"
        default_account: "Assets:US:Chase:Checking"
        date_format: "%m/%d/%Y"
        columns:
@@ -66,5 +68,6 @@ Example::
 Next steps
 ----------
 
-* PR 02 introduces a Chart of Accounts loader and account validation.
-* PR 03 introduces the ingestion core (CSV -> staged rows -> Entries).
+* ``ledgerloom check`` now provides the gatekeeper experience (staging + validation).
+* The next major step is ``ledgerloom build`` (produce postings + trial balance + statements
+  and write trust artifacts in a run directory).
