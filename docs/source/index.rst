@@ -68,3 +68,4 @@ The documentation is organized into:
    ledgerloom_appendix_cookbook
    ledgerloom_appendix_implementation_notes
    ledgerloom_appendix_data_model_reference
+   practical_tooling/index
