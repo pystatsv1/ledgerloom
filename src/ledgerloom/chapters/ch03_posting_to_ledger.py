@@ -17,7 +17,6 @@ from __future__ import annotations
 
 import argparse
 import csv
-import hashlib
 import json
 import random
 from dataclasses import dataclass
@@ -26,6 +25,7 @@ from decimal import Decimal, getcontext
 from pathlib import Path
 from typing import Iterable, Sequence
 
+from ledgerloom.artifacts import manifest_items, sha256_bytes
 from ledgerloom.trust.pipeline import emit_trust_artifacts
 
 getcontext().prec = 28
@@ -53,16 +53,6 @@ def _dec_str(x: Decimal) -> str:
     whole, frac = s.split(".", 1)
     frac = (frac + "00")[:2]
     return f"{whole}.{frac}"
-
-
-def sha256_bytes(b: bytes) -> str:
-    h = hashlib.sha256()
-    h.update(b)
-    return h.hexdigest()
-
-
-def sha256_file(path: Path) -> str:
-    return sha256_bytes(path.read_bytes())
 
 
 def ensure_dir(p: Path) -> None:
@@ -518,20 +508,6 @@ def build_tables_md(
     return "\n".join(s).rstrip() + "\n"
 
 
-def artifact_manifest(outdir: Path, files: Sequence[Path]) -> dict[str, object]:
-    items = []
-    for p in files:
-        rel = p.relative_to(outdir).as_posix()
-        b = p.read_bytes()
-        items.append(
-            {
-                "path": rel,
-                "bytes": len(b),
-                "sha256": sha256_bytes(b),
-            }
-        )
-    return {"artifacts": sorted(items, key=lambda x: x["path"])}
-
 
 def write_ch03_artifacts(out_root: Path, seed: int, in_journal: Path | None) -> Path:
     outdir = out_root / "ch03"
@@ -691,7 +667,8 @@ def write_ch03_artifacts(out_root: Path, seed: int, in_journal: Path | None) -> 
                 continue
             seen.add(key)
             uniq.append(p)
-        return artifact_manifest(d, uniq)
+        items = manifest_items(d, uniq, name_key="path")
+        return {"artifacts": sorted(items, key=lambda x: str(x["path"]))}
 
     emit_trust_artifacts(outdir, run_meta=run_meta, manifest=_manifest_payload)
 
