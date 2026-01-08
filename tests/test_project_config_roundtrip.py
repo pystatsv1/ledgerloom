@@ -20,10 +20,13 @@ sources:
     name: Chase Checking
     file_pattern: inputs/2026-01/chase_*.csv
     default_account: Assets:US:Chase:Checking
+    date_format: "%m/%d/%Y"
     columns:
       description: Description
       amount: Amount
       date: Posting Date
+    amount_thousands_sep: ","
+    amount_decimal_sep: "."
     invert_amount_sign: true
     suspense_account: Expenses:Uncategorized
     rules:
@@ -47,11 +50,14 @@ sources:
                 "name": "Chase Checking",
                 "file_pattern": "inputs/2026-01/chase_*.csv",
                 "default_account": "Assets:US:Chase:Checking",
+                "date_format": "%m/%d/%Y",
                 "columns": {
                     "date": "Posting Date",
                     "description": "Description",
                     "amount": "Amount",
                 },
+                "amount_thousands_sep": ",",
+                "amount_decimal_sep": ".",
                 "invert_amount_sign": True,
                 "suspense_account": "Expenses:Uncategorized",
                 "rules": [
