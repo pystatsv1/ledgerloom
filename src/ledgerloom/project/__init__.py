@@ -10,6 +10,7 @@ from .config import ProjectConfig
 from .check import CheckIssue, CheckResult, run_check
 from .coa import CoaLoadResult, load_chart_of_accounts, missing_account_codes, validate_coa
 from .init import InitOptions, create_project_skeleton, default_period_today
+from .build import BuildResult, default_run_id, run_build
 
 __all__ = [
     "ProjectConfig",
@@ -23,4 +24,7 @@ __all__ = [
     "InitOptions",
     "create_project_skeleton",
     "default_period_today",
+    "BuildResult",
+    "default_run_id",
+    "run_build",
 ]
