@@ -13,6 +13,22 @@ What you need
 * One or more bank-feed CSV files for a period
 
 
+0) Create a project (one-time)
+------------------------------
+
+If you are starting from scratch, create a project skeleton:
+
+.. code-block:: bash
+
+   ledgerloom init my_books
+
+Then ``cd`` into the project folder:
+
+.. code-block:: bash
+
+   cd my_books
+
+
 1) Put files in a period folder
 -------------------------------
 

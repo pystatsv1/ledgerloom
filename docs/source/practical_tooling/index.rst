@@ -14,6 +14,7 @@ The practical tool is designed for **accountants**, **developers**, and **data p
 
    overview
    accountant_quickstart
+   init
    project_config
    chart_of_accounts
    check

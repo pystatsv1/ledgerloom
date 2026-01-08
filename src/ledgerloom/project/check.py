@@ -411,6 +411,11 @@ def run_check(
         ),
     )])
 
+    # If there are no input files, ``staging`` may be an empty DataFrame with no
+    # columns. Ensure we still write a stable CSV header for downstream tooling.
+    if staging.empty and len(staging.columns) == 0:
+        staging = pd.DataFrame(columns=staging_cols)
+
     write_csv_df(outdir / "staging.csv", staging, columns=staging_cols)
     write_csv_df(
         outdir / "staging_issues.csv",
