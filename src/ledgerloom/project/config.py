@@ -140,6 +140,18 @@ class BankFeedSource:
     file_pattern: str
     default_account: str
     columns: BankFeedColumns
+
+    # IMPORTANT: Banks use many date formats. Require an explicit format
+    # string so ingestion does not "guess" and silently swap day/month.
+    # Example: "%m/%d/%Y".
+    date_format: str
+
+    # Amount parsing is locale-sensitive. Configure separators explicitly.
+    # US example: thousands="," decimal="."
+    # EU example: thousands="." decimal=",".
+    amount_thousands_sep: str = ","
+    amount_decimal_sep: str = "."
+
     source_type: str = field(default=SOURCE_TYPE_BANK_FEED_V1, init=False)
     invert_amount_sign: bool = False
     suspense_account: str = "Expenses:Uncategorized"
@@ -156,6 +168,15 @@ class BankFeedSource:
         name = _require_str(d, "name")
         file_pattern = _require_str(d, "file_pattern")
         default_account = _require_str(d, "default_account")
+        date_format = _require_str(d, "date_format")
+
+        amount_thousands_sep = d.get("amount_thousands_sep", ",")
+        if not isinstance(amount_thousands_sep, str):
+            raise ValueError("Expected string for 'amount_thousands_sep'")
+        amount_decimal_sep = d.get("amount_decimal_sep", ".")
+        if not isinstance(amount_decimal_sep, str) or not amount_decimal_sep.strip():
+            raise ValueError("Expected non-empty string for 'amount_decimal_sep'")
+
         suspense_account = d.get("suspense_account", "Expenses:Uncategorized")
         if not isinstance(suspense_account, str) or not suspense_account.strip():
             raise ValueError("Expected non-empty string for 'suspense_account'")
@@ -180,6 +201,9 @@ class BankFeedSource:
             file_pattern=file_pattern,
             default_account=default_account,
             columns=columns,
+            date_format=date_format,
+            amount_thousands_sep=amount_thousands_sep,
+            amount_decimal_sep=amount_decimal_sep,
             invert_amount_sign=invert_amount_sign,
             suspense_account=suspense_account,
             rules=rules,
@@ -193,6 +217,9 @@ class BankFeedSource:
             "file_pattern": self.file_pattern,
             "default_account": self.default_account,
             "columns": self.columns.to_dict(),
+            "date_format": self.date_format,
+            "amount_thousands_sep": self.amount_thousands_sep,
+            "amount_decimal_sep": self.amount_decimal_sep,
             "invert_amount_sign": self.invert_amount_sign,
             "suspense_account": self.suspense_account,
             "rules": [r.to_dict() for r in self.rules],
