@@ -26,6 +26,7 @@ help:
 	@echo "  ll-ch12    - Chapter 12 demo (fixed assets + depreciation) + artifacts"
 	@echo "  ll-ch13    - Chapter 13 demo (payroll register import) + artifacts"
 	@echo "  ll-ci      - Tiny deterministic smoke (for CI)"
+	@echo "  regen-goldens - Regenerate tests/golden files from deterministic chapter outputs"
 	@echo "  docs       - build HTML docs"
 	@echo "  lint       - ruff check"
 	@echo "  lint-fix   - ruff check with fixes"
@@ -45,6 +46,12 @@ docs-strict:
 .PHONY: ll-ci ll-ch05 ll-ch06
 ll-ci:
 	$(PYTHON) -m ledgerloom.chapters.ch01_journal_vs_eventlog --outdir $(OUT_LL) --seed $(SEED)
+
+
+# --- Golden regeneration (developer utility; not used in CI) ---
+.PHONY: regen-goldens
+regen-goldens:
+	$(PYTHON) scripts/regen_goldens.py
 
 
 # --- Full demos ---
