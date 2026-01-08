@@ -1,17 +1,22 @@
 from __future__ import annotations
 
+import shutil
 from dataclasses import dataclass
-from datetime import datetime
+from pathlib import Path
 
 from ledgerloom import __version__ as ledgerloom_version
 from ledgerloom.trust.pipeline import emit_run_trust_artifacts
-from pathlib import Path
-from typing import Iterable
 
-import shutil
-
-from .config import ProjectConfig
 from .check import CheckResult, run_check
+from .config import ProjectConfig
+from .paths import (
+    default_run_id,
+    iter_files,
+    resolve_config_path,
+    resolve_inputs_dir,
+    resolve_run_root,
+    run_layout,
+)
 
 
 @dataclass(frozen=True)
@@ -24,26 +29,6 @@ class BuildResult:
     check_result: CheckResult
     snapshotted_files: tuple[Path, ...]
 
-
-def default_run_id(now: datetime | None = None) -> str:
-    """Return a filesystem-friendly run id.
-
-    Format: YYYYMMDD-HHMMSS (local time).
-    """
-    now = datetime.now() if now is None else now
-    return now.strftime("%Y%m%d-%H%M%S")
-
-
-def _resolve_under(project_root: Path, p: Path) -> Path:
-    return p if p.is_absolute() else (project_root / p)
-
-
-def _iter_files(root_dir: Path) -> Iterable[Path]:
-    """Yield all files under root_dir (recursive), deterministic by path."""
-    if not root_dir.exists():
-        return []
-    files = [p for p in root_dir.rglob("*") if p.is_file()]
-    return sorted(files, key=lambda x: x.as_posix())
 
 
 def _snapshot_copy(*, project_root: Path, src: Path, snapshot_root: Path) -> Path:
@@ -68,7 +53,7 @@ def snapshot_sources(
     Snapshotting makes a run self-contained and reproducible even if the user
     later edits or deletes their source files.
     """
-    snapshot_root = run_root / "source_snapshot"
+    snapshot_root = run_layout(run_root).snapshot_dir
     snapshot_root.mkdir(parents=True, exist_ok=True)
 
     if not enabled:
@@ -82,7 +67,7 @@ def snapshot_sources(
 
     # Include config directory if present (COA, mappings, etc).
     cfg_dir = project_root / "config"
-    files.extend(_iter_files(cfg_dir))
+    files.extend(iter_files(cfg_dir))
 
     # Include period inputs matching configured source patterns.
     if inputs_dir.exists():
@@ -127,24 +112,21 @@ def run_build(
     - Run gatekeeper check into outputs/<run_id>/check/
     """
     project_root = project_root.resolve()
-    cfg_file = (project_root / "ledgerloom.yaml") if config_path is None else config_path
-    if not cfg_file.is_absolute():
-        cfg_file = project_root / cfg_file
-
+    cfg_file = resolve_config_path(project_root, config_path)
     cfg = ProjectConfig.load_yaml(cfg_file)
 
     # Resolve inputs dir default.
-    inputs_dir = (project_root / "inputs" / cfg.project.period) if inputs_dir is None else inputs_dir
-    inputs_dir = _resolve_under(project_root, inputs_dir).resolve()
+    inputs_dir = resolve_inputs_dir(project_root, period=cfg.project.period, inputs_dir=inputs_dir)
 
     # Resolve outputs run root.
     run_id = default_run_id() if run_id is None else run_id
-    run_root = (project_root / cfg.outputs.root / run_id).resolve()
-    if run_root.exists() and any(run_root.iterdir()):
+    run_root = resolve_run_root(project_root, outputs_root=cfg.outputs.root, run_id=run_id)
+    layout = run_layout(run_root)
+    if layout.run_root.exists() and any(layout.run_root.iterdir()):
         raise FileExistsError(
-            f"Run directory already exists and is not empty: {run_root} (choose a different --run-id)"
+            f"Run directory already exists and is not empty: {layout.run_root} (choose a different --run-id)"
         )
-    run_root.mkdir(parents=True, exist_ok=True)
+    layout.run_root.mkdir(parents=True, exist_ok=True)
 
     # Snapshot sources first so the run is self-contained even if check fails.
     snapshotted = snapshot_sources(
@@ -152,11 +134,11 @@ def run_build(
         cfg_file=cfg_file,
         cfg=cfg,
         inputs_dir=inputs_dir,
-        run_root=run_root,
+        run_root=layout.run_root,
         enabled=snapshot,
     )
-    snapshot_root = run_root / "source_snapshot"
-    check_outdir = run_root / "check"
+    snapshot_root = layout.snapshot_dir
+    check_outdir = layout.check_dir
 
     check_result = run_check(
         project_root=project_root,
