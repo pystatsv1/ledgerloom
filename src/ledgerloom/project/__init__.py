@@ -9,6 +9,7 @@ from __future__ import annotations
 from .config import ProjectConfig
 from .check import CheckIssue, CheckResult, run_check
 from .coa import CoaLoadResult, load_chart_of_accounts, missing_account_codes, validate_coa
+from .init import InitOptions, create_project_skeleton, default_period_today
 
 __all__ = [
     "ProjectConfig",
@@ -19,4 +20,7 @@ __all__ = [
     "load_chart_of_accounts",
     "validate_coa",
     "missing_account_codes",
+    "InitOptions",
+    "create_project_skeleton",
+    "default_period_today",
 ]

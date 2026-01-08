@@ -6,6 +6,7 @@ from typing import Sequence
 
 import ledgerloom
 from ledgerloom.docs_helper import open_online_docs
+from ledgerloom.project.init import InitOptions, create_project_skeleton, default_period_today
 from ledgerloom.project.check import run_check
 
 
@@ -15,8 +16,9 @@ def build_parser() -> argparse.ArgumentParser:
     PR05 goal: present a product-style CLI with subcommands while preserving
     the existing --version flag behavior.
 
-    Subcommands are intentionally minimal here (init/build/report are stubs)
-    and will be implemented in later PRs.
+    Subcommands are intentionally minimal here. PR06 implements ``init`` and
+    PR04 implements ``check``; ``build`` and ``report`` remain placeholders
+    for later PRs.
     """
     p = argparse.ArgumentParser(
         prog="ledgerloom",
@@ -34,8 +36,23 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub = p.add_subparsers(dest="command")
 
-    # PR06 will implement init; keep placeholder to establish UX + help.
-    sub.add_parser("init", help="Create a new project skeleton (PR06)")
+    i = sub.add_parser("init", help="Create a new project skeleton")
+    i.add_argument("path", help="Destination directory for the new project.")
+    i.add_argument(
+        "--name",
+        default=None,
+        help="Project display name (default: directory name).",
+    )
+    i.add_argument(
+        "--period",
+        default=None,
+        help="Accounting period in YYYY-MM (default: current month).",
+    )
+    i.add_argument(
+        "--currency",
+        default="USD",
+        help="Currency code (default: USD).",
+    )
 
     # PR04 implemented check; wire it into the product CLI.
     c = sub.add_parser("check", help="Stage + validate inputs (gatekeeper workflow)")
@@ -92,8 +109,29 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
 
     if getattr(args, "command", None) == "init":
-        print("`ledgerloom init` is coming in PR06 (project skeleton).")
-        return 2
+        dest = Path(args.path)
+        project_name = args.name if args.name is not None else dest.name
+        period = args.period if args.period is not None else default_period_today()
+        currency = args.currency
+
+        try:
+            created = create_project_skeleton(
+                dest,
+                opts=InitOptions(project_name=project_name, period=period, currency=currency),
+            )
+        except FileExistsError as e:
+            print(str(e))
+            return 1
+
+        print(f"Created LedgerLoom project: {dest.resolve()}")
+        for p in created:
+            print(f"  - {p.as_posix()}")
+        print("")
+        print("Next:")
+        print(f"  1) Put CSVs in inputs/{period}/")
+        print("  2) Edit ledgerloom.yaml and config/chart_of_accounts.yaml")
+        print("  3) Run: ledgerloom check --project .")
+        return 0
 
     if getattr(args, "command", None) == "build":
         print("`ledgerloom build` is coming in PR07 (trusted pipeline run).")
