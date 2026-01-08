@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from collections.abc import Mapping
 from dataclasses import dataclass
 from typing import Any, Literal
 
@@ -18,10 +19,26 @@ class BankFeedRule:
     narration: str | None = None
 
     @classmethod
-    def from_rule_mapping(cls, spec: dict[str, Any]) -> BankFeedRule:
-        pattern = str(spec.get("pattern", "")).strip()
-        account = str(spec.get("account", "")).strip()
-        narration_raw = spec.get("narration")
+    def from_rule_mapping(cls, spec: Any) -> BankFeedRule:
+        """Coerce a rule spec into a normalized :class:`BankFeedRule`.
+
+        ``ProjectConfig`` parses YAML rules into ``ledgerloom.project.config.BankFeedRule``
+        objects. For backward compatibility (and convenience in tests), we also
+        accept mapping-shaped rule specs.
+        """
+
+        if isinstance(spec, cls):
+            return spec
+
+        if isinstance(spec, Mapping):
+            pattern = str(spec.get("pattern", "")).strip()
+            account = str(spec.get("account", "")).strip()
+            narration_raw = spec.get("narration")
+        else:
+            # Accept objects with the expected attributes (e.g. project.config.BankFeedRule).
+            pattern = str(getattr(spec, "pattern", "")).strip()
+            account = str(getattr(spec, "account", "")).strip()
+            narration_raw = getattr(spec, "narration", None)
         narration = None if narration_raw is None else str(narration_raw)
         if not pattern:
             raise ValueError("Bank feed rule missing required 'pattern'.")

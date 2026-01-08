@@ -8,3 +8,4 @@ This section documents LedgerLoom's "practical tool" surface area.
 
    project_config
    chart_of_accounts
+   check
