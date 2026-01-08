@@ -47,8 +47,10 @@ What gets created
 ``outputs/<run_id>/check/``
    The gatekeeper outputs for this run (``checks.md``, ``staging.csv``, ``staging_issues.csv``).
 
-Next steps (PR07b/PR07c)
-------------------------
+``outputs/<run_id>/trust/``
+   Trust artifacts for this run (``run_meta.json`` and ``manifest.json``).
 
-* PR07b adds **trust artifacts** (``trust/run_meta.json`` and ``trust/manifest.json``).
+Next steps (PR07c)
+------------------
+
 * PR07c adds the core **accounting outputs** (postings, trial balance, statements).

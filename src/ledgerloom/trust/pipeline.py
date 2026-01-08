@@ -18,6 +18,7 @@ from pathlib import Path
 from typing import Any, Mapping, Sequence, TypeAlias
 
 from ledgerloom.artifacts import (
+    artifacts_map,
     manifest_items,
     specs_with_hashes,
     write_manifest,
@@ -81,3 +82,64 @@ def manifest_artifacts_from_specs(
     """Return ``specs`` augmented with ``bytes`` and ``sha256`` for each file."""
 
     return specs_with_hashes(outdir, specs, name_key=name_key)
+def _iter_files_rel(run_root: Path, start: Path) -> list[str]:
+    """Return POSIX relative paths for all files under *start*, sorted."""
+    if not start.exists():
+        return []
+    rels: list[str] = []
+    for p in start.rglob("*"):
+        if p.is_file():
+            rels.append(p.relative_to(run_root).as_posix())
+    return sorted(rels)
+
+
+def collect_run_artifacts(
+    run_root: Path,
+    *,
+    include_dirs: Sequence[str] = ("source_snapshot", "check"),
+    extra_artifacts: Sequence[str] = (),
+) -> list[str]:
+    """Collect artifact paths (relative to *run_root*) for a tool run.
+
+    Notes
+    -----
+    - Returned paths are POSIX-style and sorted (stable across OS).
+    - The trust directory is intentionally excluded by default to avoid self-hashing.
+    """
+    items: list[str] = []
+    for d in include_dirs:
+        items.extend(_iter_files_rel(run_root, run_root / d))
+
+    for x in extra_artifacts:
+        items.append(Path(x).as_posix().lstrip("./"))
+
+    # De-dup while preserving stable ordering after final sort.
+    return sorted(set(items))
+
+
+def emit_run_trust_artifacts(
+    run_root: Path,
+    *,
+    run_meta: Mapping[str, Any],
+    include_dirs: Sequence[str] = ("source_snapshot", "check"),
+    extra_artifacts: Sequence[str] = (),
+    trust_dir_name: str = "trust",
+) -> tuple[Path, Path, Path]:
+    """Write trust artifacts (run_meta + manifest) for a tool run directory.
+
+    The manifest hashes files inside *run_root* (typically the snapshot + check outputs),
+    while the trust JSON files are written under *run_root/trust_dir_name*.
+    """
+    trust_dir = run_root / trust_dir_name
+    trust_dir.mkdir(parents=True, exist_ok=True)
+
+    artifact_paths = collect_run_artifacts(
+        run_root, include_dirs=include_dirs, extra_artifacts=extra_artifacts
+    )
+    manifest: ManifestLike = {
+        "run_id": run_meta.get("run_id"),
+        "artifacts": artifacts_map(run_root, artifact_paths),
+    }
+
+    emit_trust_artifacts(trust_dir, run_meta=run_meta, manifest=manifest)
+    return trust_dir, trust_dir / "run_meta.json", trust_dir / "manifest.json"
