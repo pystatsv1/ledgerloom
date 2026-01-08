@@ -2,6 +2,9 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime
+
+from ledgerloom import __version__ as ledgerloom_version
+from ledgerloom.trust.pipeline import emit_run_trust_artifacts
 from pathlib import Path
 from typing import Iterable
 
@@ -17,6 +20,7 @@ class BuildResult:
     run_root: Path
     snapshot_root: Path
     check_outdir: Path
+    trust_outdir: Path
     check_result: CheckResult
     snapshotted_files: tuple[Path, ...]
 
@@ -161,11 +165,26 @@ def run_build(
         outdir=check_outdir,
     )
 
+    trust_outdir, _, _ = emit_run_trust_artifacts(
+        run_root,
+        run_meta={
+            "module": "ledgerloom.project.build",
+            "run_id": run_id,
+            "ledgerloom_version": ledgerloom_version,
+            "project_name": cfg.project.name,
+            "period": cfg.project.period,
+            "currency": cfg.project.currency,
+            "config_schema": cfg.schema_id,
+        },
+        include_dirs=("source_snapshot", "check"),
+    )
+
     return BuildResult(
         run_id=run_id,
         run_root=run_root,
         snapshot_root=snapshot_root,
         check_outdir=check_outdir,
+        trust_outdir=trust_outdir,
         check_result=check_result,
         snapshotted_files=snapshotted,
     )
