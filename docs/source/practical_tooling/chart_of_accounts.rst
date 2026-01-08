@@ -56,5 +56,5 @@ Validation
 LedgerLoom runs the engine's COA validation rules (duplicates, required fields,
 normal-side consistency) and returns a list of validation messages.
 
-In later PRs, the ``ledgerloom check`` command will also use the COA to flag
+The ``ledgerloom check`` command uses the COA to flag
 unknown account codes **before** posting anything to the ledger.
