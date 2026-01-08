@@ -18,3 +18,4 @@ The practical tool is designed for **accountants**, **developers**, and **data p
    project_config
    chart_of_accounts
    check
+   build

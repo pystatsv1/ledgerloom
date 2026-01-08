@@ -8,6 +8,7 @@ import ledgerloom
 from ledgerloom.docs_helper import open_online_docs
 from ledgerloom.project.init import InitOptions, create_project_skeleton, default_period_today
 from ledgerloom.project.check import run_check
+from ledgerloom.project.build import run_build
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -76,9 +77,32 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override output directory for check artifacts.",
     )
-
-    # PR07 will implement build; keep placeholder to establish UX + help.
-    sub.add_parser("build", help="Build postings + statements + trust artifacts (PR07)")
+    b = sub.add_parser("build", help="Create a run folder (snapshot + check) (PR07a)")
+    b.add_argument(
+        "--project",
+        default=".",
+        help="Project root directory (contains ledgerloom.yaml).",
+    )
+    b.add_argument(
+        "--config",
+        default="ledgerloom.yaml",
+        help="Config file path (relative to --project unless absolute).",
+    )
+    b.add_argument(
+        "--inputs",
+        default=None,
+        help="Override inputs directory (default: inputs/<period>/).",
+    )
+    b.add_argument(
+        "--run-id",
+        default=None,
+        help="Run id (default: timestamp). Used as outputs/<run_id>/.",
+    )
+    b.add_argument(
+        "--no-snapshot",
+        action="store_true",
+        help="Disable copying inputs/configs into outputs/<run_id>/source_snapshot/.",
+    )
 
     # Reporting UX placeholder (could later become report/open/run exports).
     sub.add_parser("report", help="Open or export reports for a run (future)")
@@ -131,6 +155,33 @@ def main(argv: Sequence[str] | None = None) -> int:
         print(f"  1) Put CSVs in inputs/{period}/")
         print("  2) Edit ledgerloom.yaml and config/chart_of_accounts.yaml")
         print("  3) Run: ledgerloom check --project .")
+        return 0
+
+    if getattr(args, "command", None) == "build":
+        project_root = Path(args.project)
+        cfg_path = Path(args.config)
+        inputs_dir = Path(args.inputs) if args.inputs is not None else None
+        try:
+            res = run_build(
+                project_root=project_root,
+                config_path=cfg_path,
+                inputs_dir=inputs_dir,
+                run_id=args.run_id,
+                snapshot=not args.no_snapshot,
+            )
+        except FileExistsError as e:
+            print(str(e))
+            return 1
+
+        print(f"Wrote run folder -> {res.run_root}")
+        if not args.no_snapshot:
+            print(f"Snapshotted sources -> {res.snapshot_root}")
+        print(f"Wrote check artifacts -> {res.check_outdir}")
+
+        if res.check_result.has_errors:
+            print("Build stopped: check errors found (run folder retained). See checks.md and staging_issues.csv")
+            return 1
+        print("Build stage OK (snapshot + check). Next: PR07b trust artifacts, PR07c accounting outputs.")
         return 0
 
     if getattr(args, "command", None) == "build":

@@ -90,3 +90,20 @@ The next major command is ``ledgerloom build`` (planned for v0.2.0). It will:
 * post staged entries into a ledger (balanced double-entry)
 * generate a trial balance + statements
 * write a run directory with trust artifacts (manifest + run metadata)
+
+
+4) Create a run folder (snapshot + check)
+-----------------------------------------
+
+Once your check results look good, you can create a **run folder** that snapshots your inputs/configs.
+
+.. code-block:: bash
+
+   ledgerloom build --run-id demo
+
+This writes:
+
+* ``outputs/demo/source_snapshot/`` (copy of your inputs + configs)
+* ``outputs/demo/check/`` (the gatekeeper results for this run)
+
+If check finds errors, build exits non-zero but keeps the run folder so you can inspect what happened.
