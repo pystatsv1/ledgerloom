@@ -89,7 +89,13 @@ def _discover_targets(repo_root: Path) -> list[ChapterTarget]:
 
 
 def _run_chapter(repo_root: Path, module: str, out_root: Path, seed: int) -> Path:
-    """Run a chapter module and return the single output directory created."""
+    """Run a chapter module and return the output directory containing artifacts.
+
+    Most chapter entrypoints create a single child directory under ``out_root``
+    (e.g. ``out_root/ch01/ch01`` or ``out_root/ch07/ch07``). A small number of
+    chapters write directly into ``out_root`` (e.g. Ch08 currently does this).
+    This helper supports both patterns.
+    """
 
     cmd = [
         sys.executable,
@@ -108,12 +114,19 @@ def _run_chapter(repo_root: Path, module: str, out_root: Path, seed: int) -> Pat
     subprocess.check_call(cmd, cwd=repo_root, env=env)
 
     subdirs = sorted([p for p in out_root.iterdir() if p.is_dir()])
-    if len(subdirs) != 1:
-        names = ", ".join(p.name for p in subdirs)
-        raise SystemExit(
-            f"Expected exactly 1 output directory for {module}, got {len(subdirs)}: {names}"
-        )
-    return subdirs[0]
+    if len(subdirs) == 1:
+        return subdirs[0]
+
+    # Some chapters emit artifacts directly into ``out_root`` (no nested dir).
+    if len(subdirs) == 0:
+        files = [p for p in out_root.iterdir() if p.is_file()]
+        if files:
+            return out_root
+
+    names = ", ".join(p.name for p in subdirs)
+    raise SystemExit(
+        f"Expected exactly 1 output directory (or direct files) for {module}, got {len(subdirs)}: {names}"
+    )
 
 
 def _copy_over_existing_files(*, src_dir: Path, golden_dir: Path) -> list[str]:
