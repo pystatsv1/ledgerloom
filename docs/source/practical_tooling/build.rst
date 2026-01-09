@@ -10,7 +10,7 @@ Build is intentionally simple:
 2. Snapshot source files into ``outputs/<run_id>/source_snapshot/``
 3. Run :command:`ledgerloom check` and write results into ``outputs/<run_id>/check/``
 4. Emit trust artifacts into ``outputs/<run_id>/trust/``
-5. When check passes, write accounting artifacts into ``outputs/<run_id>/artifacts/`` (currently: ``postings.csv``)
+5. When check passes, write accounting artifacts into ``outputs/<run_id>/artifacts/`` (currently: ``postings.csv`` and ``trial_balance.csv``)
 
 This makes every run **self-contained**: even if you edit or delete the original CSVs next week,
 the run folder still contains the exact inputs and configs used at the time you built it.
@@ -53,10 +53,10 @@ What gets created
    Trust artifacts for this run (``run_meta.json`` and ``manifest.json``).
 
 ``outputs/<run_id>/artifacts/``
-   Accounting artifacts for this run. Currently: ``postings.csv`` (written only when check passes).
+   Accounting artifacts for this run. Currently: ``postings.csv`` and ``trial_balance.csv`` (written only when check passes).
 
 Next steps
 ----------
 
-* Build already writes the first accounting output (``artifacts/postings.csv``).
-* Next planned artifacts: trial balance and statements, plus richer reporting UX.
+* Build already writes two accounting outputs (``artifacts/postings.csv`` and ``artifacts/trial_balance.csv``).
+* Next planned artifacts: statements, plus richer reporting UX.

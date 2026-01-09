@@ -33,14 +33,20 @@ def test_build_smoke_creates_trust_manifest(tmp_path: Path) -> None:
     assert res.run_root.exists()
 
     postings = res.run_root / "artifacts" / "postings.csv"
+    trial_balance = res.run_root / "artifacts" / "trial_balance.csv"
     manifest_path = res.run_root / "trust" / "manifest.json"
     assert postings.exists()
+    assert trial_balance.exists()
     assert manifest_path.exists()
 
     m = json.loads(manifest_path.read_text(encoding="utf-8"))
     assert "artifacts/postings.csv" in m["artifacts"]
     assert "bytes" in m["artifacts"]["artifacts/postings.csv"]
     assert "sha256" in m["artifacts"]["artifacts/postings.csv"]
+
+    assert "artifacts/trial_balance.csv" in m["artifacts"]
+    assert "bytes" in m["artifacts"]["artifacts/trial_balance.csv"]
+    assert "sha256" in m["artifacts"]["artifacts/trial_balance.csv"]
 
 
 def test_build_missing_config_gives_clear_message(tmp_path: Path, monkeypatch, capsys) -> None:
