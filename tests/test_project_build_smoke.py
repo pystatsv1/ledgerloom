@@ -34,9 +34,13 @@ def test_build_smoke_creates_trust_manifest(tmp_path: Path) -> None:
 
     postings = res.run_root / "artifacts" / "postings.csv"
     trial_balance = res.run_root / "artifacts" / "trial_balance.csv"
+    income_statement = res.run_root / "artifacts" / "income_statement.csv"
+    balance_sheet = res.run_root / "artifacts" / "balance_sheet.csv"
     manifest_path = res.run_root / "trust" / "manifest.json"
     assert postings.exists()
     assert trial_balance.exists()
+    assert income_statement.exists()
+    assert balance_sheet.exists()
     assert manifest_path.exists()
 
     m = json.loads(manifest_path.read_text(encoding="utf-8"))
@@ -47,6 +51,14 @@ def test_build_smoke_creates_trust_manifest(tmp_path: Path) -> None:
     assert "artifacts/trial_balance.csv" in m["artifacts"]
     assert "bytes" in m["artifacts"]["artifacts/trial_balance.csv"]
     assert "sha256" in m["artifacts"]["artifacts/trial_balance.csv"]
+
+    assert "artifacts/income_statement.csv" in m["artifacts"]
+    assert "bytes" in m["artifacts"]["artifacts/income_statement.csv"]
+    assert "sha256" in m["artifacts"]["artifacts/income_statement.csv"]
+
+    assert "artifacts/balance_sheet.csv" in m["artifacts"]
+    assert "bytes" in m["artifacts"]["artifacts/balance_sheet.csv"]
+    assert "sha256" in m["artifacts"]["artifacts/balance_sheet.csv"]
 
 
 def test_build_missing_config_gives_clear_message(tmp_path: Path, monkeypatch, capsys) -> None:

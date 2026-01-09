@@ -10,7 +10,7 @@ Build is intentionally simple:
 2. Snapshot source files into ``outputs/<run_id>/source_snapshot/``
 3. Run :command:`ledgerloom check` and write results into ``outputs/<run_id>/check/``
 4. Emit trust artifacts into ``outputs/<run_id>/trust/``
-5. When check passes, write accounting artifacts into ``outputs/<run_id>/artifacts/`` (currently: ``postings.csv`` and ``trial_balance.csv``)
+5. When check passes, write accounting artifacts into ``outputs/<run_id>/artifacts/`` (currently: ``postings.csv``, ``trial_balance.csv``, and basic statements)
 
 This makes every run **self-contained**: even if you edit or delete the original CSVs next week,
 the run folder still contains the exact inputs and configs used at the time you built it.
@@ -53,10 +53,15 @@ What gets created
    Trust artifacts for this run (``run_meta.json`` and ``manifest.json``).
 
 ``outputs/<run_id>/artifacts/``
-   Accounting artifacts for this run. Currently: ``postings.csv`` and ``trial_balance.csv`` (written only when check passes).
+   Accounting artifacts for this run (written only when check passes):
+
+   * ``postings.csv``
+   * ``trial_balance.csv``
+   * ``income_statement.csv``
+   * ``balance_sheet.csv``
 
 Next steps
 ----------
 
-* Build already writes two accounting outputs (``artifacts/postings.csv`` and ``artifacts/trial_balance.csv``).
-* Next planned artifacts: statements, plus richer reporting UX.
+* Build already writes four accounting outputs (``artifacts/postings.csv``, ``artifacts/trial_balance.csv``, ``artifacts/income_statement.csv``, ``artifacts/balance_sheet.csv``).
+* Next planned artifacts: closing entries + post-close statements and a richer reporting UX.

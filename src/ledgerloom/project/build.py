@@ -34,27 +34,35 @@ class BuildResult:
     snapshotted_files: tuple[Path, ...]
 
 
-def _write_postings_csv(*, cfg: ProjectConfig, inputs_dir: Path, run_root: Path) -> Path:
-    """Materialize postings.csv under outputs/<run_id>/artifacts/.
+def _ingest_entries(*, cfg: ProjectConfig, inputs_dir: Path) -> list:
+    """Re-ingest configured sources into Entry objects.
 
-    This is the first "real" accounting artifact for the practical tool.
-    We intentionally re-ingest the configured sources (same call signature
-    used by ``run_check``) and then derive the postings fact table.
+    We intentionally reuse the same call signature that ``run_check`` uses:
+    ``ingest_bank_feed_csv(path, src, strict=...)``.
     """
 
-    layout = run_layout(run_root)
-    layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
-
-    entries = []
+    entries: list = []
     for src in cfg.sources:
         files = sorted(inputs_dir.glob(src.file_pattern)) if inputs_dir.exists() else []
         for p in files:
-            # Reuse the same ingest call signature that run_check() uses.
             res = ingest_bank_feed_csv(p, src, strict=False)
             entries.extend(res.entries)
+    return entries
+
+
+def _derive_postings(*, entries: list) -> tuple[LedgerEngine, object]:
+    """Derive the postings fact table from entries."""
 
     eng = LedgerEngine()
     postings = eng.postings_fact_table(entries)
+    return eng, postings
+
+
+def _write_postings_csv(*, eng: LedgerEngine, postings: object, run_root: Path) -> Path:
+    """Materialize postings.csv under outputs/<run_id>/artifacts/."""
+
+    layout = run_layout(run_root)
+    layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
 
     # Ensure stable column order even when the table is empty.
     schema = eng.gl_schema_description()
@@ -65,38 +73,39 @@ def _write_postings_csv(*, cfg: ProjectConfig, inputs_dir: Path, run_root: Path)
     return out_path
 
 
-
-
-
-
-def _write_trial_balance_csv(*, cfg: ProjectConfig, inputs_dir: Path, run_root: Path) -> Path:
+def _write_trial_balance_csv(*, tb: object, run_root: Path) -> Path:
     """Materialize trial_balance.csv under outputs/<run_id>/artifacts/.
 
-    This is a compact trial balance derived from postings:
-
-    * account — full account name
-    * root — top-level root (Assets/Liabilities/Equity/Revenue/Expenses)
-    * balance — signed balance using LedgerLoom's canonical sign convention
+    Contract:
+    - account: full account name
+    - root: top-level root (Assets/Liabilities/Equity/Revenue/Expenses)
+    - balance: signed balance (LedgerLoom canonical sign convention)
     """
 
     layout = run_layout(run_root)
     layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
 
-    entries = []
-    for src in cfg.sources:
-        files = sorted(inputs_dir.glob(src.file_pattern)) if inputs_dir.exists() else []
-        for p in files:
-            # Reuse the same ingest call signature that run_check() uses.
-            res = ingest_bank_feed_csv(p, src, strict=False)
-            entries.extend(res.entries)
-
-    eng = LedgerEngine()
-    postings = eng.postings_fact_table(entries)
-    tb = bookset_v1.trial_balance(postings)
-
     out_path = layout.artifacts_dir / "trial_balance.csv"
     write_csv_df(out_path, tb, columns=["account", "root", "balance"])
     return out_path
+
+
+def _write_statements_csv(*, tb: object, run_root: Path) -> tuple[Path, Path]:
+    """Materialize income_statement.csv + balance_sheet.csv from the trial balance."""
+
+    layout = run_layout(run_root)
+    layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    income = bookset_v1.income_statement(tb)
+    balance = bookset_v1.balance_sheet_adjusted(tb)
+
+    income_path = layout.artifacts_dir / "income_statement.csv"
+    balance_path = layout.artifacts_dir / "balance_sheet.csv"
+    write_csv_df(income_path, income, columns=["metric", "amount"])
+    write_csv_df(balance_path, balance, columns=["metric", "amount"])
+    return income_path, balance_path
+
+
 def _snapshot_copy(*, project_root: Path, src: Path, snapshot_root: Path) -> Path:
     rel = src.relative_to(project_root)
     dest = snapshot_root / rel
@@ -215,10 +224,22 @@ def run_build(
 
     extra_artifacts: tuple[str, ...] = tuple()
     if not check_result.has_errors:
-        # After check passes: ingest -> entries -> postings -> trial balance.
-        _write_postings_csv(cfg=cfg, inputs_dir=inputs_dir, run_root=run_root)
-        _write_trial_balance_csv(cfg=cfg, inputs_dir=inputs_dir, run_root=run_root)
-        extra_artifacts = ("artifacts/postings.csv", "artifacts/trial_balance.csv")
+        # After check passes:
+        #   ingest -> entries -> postings -> trial balance -> statements
+        entries = _ingest_entries(cfg=cfg, inputs_dir=inputs_dir)
+        eng, postings = _derive_postings(entries=entries)
+        tb = bookset_v1.trial_balance(postings)
+
+        _write_postings_csv(eng=eng, postings=postings, run_root=run_root)
+        _write_trial_balance_csv(tb=tb, run_root=run_root)
+        _write_statements_csv(tb=tb, run_root=run_root)
+
+        extra_artifacts = (
+            "artifacts/postings.csv",
+            "artifacts/trial_balance.csv",
+            "artifacts/income_statement.csv",
+            "artifacts/balance_sheet.csv",
+        )
 
     trust_outdir, _, _ = emit_run_trust_artifacts(
         run_root,
