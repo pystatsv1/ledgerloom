@@ -94,6 +94,15 @@ Date,Description,Amount
     assert int(unmapped_csv.iloc[0]["source_row_number"]) == 1
     assert "Coffee" in str(unmapped_csv.iloc[0]["original_description"])
 
+    assert "suggested_pattern" in unmapped_csv.columns
+    assert "suggested_rule_yaml" in unmapped_csv.columns
+    assert "(?i)" in str(unmapped_csv.iloc[0]["suggested_pattern"])
+    snippet = str(unmapped_csv.iloc[0]["suggested_rule_yaml"])
+    assert snippet.startswith("- { pattern:")
+    assert "account:" in snippet
+    assert "REPLACE_ME" in snippet
+
+
 
 
 def test_cli_check_handles_fully_mapped_inputs_and_writes_empty_issue_headers(tmp_path: Path) -> None:
@@ -187,6 +196,8 @@ Date,Description,Amount
         "debit_account",
         "credit_account",
         "suspense_account",
+        "suggested_pattern",
+        "suggested_rule_yaml",
     ]
     assert len(unmapped) == 0
 
