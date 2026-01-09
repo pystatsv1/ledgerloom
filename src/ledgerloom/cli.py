@@ -9,6 +9,7 @@ import ledgerloom
 from ledgerloom.docs_helper import open_online_docs
 from ledgerloom.project.init import InitOptions, create_project_skeleton, default_period_today
 from ledgerloom.project.check import run_check
+from ledgerloom.project.suggest_mappings import run_suggest_mappings
 from ledgerloom.project.build import run_build
 
 
@@ -109,6 +110,32 @@ def build_parser() -> argparse.ArgumentParser:
     )
 
     # Reporting UX placeholder (could later become report/open/run exports).
+    s = sub.add_parser(
+        "suggest-mappings",
+        help="Generate YAML mapping rules from unmapped.csv (copy/paste helper)",
+    )
+    s.add_argument("--project", default=".", help="Project root directory")
+    s.add_argument(
+        "--config",
+        default="ledgerloom.yaml",
+        help="Project config path (relative to --project by default)",
+    )
+    s.add_argument(
+        "--outdir",
+        default=None,
+        help="Check outdir containing unmapped.csv (defaults to outputs/check/<period>)",
+    )
+    s.add_argument(
+        "--unmapped",
+        default=None,
+        help="Path to an unmapped.csv file (overrides --outdir)",
+    )
+    s.add_argument(
+        "--out",
+        default=None,
+        help="Write YAML suggestions to a file (otherwise prints to stdout)",
+    )
+
     sub.add_parser("report", help="Open or export reports for a run (future)")
 
     return p
@@ -118,6 +145,15 @@ def main(argv: Sequence[str] | None = None) -> int:
     args = build_parser().parse_args(list(argv) if argv is not None else None)
 
     # Subcommands first.
+    if getattr(args, "command", None) == "suggest-mappings":
+        return run_suggest_mappings(
+            project_root=Path(args.project),
+            config_path=args.config,
+            outdir=args.outdir,
+            unmapped_path=args.unmapped,
+            out_path=args.out,
+        )
+
     if getattr(args, "command", None) == "check":
         project_root = Path(args.project)
         cfg_path = Path(args.config)
