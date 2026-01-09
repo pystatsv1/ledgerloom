@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from pathlib import Path
 
 from ledgerloom.cli import main
@@ -8,7 +9,7 @@ from ledgerloom.project.init import InitOptions, create_project_skeleton
 
 
 def test_build_smoke_creates_trust_manifest(tmp_path: Path) -> None:
-    """End-to-end smoke: init a tiny project and ensure build produces trust/manifest."""
+    """End-to-end smoke: init a tiny project and ensure build produces postings + trust/manifest."""
 
     project_root = tmp_path / "demo_books"
     create_project_skeleton(
@@ -30,7 +31,16 @@ def test_build_smoke_creates_trust_manifest(tmp_path: Path) -> None:
     res = run_build(project_root=project_root, run_id="demo")
 
     assert res.run_root.exists()
-    assert (res.run_root / "trust" / "manifest.json").exists()
+
+    postings = res.run_root / "artifacts" / "postings.csv"
+    manifest_path = res.run_root / "trust" / "manifest.json"
+    assert postings.exists()
+    assert manifest_path.exists()
+
+    m = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert "artifacts/postings.csv" in m["artifacts"]
+    assert "bytes" in m["artifacts"]["artifacts/postings.csv"]
+    assert "sha256" in m["artifacts"]["artifacts/postings.csv"]
 
 
 def test_build_missing_config_gives_clear_message(tmp_path: Path, monkeypatch, capsys) -> None:

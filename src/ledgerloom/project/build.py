@@ -5,6 +5,9 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from ledgerloom import __version__ as ledgerloom_version
+from ledgerloom.artifacts import write_csv_df
+from ledgerloom.engine import LedgerEngine
+from ledgerloom.ingest.csv_bank_feed import ingest_bank_feed_csv
 from ledgerloom.trust.pipeline import emit_run_trust_artifacts
 
 from .check import CheckResult, run_check
@@ -28,6 +31,37 @@ class BuildResult:
     trust_outdir: Path
     check_result: CheckResult
     snapshotted_files: tuple[Path, ...]
+
+
+def _write_postings_csv(*, cfg: ProjectConfig, inputs_dir: Path, run_root: Path) -> Path:
+    """Materialize postings.csv under outputs/<run_id>/artifacts/.
+
+    This is the first "real" accounting artifact for the practical tool.
+    We intentionally re-ingest the configured sources (same call signature
+    used by ``run_check``) and then derive the postings fact table.
+    """
+
+    layout = run_layout(run_root)
+    layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    entries = []
+    for src in cfg.sources:
+        files = sorted(inputs_dir.glob(src.file_pattern)) if inputs_dir.exists() else []
+        for p in files:
+            # Reuse the same ingest call signature that run_check() uses.
+            res = ingest_bank_feed_csv(p, src, strict=False)
+            entries.extend(res.entries)
+
+    eng = LedgerEngine()
+    postings = eng.postings_fact_table(entries)
+
+    # Ensure stable column order even when the table is empty.
+    schema = eng.gl_schema_description()
+    cols = [c["name"] for c in schema["tables"]["postings"]["columns"]]
+
+    out_path = layout.artifacts_dir / "postings.csv"
+    write_csv_df(out_path, postings, columns=cols)
+    return out_path
 
 
 
@@ -147,6 +181,12 @@ def run_build(
         outdir=check_outdir,
     )
 
+    extra_artifacts: tuple[str, ...] = tuple()
+    if not check_result.has_errors:
+        # After check passes: ingest -> entries -> postings.
+        _write_postings_csv(cfg=cfg, inputs_dir=inputs_dir, run_root=run_root)
+        extra_artifacts = ("artifacts/postings.csv",)
+
     trust_outdir, _, _ = emit_run_trust_artifacts(
         run_root,
         run_meta={
@@ -159,6 +199,7 @@ def run_build(
             "config_schema": cfg.schema_id,
         },
         include_dirs=("source_snapshot", "check"),
+        extra_artifacts=extra_artifacts,
     )
 
     return BuildResult(
