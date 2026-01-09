@@ -197,7 +197,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         if postings.exists():
             print(f"Wrote accounting artifact -> {postings}")
 
-        print("Build OK (snapshot + check + trust + postings). Next: trial balance + statements.")
+
+        tb = res.run_root / "artifacts" / "trial_balance.csv"
+        if tb.exists():
+            print(f"Wrote accounting artifact -> {tb}")
+
+        parts = ["snapshot", "check", "trust"]
+        if postings.exists():
+            parts.append("postings")
+        if (res.run_root / "artifacts" / "trial_balance.csv").exists():
+            parts.append("trial_balance")
+        print(f"Build OK ({' + '.join(parts)}). Next: statements.")
         return 0
 
 

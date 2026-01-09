@@ -8,6 +8,7 @@ from ledgerloom import __version__ as ledgerloom_version
 from ledgerloom.artifacts import write_csv_df
 from ledgerloom.engine import LedgerEngine
 from ledgerloom.ingest.csv_bank_feed import ingest_bank_feed_csv
+from ledgerloom.scenarios import bookset_v1
 from ledgerloom.trust.pipeline import emit_run_trust_artifacts
 
 from .check import CheckResult, run_check
@@ -65,6 +66,37 @@ def _write_postings_csv(*, cfg: ProjectConfig, inputs_dir: Path, run_root: Path)
 
 
 
+
+
+
+def _write_trial_balance_csv(*, cfg: ProjectConfig, inputs_dir: Path, run_root: Path) -> Path:
+    """Materialize trial_balance.csv under outputs/<run_id>/artifacts/.
+
+    This is a compact trial balance derived from postings:
+
+    * account — full account name
+    * root — top-level root (Assets/Liabilities/Equity/Revenue/Expenses)
+    * balance — signed balance using LedgerLoom's canonical sign convention
+    """
+
+    layout = run_layout(run_root)
+    layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    entries = []
+    for src in cfg.sources:
+        files = sorted(inputs_dir.glob(src.file_pattern)) if inputs_dir.exists() else []
+        for p in files:
+            # Reuse the same ingest call signature that run_check() uses.
+            res = ingest_bank_feed_csv(p, src, strict=False)
+            entries.extend(res.entries)
+
+    eng = LedgerEngine()
+    postings = eng.postings_fact_table(entries)
+    tb = bookset_v1.trial_balance(postings)
+
+    out_path = layout.artifacts_dir / "trial_balance.csv"
+    write_csv_df(out_path, tb, columns=["account", "root", "balance"])
+    return out_path
 def _snapshot_copy(*, project_root: Path, src: Path, snapshot_root: Path) -> Path:
     rel = src.relative_to(project_root)
     dest = snapshot_root / rel
@@ -183,9 +215,10 @@ def run_build(
 
     extra_artifacts: tuple[str, ...] = tuple()
     if not check_result.has_errors:
-        # After check passes: ingest -> entries -> postings.
+        # After check passes: ingest -> entries -> postings -> trial balance.
         _write_postings_csv(cfg=cfg, inputs_dir=inputs_dir, run_root=run_root)
-        extra_artifacts = ("artifacts/postings.csv",)
+        _write_trial_balance_csv(cfg=cfg, inputs_dir=inputs_dir, run_root=run_root)
+        extra_artifacts = ("artifacts/postings.csv", "artifacts/trial_balance.csv")
 
     trust_outdir, _, _ = emit_run_trust_artifacts(
         run_root,
