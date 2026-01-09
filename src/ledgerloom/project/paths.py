@@ -32,8 +32,26 @@ def resolve_config_path(project_root: Path, config_path: Path | None) -> Path:
     """Return the config file path (defaults to ``ledgerloom.yaml``)."""
 
     if config_path is None:
-        return (project_root / "ledgerloom.yaml").resolve()
-    return resolve_under(project_root, Path(config_path))
+        cfg = (project_root / "ledgerloom.yaml").resolve()
+        if not cfg.exists():
+            raise FileNotFoundError(
+                "No ledgerloom.yaml found. Run inside a LedgerLoom project directory "
+                "or pass --project <path> (and optionally --config <path>)."
+            )
+        return cfg
+
+    cfg = resolve_under(project_root, Path(config_path))
+    if not cfg.exists():
+        # Common UX case: user runs from repo root (or wrong folder) and relies on
+        # the default config name.
+        default_cfg = (project_root / "ledgerloom.yaml").resolve()
+        if cfg == default_cfg:
+            raise FileNotFoundError(
+                "No ledgerloom.yaml found. Run inside a LedgerLoom project directory "
+                "or pass --project <path> (and optionally --config <path>)."
+            )
+        raise FileNotFoundError(f"Config file not found: {cfg}")
+    return cfg
 
 
 def resolve_inputs_dir(project_root: Path, *, period: str, inputs_dir: Path | None) -> Path:

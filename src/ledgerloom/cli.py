@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import argparse
+import sys
 from pathlib import Path
 from typing import Sequence
 
@@ -143,8 +144,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 dest,
                 opts=InitOptions(project_name=project_name, period=period, currency=currency),
             )
+        except FileNotFoundError as e:
+            print(str(e), file=sys.stderr)
+            return 2
         except FileExistsError as e:
-            print(str(e))
+            print(str(e), file=sys.stderr)
             return 1
 
         print(f"Created LedgerLoom project: {dest.resolve()}")
@@ -169,8 +173,11 @@ def main(argv: Sequence[str] | None = None) -> int:
                 run_id=args.run_id,
                 snapshot=not args.no_snapshot,
             )
+        except FileNotFoundError as e:
+            print(str(e), file=sys.stderr)
+            return 2
         except FileExistsError as e:
-            print(str(e))
+            print(str(e), file=sys.stderr)
             return 1
 
         print(f"Wrote run folder -> {res.run_root}")
