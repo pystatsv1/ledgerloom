@@ -15,7 +15,7 @@ The check workflow writes four artifacts into an output directory:
 * ``checks.md`` – A human-readable summary (what to fix first).
 * ``staging.csv`` – The normalized staging table (one row per staged entry).
 * ``staging_issues.csv`` – Row-level issues (errors + warnings).
-* ``unmapped.csv`` – Rows that posted to suspense (no mapping rule matched).
+* ``unmapped.csv`` – Rows that posted to suspense (no mapping rule matched), with copy/paste mapping suggestions.
 
 Important UX detail
 -------------------
@@ -29,6 +29,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
 from datetime import datetime
+import re
 from pathlib import Path
 from typing import Any, Literal
 
@@ -177,6 +178,58 @@ def _render_checks_md(
     return "\n".join(lines)
 
 
+def _yaml_single_quote(value: str) -> str:
+    """Return a YAML single-quoted scalar, escaping internal quotes.
+
+    Using single quotes keeps the suggestion stable and easy to paste into YAML.
+    """
+    return "'" + value.replace("'", "''") + "'"
+
+
+def _suggest_pattern_from_description(description: str) -> str:
+    """Generate a conservative, copy/paste-friendly regex pattern.
+
+    Heuristics (intentionally minimal):
+    - collapse whitespace
+    - replace digit runs with ``\\d+`` (helps with transaction IDs)
+    - escape everything else
+    - make it case-insensitive via ``(?i)``
+    """
+    desc = (description or "").strip()
+    desc = re.sub(r"\s+", " ", desc)
+    if not desc:
+        return ""
+    # Replace digit runs with a token, escape, then restore token to \d+
+    token = "{NUM}"
+    desc = re.sub(r"\d+", token, desc)
+    esc = re.escape(desc)
+    esc = esc.replace(re.escape(token), r"\d+")
+    esc = esc.replace(r"\ ", r"\s+")
+    return f"(?i){esc}"
+
+
+def _suggest_account_hint(original_amount: Any) -> str:
+    """Suggest a coarse account *category* hint based on amount sign.
+
+    This is deliberately non-prescriptive; users should replace REPLACE_ME.
+    """
+    if original_amount is None:
+        return "Expenses:REPLACE_ME"
+    try:
+        amt = Decimal(str(original_amount))
+    except (InvalidOperation, ValueError):
+        return "Expenses:REPLACE_ME"
+    return "Revenue:REPLACE_ME" if amt > 0 else "Expenses:REPLACE_ME"
+
+
+def _suggest_rule_yaml(pattern: str, account_hint: str) -> str:
+    """Return a one-line YAML rule snippet the user can paste under ``rules:``."""
+    pat_q = _yaml_single_quote(pattern)
+    acct_q = _yaml_single_quote(account_hint)
+    return f"- {{ pattern: {pat_q}, account: {acct_q} }}"
+
+
+
 def run_check(
     *,
     project_root: Path,
@@ -323,6 +376,13 @@ def run_check(
 
                 # Capture suspense postings so users can author mappings.
                 if row_out.get("matched_rule_pattern") in (None, "", "None") and row_out.get("original_description") is not None:
+                    desc = str(row_out.get("original_description") or "")
+                    suggested_pattern = _suggest_pattern_from_description(desc)
+                    suggested_account = _suggest_account_hint(row_out.get("original_amount"))
+                    suggested_rule_yaml = (
+                        _suggest_rule_yaml(suggested_pattern, suggested_account) if suggested_pattern else ""
+                    )
+
                     unmapped_rows.append({
                         "entry_id": row_out.get("entry_id"),
                         "date": row_out.get("date"),
@@ -334,6 +394,8 @@ def run_check(
                         "debit_account": row_out.get("debit_account"),
                         "credit_account": row_out.get("credit_account"),
                         "suspense_account": src.suspense_account,
+                        "suggested_pattern": suggested_pattern,
+                        "suggested_rule_yaml": suggested_rule_yaml,
                     })
 
     staging = pd.DataFrame(staged_rows)
@@ -478,6 +540,8 @@ def run_check(
         "debit_account",
         "credit_account",
         "suspense_account",
+        "suggested_pattern",
+        "suggested_rule_yaml",
     ]
     unmapped_df = pd.DataFrame(unmapped_rows)
     if not unmapped_df.empty:

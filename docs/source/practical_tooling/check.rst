@@ -62,6 +62,12 @@ You can override the output directory:
     Rows that did not match any mapping rule and were posted to the source suspense account.
     Use this as a worklist for authoring mappings.
 
+    The file also includes two helper columns:
+
+    * ``suggested_pattern`` – a conservative case-insensitive regex derived from the description
+    * ``suggested_rule_yaml`` – a one-line YAML rule snippet you can paste under ``rules:``
+
+
     By default, unmapped rows are warnings and :command:`ledgerloom check` still passes.
     If you set ``strict_unmapped: true`` in ``ledgerloom.yaml``, unmapped rows become errors and the check fails.
 
