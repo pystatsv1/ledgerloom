@@ -18,9 +18,9 @@ def build_parser() -> argparse.ArgumentParser:
     PR05 goal: present a product-style CLI with subcommands while preserving
     the existing --version flag behavior.
 
-    Subcommands are intentionally minimal here. PR06 implements ``init`` and
-    PR04 implements ``check``; ``build`` and ``report`` remain placeholders
-    for later PRs.
+    Subcommands are intentionally minimal here. PR06 implements ``init``,
+    PR04 implements ``check``, and PR07 implements ``build``.
+    ``report`` remains a placeholder for later PRs.
     """
     p = argparse.ArgumentParser(
         prog="ledgerloom",
@@ -78,7 +78,7 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override output directory for check artifacts.",
     )
-    b = sub.add_parser("build", help="Create a run folder (snapshot + check) (PR07a)")
+    b = sub.add_parser("build", help="Create a run folder (snapshot + check + trust + postings)")
     b.add_argument(
         "--project",
         default=".",
@@ -184,16 +184,22 @@ def main(argv: Sequence[str] | None = None) -> int:
         if not args.no_snapshot:
             print(f"Snapshotted sources -> {res.snapshot_root}")
         print(f"Wrote check artifacts -> {res.check_outdir}")
+        print(f"Wrote trust artifacts -> {res.trust_outdir}")
 
         if res.check_result.has_errors:
-            print("Build stopped: check errors found (run folder retained). See checks.md and staging_issues.csv")
+            print(
+                "Build stopped: check errors found (run folder retained). "
+                "See checks.md and staging_issues.csv"
+            )
             return 1
-        print("Build stage OK (snapshot + check). Next: PR07b trust artifacts, PR07c accounting outputs.")
+
+        postings = res.run_root / "artifacts" / "postings.csv"
+        if postings.exists():
+            print(f"Wrote accounting artifact -> {postings}")
+
+        print("Build OK (snapshot + check + trust + postings). Next: trial balance + statements.")
         return 0
 
-    if getattr(args, "command", None) == "build":
-        print("`ledgerloom build` is coming in PR07 (trusted pipeline run).")
-        return 2
 
     if getattr(args, "command", None) == "report":
         print("`ledgerloom report` is a placeholder for future reporting UX.")

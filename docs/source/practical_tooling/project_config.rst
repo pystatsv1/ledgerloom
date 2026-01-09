@@ -68,6 +68,7 @@ Example::
 Next steps
 ----------
 
-* ``ledgerloom check`` now provides the gatekeeper experience (staging + validation).
-* The next major step is ``ledgerloom build`` (produce postings + trial balance + statements
-  and write trust artifacts in a run directory).
+* ``ledgerloom check`` provides the gatekeeper experience (staging + validation).
+* ``ledgerloom build`` creates a run folder (snapshot + check + trust) and, when check passes,
+  writes the first accounting artifact: ``outputs/<run_id>/artifacts/postings.csv``.
+* Next planned artifacts: trial balance and statements (plus subledgers like AR/AP/inventory).
