@@ -75,6 +75,7 @@ Date,Description,Amount
     assert (outdir / "checks.md").exists()
     assert (outdir / "staging.csv").exists()
     assert (outdir / "staging_issues.csv").exists()
+    assert (outdir / "unmapped.csv").exists()
 
     staging = pd.read_csv(outdir / "staging.csv")
     assert len(staging) == 2
@@ -85,6 +86,11 @@ Date,Description,Amount
     unmapped = issues[issues["code"] == "unmapped_suspense"]
     assert len(unmapped) == 1
     assert int(unmapped.iloc[0]["source_row_number"]) == 1
+
+    unmapped_csv = pd.read_csv(outdir / "unmapped.csv")
+    assert len(unmapped_csv) == 1
+    assert int(unmapped_csv.iloc[0]["source_row_number"]) == 1
+    assert "Coffee" in str(unmapped_csv.iloc[0]["original_description"])
 
 
 def test_cli_check_fails_on_unknown_accounts(tmp_path: Path) -> None:
