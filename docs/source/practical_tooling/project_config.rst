@@ -70,5 +70,11 @@ Next steps
 
 * ``ledgerloom check`` provides the gatekeeper experience (staging + validation).
 * ``ledgerloom build`` creates a run folder (snapshot + check + trust) and, when check passes,
-  writes accounting artifacts: ``outputs/<run_id>/artifacts/postings.csv`` and ``outputs/<run_id>/artifacts/trial_balance.csv``.
-* Next planned artifacts: statements (plus subledgers like AR/AP/inventory).
+  writes accounting artifacts:
+
+  * ``outputs/<run_id>/artifacts/postings.csv``
+  * ``outputs/<run_id>/artifacts/trial_balance.csv``
+  * ``outputs/<run_id>/artifacts/income_statement.csv``
+  * ``outputs/<run_id>/artifacts/balance_sheet.csv``
+
+* Next planned artifacts: closing entries + post-close statements (plus subledgers like AR/AP/inventory).

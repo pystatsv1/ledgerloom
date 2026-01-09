@@ -78,7 +78,10 @@ def build_parser() -> argparse.ArgumentParser:
         default=None,
         help="Override output directory for check artifacts.",
     )
-    b = sub.add_parser("build", help="Create a run folder (snapshot + check + trust + postings)")
+    b = sub.add_parser(
+        "build",
+        help="Create a run folder (snapshot + check + trust + postings + trial_balance + statements)",
+    )
     b.add_argument(
         "--project",
         default=".",
@@ -194,20 +197,22 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 1
 
         postings = res.run_root / "artifacts" / "postings.csv"
-        if postings.exists():
-            print(f"Wrote accounting artifact -> {postings}")
-
-
         tb = res.run_root / "artifacts" / "trial_balance.csv"
-        if tb.exists():
-            print(f"Wrote accounting artifact -> {tb}")
+        inc = res.run_root / "artifacts" / "income_statement.csv"
+        bs = res.run_root / "artifacts" / "balance_sheet.csv"
+
+        for p in (postings, tb, inc, bs):
+            if p.exists():
+                print(f"Wrote accounting artifact -> {p}")
 
         parts = ["snapshot", "check", "trust"]
         if postings.exists():
             parts.append("postings")
-        if (res.run_root / "artifacts" / "trial_balance.csv").exists():
+        if tb.exists():
             parts.append("trial_balance")
-        print(f"Build OK ({' + '.join(parts)}). Next: statements.")
+        if inc.exists() and bs.exists():
+            parts.append("statements")
+        print(f"Build OK ({' + '.join(parts)}). Next: closing entries.")
         return 0
 
 
