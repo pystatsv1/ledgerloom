@@ -125,6 +125,9 @@ project:
 
 chart_of_accounts: config/chart_of_accounts.yaml
 
+# If true, unmapped rows (posted to suspense) are treated as errors.
+strict_unmapped: false
+
 sources:
   # Bank-feed CSV adapter (v1). Add more sources over time.
   - source_type: bank_feed.v1

@@ -44,6 +44,7 @@ sources:
         "schema_id": "ledgerloom.project_config.v1",
         "project": {"name": "Acme Corp", "period": "2026-01", "currency": "USD"},
         "chart_of_accounts": "config/chart_of_accounts.yaml",
+        "strict_unmapped": False,
         "sources": [
             {
                 "source_type": "bank_feed.v1",
