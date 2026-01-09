@@ -4,11 +4,13 @@ Build a run (snapshot + gatekeeper)
 The :command:`ledgerloom build` command creates a **run folder** under your project's
 ``outputs/`` directory.
 
-In PR07a, build is intentionally simple:
+Build is intentionally simple:
 
 1. Create ``outputs/<run_id>/``
 2. Snapshot source files into ``outputs/<run_id>/source_snapshot/``
 3. Run :command:`ledgerloom check` and write results into ``outputs/<run_id>/check/``
+4. Emit trust artifacts into ``outputs/<run_id>/trust/``
+5. When check passes, write accounting artifacts into ``outputs/<run_id>/artifacts/`` (currently: ``postings.csv``)
 
 This makes every run **self-contained**: even if you edit or delete the original CSVs next week,
 the run folder still contains the exact inputs and configs used at the time you built it.
@@ -50,7 +52,11 @@ What gets created
 ``outputs/<run_id>/trust/``
    Trust artifacts for this run (``run_meta.json`` and ``manifest.json``).
 
-Next steps (PR07c)
-------------------
+``outputs/<run_id>/artifacts/``
+   Accounting artifacts for this run. Currently: ``postings.csv`` (written only when check passes).
 
-* PR07c adds the core **accounting outputs** (postings, trial balance, statements).
+Next steps
+----------
+
+* Build already writes the first accounting output (``artifacts/postings.csv``).
+* Next planned artifacts: trial balance and statements, plus richer reporting UX.

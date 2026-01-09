@@ -1,0 +1,21 @@
+schema_id: ledgerloom.chart_of_accounts.v1
+accounts:
+  - code: Assets:Cash
+    name: Cash
+    type: asset
+
+  - code: Expenses:Uncategorized
+    name: Uncategorized
+    type: expense
+
+  - code: Expenses:Meals
+    name: Meals
+    type: expense
+
+  - code: Expenses:Groceries
+    name: Groceries
+    type: expense
+
+  - code: Revenue:Other
+    name: Other Income
+    type: revenue
