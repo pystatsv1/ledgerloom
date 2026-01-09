@@ -10,11 +10,12 @@ machine-readable issues table.
 
 Outputs
 -------
-The check workflow writes three artifacts into an output directory:
+The check workflow writes four artifacts into an output directory:
 
 * ``checks.md`` – A human-readable summary (what to fix first).
 * ``staging.csv`` – The normalized staging table (one row per staged entry).
 * ``staging_issues.csv`` – Row-level issues (errors + warnings).
+* ``unmapped.csv`` – Rows that posted to suspense (no mapping rule matched).
 
 Important UX detail
 -------------------
@@ -131,6 +132,8 @@ def _render_checks_md(
     lines.append(f"- Staged entries: **{len(staging)}**")
     lines.append(f"- Errors: **{len(errors)}**")
     lines.append(f"- Warnings: **{len(warnings)}**")
+    unmapped_n = sum(1 for i in warnings if i.code == "unmapped_suspense")
+    lines.append(f"- Unmapped (suspense): **{unmapped_n}** (see `unmapped.csv`)")
     lines.append("")
 
     def _fmt_issue(i: CheckIssue) -> str:
@@ -234,6 +237,7 @@ def run_check(
         coa_codes = set()
 
     staged_rows: list[dict[str, Any]] = []
+    unmapped_rows: list[dict[str, Any]] = []
     input_files: list[Path] = []
 
     if not inputs_dir.exists():
@@ -300,8 +304,7 @@ def run_check(
                 elif credit_post is not None:
                     amount = credit_post.credit
 
-                staged_rows.append(
-                    {
+                row_out = {
                         "entry_id": meta.get("entry_id"),
                         "date": e.dt.isoformat(),
                         "narration": e.narration,
@@ -315,8 +318,23 @@ def run_check(
                         "matched_rule_pattern": meta.get("matched_rule_pattern"),
                         "original_description": meta.get("original_description"),
                         "original_amount": meta.get("original_amount"),
-                    }
-                )
+                }
+                staged_rows.append(row_out)
+
+                # Capture suspense postings so users can author mappings.
+                if row_out.get("matched_rule_pattern") in (None, "", "None") and row_out.get("original_description") is not None:
+                    unmapped_rows.append({
+                        "entry_id": row_out.get("entry_id"),
+                        "date": row_out.get("date"),
+                        "source_name": row_out.get("source_name"),
+                        "source_file": row_out.get("source_file"),
+                        "source_row_number": row_out.get("source_row_number"),
+                        "original_description": row_out.get("original_description"),
+                        "original_amount": row_out.get("original_amount"),
+                        "debit_account": row_out.get("debit_account"),
+                        "credit_account": row_out.get("credit_account"),
+                        "suspense_account": src.suspense_account,
+                    })
 
     staging = pd.DataFrame(staged_rows)
     if not staging.empty:
@@ -432,6 +450,29 @@ def run_check(
             "account",
         ],
     )
+    unmapped_cols = [
+        "entry_id",
+        "date",
+        "source_name",
+        "source_file",
+        "source_row_number",
+        "original_description",
+        "original_amount",
+        "debit_account",
+        "credit_account",
+        "suspense_account",
+    ]
+    unmapped_df = pd.DataFrame(unmapped_rows)
+    if not unmapped_df.empty:
+        unmapped_df = unmapped_df.sort_values(
+            by=["source_name", "source_file", "source_row_number", "entry_id"],
+            na_position="last",
+            kind="mergesort",
+        ).reset_index(drop=True)
+    if unmapped_df.empty and len(unmapped_df.columns) == 0:
+        unmapped_df = pd.DataFrame(columns=unmapped_cols)
+    write_csv_df(outdir / "unmapped.csv", unmapped_df, columns=unmapped_cols)
+
 
     md = _render_checks_md(
         cfg=cfg,

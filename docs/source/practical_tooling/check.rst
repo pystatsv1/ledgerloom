@@ -31,7 +31,7 @@ where ``<period>`` is ``project.period`` in your config.
 Artifacts written
 -----------------
 
-``ledgerloom check`` writes three files to an output directory.
+``ledgerloom check`` writes four files to an output directory.
 
 By default, the output directory is:
 
@@ -57,6 +57,10 @@ You can override the output directory:
 
 ``staging_issues.csv``
     A machine-readable list of errors and warnings.
+
+``unmapped.csv``
+    Rows that did not match any mapping rule and were posted to the source suspense account.
+    Use this as a worklist for authoring mappings.
 
 Finding the bad row in Excel
 ----------------------------
