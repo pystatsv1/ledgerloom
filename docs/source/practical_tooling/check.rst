@@ -136,3 +136,20 @@ Common issues
 
 ``unmapped_suspense``
     No mapping rule matched the description; the row landed in the suspense account (warning).
+
+
+Suggesting mappings (copy/paste helper)
+---------------------------------------
+
+Once you've run a check and produced ``unmapped.csv``, you can generate a YAML snippet that you can paste
+directly into your project's mapping rules.
+
+.. code-block:: bash
+
+   # If you used the default check output folder:
+   ledgerloom suggest-mappings --project demo_books
+
+   # Or if you ran check with a custom --outdir:
+   ledgerloom suggest-mappings --project demo_books --outdir demo_books/_out_check
+
+This prints a ``rules:`` block to stdout with deduplicated patterns and ``account: REPLACE_ME`` placeholders.
