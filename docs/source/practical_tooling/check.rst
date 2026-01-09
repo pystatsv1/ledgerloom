@@ -62,6 +62,9 @@ You can override the output directory:
     Rows that did not match any mapping rule and were posted to the source suspense account.
     Use this as a worklist for authoring mappings.
 
+    By default, unmapped rows are warnings and :command:`ledgerloom check` still passes.
+    If you set ``strict_unmapped: true`` in ``ledgerloom.yaml``, unmapped rows become errors and the check fails.
+
 Finding the bad row in Excel
 ----------------------------
 

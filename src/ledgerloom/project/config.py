@@ -247,6 +247,7 @@ class ProjectConfig:
 
     project: ProjectInfo
     chart_of_accounts: str
+    strict_unmapped: bool = False
     sources: list[BankFeedSource] = field(default_factory=list)
     outputs: OutputsConfig = field(default_factory=OutputsConfig)
     schema_id: str = SCHEMA_ID_PROJECT_CONFIG_V1
@@ -266,6 +267,12 @@ class ProjectConfig:
 
         chart_of_accounts = _require_str(d, "chart_of_accounts")
 
+
+        strict_unmapped_raw = d.get("strict_unmapped", False)
+        if not isinstance(strict_unmapped_raw, bool):
+            raise ValueError("Expected boolean for 'strict_unmapped'")
+        strict_unmapped = strict_unmapped_raw
+
         sources_raw = d.get("sources", [])
         if not isinstance(sources_raw, list):
             raise ValueError("Expected list for 'sources'")
@@ -284,6 +291,7 @@ class ProjectConfig:
             schema_id=schema_id,
             project=project,
             chart_of_accounts=chart_of_accounts,
+            strict_unmapped=strict_unmapped,
             sources=sources,
             outputs=outputs,
         )
@@ -304,6 +312,7 @@ class ProjectConfig:
             "schema_id": self.schema_id,
             "project": self.project.to_dict(),
             "chart_of_accounts": self.chart_of_accounts,
+            "strict_unmapped": self.strict_unmapped,
             "sources": [s.to_dict() for s in self.sources],
             "outputs": self.outputs.to_dict(),
         }

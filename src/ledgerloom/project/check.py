@@ -132,7 +132,7 @@ def _render_checks_md(
     lines.append(f"- Staged entries: **{len(staging)}**")
     lines.append(f"- Errors: **{len(errors)}**")
     lines.append(f"- Warnings: **{len(warnings)}**")
-    unmapped_n = sum(1 for i in warnings if i.code == "unmapped_suspense")
+    unmapped_n = sum(1 for i in issues if i.code == "unmapped_suspense")
     lines.append(f"- Unmapped (suspense): **{unmapped_n}** (see `unmapped.csv`)")
     lines.append("")
 
@@ -393,7 +393,7 @@ def run_check(
         ):
             issues.append(
                 CheckIssue(
-                    severity="warning",
+                    severity=("error" if cfg.strict_unmapped else "warning"),
                     code="unmapped_suspense",
                     message="No mapping rule matched; entry posted to suspense account.",
                     source_name=str(src_name) if src_name else None,
@@ -428,6 +428,23 @@ def run_check(
             x.code,
         ),
     )])
+
+    issues_cols = [
+        "severity",
+        "code",
+        "message",
+        "source_name",
+        "source_file",
+        "source_row_number",
+        "column",
+        "raw_value",
+        "account",
+    ]
+    # When there are no issues, pandas will create an empty DataFrame with no
+    # columns. Ensure we still write a stable CSV header for downstream tooling.
+    if issues_df.empty and len(issues_df.columns) == 0:
+        issues_df = pd.DataFrame(columns=issues_cols)
+
 
     # If there are no input files, ``staging`` may be an empty DataFrame with no
     # columns. Ensure we still write a stable CSV header for downstream tooling.

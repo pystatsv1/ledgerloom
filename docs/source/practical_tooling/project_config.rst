@@ -35,6 +35,20 @@ The smallest useful config looks like::
    outputs:
      root: "outputs"
 
+Strict unmapped mode
+--------------------
+
+By default, unmapped transactions are **warnings**: they are posted to the
+configured ``suspense_account`` and recorded in ``unmapped.csv`` so you can
+add mapping rules later.
+
+If you set::
+
+   strict_unmapped: true
+
+then any unmapped transaction is treated as an **error** and
+:command:`ledgerloom check` will fail (non-zero exit code).
+
 Bank feed source (v1)
 ---------------------
 
