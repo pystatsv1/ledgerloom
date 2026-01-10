@@ -3,6 +3,7 @@ from __future__ import annotations
 import shutil
 from dataclasses import dataclass
 from pathlib import Path
+import pandas as pd
 
 from ledgerloom import __version__ as ledgerloom_version
 from ledgerloom.artifacts import write_csv_df
@@ -13,6 +14,7 @@ from ledgerloom.trust.pipeline import emit_run_trust_artifacts
 
 from .check import CheckResult, run_check
 from .config import ProjectConfig
+from .reclass import RECLASS_TEMPLATE_COLUMNS, reclass_template_from_unmapped
 from .paths import (
     default_run_id,
     iter_files,
@@ -171,6 +173,39 @@ def snapshot_sources(
     return tuple(copied)
 
 
+def _write_reclass_template_csv(*, unmapped_csv: Path, run_root: Path) -> Path:
+    """Write artifacts/reclass_template.csv based on check's unmapped.csv.
+
+    This keeps the accountant workflow close to the auditable run folder produced
+    by `ledgerloom build`, while reusing the shared column schema and generator.
+    """
+
+    layout = run_layout(run_root)
+    out_path = layout.artifacts_dir / "reclass_template.csv"
+
+    try:
+        unmapped_df = pd.read_csv(unmapped_csv, keep_default_na=False)
+    except FileNotFoundError:
+        # Be defensive: treat missing unmapped.csv as "no unmapped rows".
+        unmapped_df = pd.DataFrame(
+            columns=[
+                "entry_id",
+                "date",
+                "original_description",
+                "original_amount",
+                "suspense_account",
+            ]
+        )
+
+    reclass_df = reclass_template_from_unmapped(unmapped_df)
+
+    write_csv_df(
+        out_path,
+        reclass_df,
+        columns=RECLASS_TEMPLATE_COLUMNS,
+    )
+    return out_path
+
 def run_build(
     *,
     project_root: Path,
@@ -226,6 +261,11 @@ def run_build(
     if not check_result.has_errors:
         # After check passes:
         #   ingest -> entries -> postings -> trial balance -> statements
+        _write_reclass_template_csv(
+            unmapped_csv=check_outdir / "unmapped.csv",
+            run_root=run_root,
+        )
+
         entries = _ingest_entries(cfg=cfg, inputs_dir=inputs_dir)
         eng, postings = _derive_postings(entries=entries)
         tb = bookset_v1.trial_balance(postings)
@@ -239,6 +279,7 @@ def run_build(
             "artifacts/trial_balance.csv",
             "artifacts/income_statement.csv",
             "artifacts/balance_sheet.csv",
+            "artifacts/reclass_template.csv",
         )
 
     trust_outdir, _, _ = emit_run_trust_artifacts(
