@@ -136,8 +136,9 @@ def emit_run_trust_artifacts(
     artifact_paths = collect_run_artifacts(
         run_root, include_dirs=include_dirs, extra_artifacts=extra_artifacts
     )
+        # Manifest is content-addressed: it must not include execution-specific fields
+    # like run_id or timestamps. Those belong in run_meta.json.
     manifest: ManifestLike = {
-        "run_id": run_meta.get("run_id"),
         "artifacts": artifacts_map(run_root, artifact_paths),
     }
 
