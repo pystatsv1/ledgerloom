@@ -1,5 +1,5 @@
 Practical tooling overview
-=========================
+==========================
 
 LedgerLoom ships a small CLI that turns *messy real-world inputs* (bank CSVs + simple mapping rules)
 into *deterministic, reviewable accounting artifacts*.

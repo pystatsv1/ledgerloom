@@ -1,5 +1,5 @@
 Reclass workflow (turning unmapped rows into rules)
-==================================================
+===================================================
 
 The goal of the reclass workflow is to turn “unmapped” staging rows into **stable mapping rules**.
 That’s the bridge between real-world messiness and a clean accounting pipeline.

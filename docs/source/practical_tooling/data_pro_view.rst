@@ -1,5 +1,5 @@
 Data professional view (tables + analysis)
-=========================================
+==========================================
 
 LedgerLoom’s output is designed to be loaded into pandas, DuckDB, or your BI tool of choice.
 

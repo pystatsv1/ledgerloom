@@ -1,5 +1,5 @@
 Project configuration (ledgerloom.yaml)
-======================================
+=======================================
 
 ``ledgerloom.yaml`` controls how LedgerLoom interprets inputs and where it writes outputs.
 
