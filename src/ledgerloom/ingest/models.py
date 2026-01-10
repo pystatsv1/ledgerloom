@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from typing import Any, Literal
 
 from ledgerloom.project.config import BankFeedSource
+from ledgerloom.core import Entry
 
 
 @dataclass(frozen=True)
@@ -98,3 +99,11 @@ class IngestIssue:
     message: str
     column: str | None = None
     raw_value: str | None = None
+
+
+@dataclass(frozen=True)
+class IngestResult:
+    """Result of ingesting a single input file."""
+
+    entries: list[Entry]
+    issues: list[IngestIssue]
