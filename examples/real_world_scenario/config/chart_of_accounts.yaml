@@ -1,0 +1,25 @@
+schema_id: ledgerloom.chart_of_accounts.v1
+accounts:
+  - code: Assets:Cash
+    name: Cash
+    type: asset
+
+  - code: Income:Consulting
+    name: Consulting Revenue
+    type: income
+
+  - code: Expenses:Meals
+    name: Meals
+    type: expense
+
+  - code: Expenses:Groceries
+    name: Groceries
+    type: expense
+
+  - code: Expenses:OfficeSupplies
+    name: Office Supplies
+    type: expense
+
+  - code: Expenses:Uncategorized
+    name: Uncategorized (Suspense)
+    type: expense
