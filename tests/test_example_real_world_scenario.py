@@ -21,7 +21,9 @@ def test_example_real_world_scenario_build_is_deterministic(tmp_path: Path) -> N
     assert example_root.exists(), "Expected examples/real_world_scenario to exist in the repo"
 
     project_root = tmp_path / "real_world_scenario"
-    shutil.copytree(example_root, project_root)
+    # The example may have local build outputs from a developer run; exclude them so the test is robust.
+    ignore = shutil.ignore_patterns("outputs", "__pycache__", ".pytest_cache")
+    shutil.copytree(example_root, project_root, ignore=ignore)
 
     r1 = run_build(project_root=project_root, run_id="run-a")
     r2 = run_build(project_root=project_root, run_id="run-b")
