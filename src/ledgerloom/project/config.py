@@ -22,12 +22,15 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Mapping
+from typing import Any, Mapping, TypeAlias
 
 import yaml
 
 
 SCHEMA_ID_PROJECT_CONFIG_V1 = "ledgerloom.project_config.v1"
+# v2 exists to support multi-source ingestion (bank feed + journals + more)
+# while keeping the config document a stable public contract.
+SCHEMA_ID_PROJECT_CONFIG_V2 = "ledgerloom.project_config.v2"
 
 # Source types are part of the public UX (accountants edit these), so keep them
 # short and descriptive.
@@ -226,6 +229,26 @@ class BankFeedSource:
         }
 
 
+# NOTE: This is intentionally a *TypeAlias* so future PRs can expand this union
+# without changing call sites.
+SourceConfig: TypeAlias = BankFeedSource
+
+
+def source_config_from_mapping(d: Mapping[str, Any]) -> SourceConfig:
+    """Parse a single source config mapping.
+
+    This is the multi-source "dispatch point". In v0.2.x we only support
+    ``bank_feed.v1``; later versions will add journal-based sources.
+    """
+
+    source_type = d.get("source_type", SOURCE_TYPE_BANK_FEED_V1)
+    if source_type == SOURCE_TYPE_BANK_FEED_V1:
+        return BankFeedSource.from_mapping(d)
+    raise ValueError(
+        f"Unsupported source_type '{source_type}'. Supported: '{SOURCE_TYPE_BANK_FEED_V1}'."
+    )
+
+
 @dataclass(frozen=True, slots=True)
 class OutputsConfig:
     root: str = "outputs"
@@ -243,21 +266,27 @@ class OutputsConfig:
 
 @dataclass(frozen=True, slots=True)
 class ProjectConfig:
-    """Top-level project config document (v1)."""
+    """Top-level project config document (v1/v2).
+
+    The v2 schema is intentionally compatible with v1 *for now*. Later PRs will
+    expand v2 to support additional source types (journal entries, etc.) and
+    workbook-oriented build profiles.
+    """
 
     project: ProjectInfo
     chart_of_accounts: str
     strict_unmapped: bool = False
-    sources: list[BankFeedSource] = field(default_factory=list)
+    sources: list[SourceConfig] = field(default_factory=list)
     outputs: OutputsConfig = field(default_factory=OutputsConfig)
     schema_id: str = SCHEMA_ID_PROJECT_CONFIG_V1
 
     @staticmethod
     def from_mapping(d: Mapping[str, Any]) -> "ProjectConfig":
         schema_id = d.get("schema_id", SCHEMA_ID_PROJECT_CONFIG_V1)
-        if schema_id != SCHEMA_ID_PROJECT_CONFIG_V1:
+        if schema_id not in {SCHEMA_ID_PROJECT_CONFIG_V1, SCHEMA_ID_PROJECT_CONFIG_V2}:
             raise ValueError(
-                f"Unsupported project config schema_id '{schema_id}'. Expected '{SCHEMA_ID_PROJECT_CONFIG_V1}'."
+                "Unsupported project config schema_id "
+                f"'{schema_id}'. Expected '{SCHEMA_ID_PROJECT_CONFIG_V1}' or '{SCHEMA_ID_PROJECT_CONFIG_V2}'."
             )
 
         proj_raw = d.get("project")
@@ -267,7 +296,6 @@ class ProjectConfig:
 
         chart_of_accounts = _require_str(d, "chart_of_accounts")
 
-
         strict_unmapped_raw = d.get("strict_unmapped", False)
         if not isinstance(strict_unmapped_raw, bool):
             raise ValueError("Expected boolean for 'strict_unmapped'")
@@ -276,11 +304,11 @@ class ProjectConfig:
         sources_raw = d.get("sources", [])
         if not isinstance(sources_raw, list):
             raise ValueError("Expected list for 'sources'")
-        sources: list[BankFeedSource] = []
+        sources: list[SourceConfig] = []
         for i, s in enumerate(sources_raw):
             if not isinstance(s, Mapping):
                 raise ValueError(f"Expected mapping for sources[{i}]")
-            sources.append(BankFeedSource.from_mapping(s))
+            sources.append(source_config_from_mapping(s))
 
         outputs_raw = d.get("outputs", {})
         if not isinstance(outputs_raw, Mapping):
