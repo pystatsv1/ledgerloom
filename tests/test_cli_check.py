@@ -7,6 +7,7 @@ import shutil
 import pandas as pd
 
 from ledgerloom.cli import main
+from ledgerloom.project.reclass import RECLASS_TEMPLATE_COLUMNS
 
 
 def _write(path: Path, text: str) -> None:
@@ -78,6 +79,7 @@ Date,Description,Amount
     assert (outdir / "staging.csv").exists()
     assert (outdir / "staging_issues.csv").exists()
     assert (outdir / "unmapped.csv").exists()
+    assert (outdir / "reclass_template.csv").exists()
 
     staging = pd.read_csv(outdir / "staging.csv")
     assert len(staging) == 2
@@ -101,6 +103,13 @@ Date,Description,Amount
     assert snippet.startswith("- { pattern:")
     assert "account:" in snippet
     assert "REPLACE_ME" in snippet
+
+    reclass_csv = pd.read_csv(outdir / "reclass_template.csv", keep_default_na=False)
+    assert list(reclass_csv.columns) == RECLASS_TEMPLATE_COLUMNS
+    # In this fixture, exactly one row is unmapped (Paycheck).
+    assert len(reclass_csv) == 1
+    assert reclass_csv.loc[0, "reclass_account"] == ""
+    assert "TODO" in str(reclass_csv.loc[0, "note"])
 
 
 
@@ -169,6 +178,7 @@ Date,Description,Amount
 
     assert (outdir / "staging_issues.csv").exists()
     assert (outdir / "unmapped.csv").exists()
+    assert (outdir / "reclass_template.csv").exists()
 
     issues = pd.read_csv(outdir / "staging_issues.csv")
     assert list(issues.columns) == [
@@ -200,6 +210,10 @@ Date,Description,Amount
         "suggested_rule_yaml",
     ]
     assert len(unmapped) == 0
+
+    reclass = pd.read_csv(outdir / "reclass_template.csv", keep_default_na=False)
+    assert list(reclass.columns) == RECLASS_TEMPLATE_COLUMNS
+    assert len(reclass) == 0
 
 
 def test_cli_check_fails_on_unknown_accounts(tmp_path: Path) -> None:
