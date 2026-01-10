@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import re
-from dataclasses import dataclass
 from datetime import date, datetime
 from decimal import Decimal
 from pathlib import Path
@@ -15,15 +14,7 @@ from ledgerloom.engine.money import cents_to_str, str_to_cents
 
 from ledgerloom.project.config import BankFeedSource as ProjectBankFeedSource
 
-from .models import BankFeedSourceConfig, IngestIssue
-
-
-@dataclass(frozen=True)
-class IngestResult:
-    """Result of ingesting a single input file."""
-
-    entries: list[Entry]
-    issues: list[IngestIssue]
+from .models import BankFeedSourceConfig, IngestIssue, IngestResult
 
 
 _SLUG_RE = re.compile(r"[^A-Za-z0-9_-]+")
