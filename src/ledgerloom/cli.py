@@ -10,7 +10,7 @@ from ledgerloom.docs_helper import open_online_docs
 from ledgerloom.project.init import InitOptions, create_project_skeleton, default_period_today
 from ledgerloom.project.check import run_check
 from ledgerloom.project.suggest_mappings import run_suggest_mappings
-from ledgerloom.project.build import run_build
+from ledgerloom.project.build import BuildAbortError, run_build
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -217,6 +217,12 @@ def main(argv: Sequence[str] | None = None) -> int:
             return 2
         except FileExistsError as e:
             print(str(e), file=sys.stderr)
+            return 1
+        except BuildAbortError as e:
+            print(str(e), file=sys.stderr)
+            print(f"Run folder retained -> {e.run_root}", file=sys.stderr)
+            if e.trust_outdir is not None:
+                print(f"Wrote trust artifacts -> {e.trust_outdir}", file=sys.stderr)
             return 1
 
         print(f"Wrote run folder -> {res.run_root}")

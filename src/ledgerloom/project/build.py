@@ -36,6 +36,21 @@ class BuildResult:
     snapshotted_files: tuple[Path, ...]
 
 
+
+class BuildAbortError(RuntimeError):
+    """Raised when a build must stop due to user-configured strictness.
+
+    The run folder is kept on disk so the user can review check artifacts and
+    fix mappings.
+    """
+
+    def __init__(self, message: str, *, run_root: Path, check_outdir: Path) -> None:
+        super().__init__(message)
+        self.run_root = run_root
+        self.check_outdir = check_outdir
+        self.trust_outdir: Path | None = None
+
+
 def _ingest_entries(*, cfg: ProjectConfig, inputs_dir: Path) -> list:
     """Re-ingest configured sources into Entry objects.
 
@@ -173,14 +188,61 @@ def snapshot_sources(
     return tuple(copied)
 
 
+
+UNMAPPED_COLUMNS: list[str] = [
+    "entry_id",
+    "date",
+    "source_name",
+    "source_file",
+    "source_row_number",
+    "original_description",
+    "original_amount",
+    "debit_account",
+    "credit_account",
+    "suspense_account",
+    "suggested_pattern",
+    "suggested_rule_yaml",
+]
+
+
+def _write_unmapped_csv(*, unmapped_csv: Path, run_root: Path) -> tuple[Path, pd.DataFrame]:
+    """Write artifacts/unmapped.csv (copy of check's unmapped.csv).
+
+    The check workflow produces a rich ``unmapped.csv`` (including suggested
+    patterns / rules). ``ledgerloom build`` copies it into the auditable run
+    folder so accountants don't have to jump between directories.
+    """
+
+    layout = run_layout(run_root)
+    layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
+    out_path = layout.artifacts_dir / "unmapped.csv"
+
+    try:
+        df = pd.read_csv(unmapped_csv, keep_default_na=False)
+    except FileNotFoundError:
+        df = pd.DataFrame(columns=UNMAPPED_COLUMNS)
+
+    # Ensure stable columns even if the CSV is empty or missing some optional cols.
+    if df.empty and len(df.columns) == 0:
+        df = pd.DataFrame(columns=UNMAPPED_COLUMNS)
+    for c in UNMAPPED_COLUMNS:
+        if c not in df.columns:
+            df[c] = ""
+
+    df = df[UNMAPPED_COLUMNS]
+    write_csv_df(out_path, df, columns=UNMAPPED_COLUMNS)
+    return out_path, df
+
+
 def _write_reclass_template_csv(*, unmapped_csv: Path, run_root: Path) -> Path:
-    """Write artifacts/reclass_template.csv based on check's unmapped.csv.
+    """Write artifacts/reclass_template.csv based on artifacts/unmapped.csv.
 
     This keeps the accountant workflow close to the auditable run folder produced
     by `ledgerloom build`, while reusing the shared column schema and generator.
     """
 
     layout = run_layout(run_root)
+    layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
     out_path = layout.artifacts_dir / "reclass_template.csv"
 
     try:
@@ -257,31 +319,62 @@ def run_build(
         outdir=check_outdir,
     )
 
+    # Exception workflow artifacts live under artifacts/ so they travel with the run.
+    # We still stop early if the check surfaced non-unmapped errors.
+    errors_other_than_unmapped = any(
+        (i.severity == "error" and i.code != "unmapped_suspense") for i in check_result.issues
+    )
+
+    abort_exc: BuildAbortError | None = None
     extra_artifacts: tuple[str, ...] = tuple()
-    if not check_result.has_errors:
-        # After check passes:
-        #   ingest -> entries -> postings -> trial balance -> statements
-        _write_reclass_template_csv(
+
+    if not errors_other_than_unmapped:
+        # Always materialize exception workflow helpers into artifacts/ (even if
+        # strict_unmapped later aborts).
+        unmapped_art_path, unmapped_df = _write_unmapped_csv(
             unmapped_csv=check_outdir / "unmapped.csv",
             run_root=run_root,
         )
+        _write_reclass_template_csv(unmapped_csv=unmapped_art_path, run_root=run_root)
 
-        entries = _ingest_entries(cfg=cfg, inputs_dir=inputs_dir)
-        eng, postings = _derive_postings(entries=entries)
-        tb = bookset_v1.trial_balance(postings)
+        has_unmapped = not unmapped_df.empty
 
-        _write_postings_csv(eng=eng, postings=postings, run_root=run_root)
-        _write_trial_balance_csv(tb=tb, run_root=run_root)
-        _write_statements_csv(tb=tb, run_root=run_root)
+        if cfg.strict_unmapped and has_unmapped:
+            extra_artifacts = (
+                "artifacts/unmapped.csv",
+                "artifacts/reclass_template.csv",
+            )
+            abort_exc = BuildAbortError(
+                "Build aborted: unmapped rows found and strict_unmapped is true. "
+                "See check/unmapped.csv and artifacts/reclass_template.csv.",
+                run_root=run_root,
+                check_outdir=check_outdir,
+            )
+        elif not check_result.has_errors:
+            # After check passes:
+            #   ingest -> entries -> postings -> trial balance -> statements
+            entries = _ingest_entries(cfg=cfg, inputs_dir=inputs_dir)
+            eng, postings = _derive_postings(entries=entries)
+            tb = bookset_v1.trial_balance(postings)
 
-        extra_artifacts = (
-            "artifacts/postings.csv",
-            "artifacts/trial_balance.csv",
-            "artifacts/income_statement.csv",
-            "artifacts/balance_sheet.csv",
-            "artifacts/reclass_template.csv",
-        )
+            _write_postings_csv(eng=eng, postings=postings, run_root=run_root)
+            _write_trial_balance_csv(tb=tb, run_root=run_root)
+            _write_statements_csv(tb=tb, run_root=run_root)
 
+            extra_artifacts = (
+                "artifacts/postings.csv",
+                "artifacts/trial_balance.csv",
+                "artifacts/income_statement.csv",
+                "artifacts/balance_sheet.csv",
+                "artifacts/unmapped.csv",
+                "artifacts/reclass_template.csv",
+            )
+        else:
+            # Check had errors, but only unmapped_suspense warnings/errors; keep the run folder.
+            extra_artifacts = (
+                "artifacts/unmapped.csv",
+                "artifacts/reclass_template.csv",
+            )
     trust_outdir, _, _ = emit_run_trust_artifacts(
         run_root,
         run_meta={
@@ -296,6 +389,10 @@ def run_build(
         include_dirs=("source_snapshot", "check"),
         extra_artifacts=extra_artifacts,
     )
+
+    if abort_exc is not None:
+        abort_exc.trust_outdir = trust_outdir
+        raise abort_exc
 
     return BuildResult(
         run_id=run_id,

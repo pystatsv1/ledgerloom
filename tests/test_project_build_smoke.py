@@ -61,9 +61,14 @@ def test_build_smoke_creates_trust_manifest(tmp_path: Path) -> None:
     assert "artifacts/balance_sheet.csv" in m["artifacts"]
     assert "bytes" in m["artifacts"]["artifacts/balance_sheet.csv"]
     assert "sha256" in m["artifacts"]["artifacts/balance_sheet.csv"]
+    assert "artifacts/unmapped.csv" in m["artifacts"]
+    assert "bytes" in m["artifacts"]["artifacts/unmapped.csv"]
+    assert "sha256" in m["artifacts"]["artifacts/unmapped.csv"]
+
     assert "artifacts/reclass_template.csv" in m["artifacts"]
     assert "bytes" in m["artifacts"]["artifacts/reclass_template.csv"]
     assert "sha256" in m["artifacts"]["artifacts/reclass_template.csv"]
+
 
 
 
