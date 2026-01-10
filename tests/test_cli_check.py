@@ -78,6 +78,12 @@ Date,Description,Amount
     assert (outdir / "checks.md").exists()
     assert (outdir / "staging.csv").exists()
     assert (outdir / "staging_issues.csv").exists()
+    assert (outdir / "staging_postings.csv").exists()
+
+    stp = pd.read_csv(outdir / "staging_postings.csv", dtype=str, keep_default_na=False)
+    assert list(stp.columns) == ['source_name', 'source_path', 'source_row_number', 'entry_id', 'date', 'narration', 'account', 'debit', 'credit', 'entry_kind']
+    # Two bank feed rows => two Entries => four posting lines.
+    assert len(stp) == 4
     assert (outdir / "unmapped.csv").exists()
     assert (outdir / "reclass_template.csv").exists()
 
@@ -358,6 +364,9 @@ Date,Description,Amount
     rc2 = main(["check", "--project", str(root2), "--outdir", str(out2)])
     assert rc2 == 1
     assert (out2 / "unmapped.csv").exists()
+    assert (out2 / "staging_postings.csv").exists()
+    stp2 = pd.read_csv(out2 / "staging_postings.csv", dtype=str, keep_default_na=False)
+    assert len(stp2) == 2
 
     issues2 = pd.read_csv(out2 / "staging_issues.csv")
     assert "unmapped_suspense" in set(issues2["code"].tolist())
