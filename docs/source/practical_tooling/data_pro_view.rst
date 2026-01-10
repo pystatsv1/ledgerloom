@@ -1,99 +1,56 @@
-Data pro view
-=============
+Data professional view (tables + analysis)
+=========================================
 
-This page explains LedgerLoom's outputs as **analysis-ready tables** and suggests a simple workflow
-for exploring a run in pandas or your BI tool of choice.
+LedgerLoom’s output is designed to be loaded into pandas, DuckDB, or your BI tool of choice.
 
-Where the data lives
---------------------
+.. admonition:: Translation box
+   :class: translation-box
 
-A ``ledgerloom build`` run writes four key folders:
+   **Accountant:** Think of postings as the “detailed GL,” and statements as summaries.
 
-- ``source_snapshot/`` — the exact inputs/configs used (for reproducibility)
-- ``check/`` — staging tables + issue lists (data quality / pipeline diagnostics)
-- ``artifacts/`` — postings + trial balance + statements (accounting outputs)
-- ``trust/`` — hashes for everything tracked (audit + reproducibility)
+   **Developer:** Think of postings as the fact table, with COA as a dimension table.
 
-If you're doing analytics, you will usually start with:
+   **Data pro:** Think of postings as a clean, analysis-ready event stream.
 
-- ``artifacts/postings.csv`` (the fact table)
-- ``artifacts/trial_balance.csv`` (a derived snapshot)
-- ``check/staging.csv`` and ``check/staging_issues.csv`` (data quality context)
+Where outputs live
+------------------
 
-Core tables
------------
+For a run id like ``run-2026-01``, build writes:
+
+- ``outputs/run-2026-01/artifacts/postings.csv``
+- ``outputs/run-2026-01/artifacts/trial_balance.csv``
+- ``outputs/run-2026-01/artifacts/income_statement.csv``
+- ``outputs/run-2026-01/artifacts/balance_sheet.csv``
 
 Postings (fact table)
-^^^^^^^^^^^^^^^^^^^^^
+---------------------
 
-``artifacts/postings.csv`` is the canonical fact table for analysis. Each row is a posting line
-(debit or credit) with stable identifiers and deterministic ordering.
+The postings table is the canonical “long” format:
 
-Typical columns include:
+- one row per posting line
+- stable sort order
+- suitable for aggregation and reconciliation
 
-- ``date`` — posting date (normalized)
-- ``entry_id`` — stable identifier for the originating entry
-- ``line_no`` — stable line number within the entry
-- ``account`` — chart-of-accounts code/name
-- ``debit`` / ``credit`` — amounts (non-negative, in the project currency)
-- optional dimensions (e.g., ``department``) when configured
-
-Trial balance (snapshot)
-^^^^^^^^^^^^^^^^^^^^^^^^^
-
-``artifacts/trial_balance.csv`` provides balances by account for the run period. It is derived from
-postings and is useful for quick sanity checks and reporting rollups.
-
-Statements
-^^^^^^^^^^
-
-LedgerLoom writes simple CSV statements:
-
-- ``artifacts/income_statement.csv``
-- ``artifacts/balance_sheet.csv``
-
-These are intentionally minimal; many data pros will prefer to re-aggregate from postings and the COA
-metadata.
-
-Check tables (pipeline diagnostics)
------------------------------------
-
-- ``check/staging.csv`` — normalized raw rows (what LedgerLoom read)
-- ``check/staging_issues.csv`` — machine-readable issues (errors and warnings)
-- ``artifacts/unmapped.csv`` — rows that landed in suspense because no mapping rule matched
-- ``artifacts/reclass_template.csv`` — helper template for reclassifying suspense rows
-
-These tables let you answer: *what did we ingest, what failed validation, and what needs mapping work?*
-
-Quickstart: load a run into pandas
-----------------------------------
+Typical analysis workflow
+-------------------------
 
 .. code-block:: python
 
    import pandas as pd
-   from pathlib import Path
 
-   run_dir = Path("examples/real_world_scenario/outputs/run-a")
+   postings = pd.read_csv("outputs/run-2026-01/artifacts/postings.csv")
+   tb = pd.read_csv("outputs/run-2026-01/artifacts/trial_balance.csv")
 
-   postings = pd.read_csv(run_dir / "artifacts" / "postings.csv")
-   tb = pd.read_csv(run_dir / "artifacts" / "trial_balance.csv")
-   issues = pd.read_csv(run_dir / "check" / "staging_issues.csv")
+   # Example: total spend by account
+   spend = (
+       postings.loc[postings["account_type"] == "expense"]
+       .groupby(["account_code", "account_name"], as_index=False)["amount"]
+       .sum()
+       .sort_values("amount", ascending=False)
+   )
 
-   # Common first checks
-   print(postings.head())
-   print(tb.sort_values("account").head())
-   print(issues["severity"].value_counts())
+Join to COA
+-----------
 
-Reproducibility tips
---------------------
-
-- Keep the entire ``outputs/<run_id>/`` folder when sharing results.
-- Use the manifest as your audit trail: it proves the inputs/configs and outputs match.
-- Prefer re-aggregating from postings for analytics so you can validate derived tables yourself.
-
-If you want a ready-to-run example, start with:
-
-.. code-block:: bash
-
-   ledgerloom check --project examples/real_world_scenario
-   ledgerloom build --project examples/real_world_scenario --run-id run-a
+Your chart of accounts file is a natural dimension table. Keep codes stable, and you’ll be able to
+trend categories over time with confidence.

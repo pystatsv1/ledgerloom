@@ -1,60 +1,54 @@
-``ledgerloom init``
-===================
+ledgerloom init
+===============
 
-``ledgerloom init`` creates a new LedgerLoom project folder you can run without writing Python.
+``ledgerloom init`` creates a new LedgerLoom project folder with a minimal, safe default layout.
 
-It sets up:
+.. admonition:: Translation box
+   :class: translation-box
 
-* ``ledgerloom.yaml`` (project config template)
-* ``config/chart_of_accounts.yaml`` (COA template)
-* ``config/mappings/`` (placeholder folder for future mapping files)
-* ``inputs/<period>/`` (where you drop CSVs)
-* ``outputs/`` (where check/build runs write results)
+   **Accountant:** This sets up a “books” folder that keeps source inputs, mappings, and outputs organized.
 
+   **Developer:** This gives you a predictable project structure (good for version control and CI).
 
-Create a new project
---------------------
+   **Data pro:** This ensures outputs land in a consistent place so downstream analysis is repeatable.
 
-.. code-block:: bash
-
-   ledgerloom init my_books --period 2026-01 --currency USD
-
-Then:
+Create a project
+----------------
 
 .. code-block:: bash
 
-   cd my_books
-   ledgerloom check
+   # Create a project folder named demo_books
+   ledgerloom init demo_books
 
+You’ll get a structure like:
 
-Options
--------
+.. code-block:: text
 
-``--name``
-   Project display name (defaults to the directory name).
+   demo_books/
+     ledgerloom.yaml
+     README.md
+     config/
+       chart_of_accounts.yaml
+       mappings/
+         .gitkeep
+     inputs/
+       2026-01/
+         .gitkeep
 
-``--period``
-   Accounting period in ``YYYY-MM`` (defaults to the current month).
+Next steps
+----------
 
-``--currency``
-   Currency code (defaults to ``USD``).
+1) Put CSV files in ``inputs/<period>/`` (by default the period is in ``ledgerloom.yaml``).
 
+2) Edit:
 
-What to edit next
------------------
+- ``ledgerloom.yaml`` (project config)
+- ``config/chart_of_accounts.yaml`` (chart of accounts)
+- ``config/mappings/`` (optional rules)
 
-1) Open ``ledgerloom.yaml`` and update:
-
-   * the bank CSV column names under ``columns``
-   * the required ``date_format`` (LedgerLoom does not guess)
-   * your regex mapping ``rules``
-
-2) Open ``config/chart_of_accounts.yaml`` and add the account codes you want to use.
-
-3) Drop CSVs into ``inputs/<period>/`` and run:
+3) Run:
 
 .. code-block:: bash
 
-   ledgerloom check
-
-If there are errors, fix them using ``outputs/check/<period>/staging_issues.csv``.
+   ledgerloom check --project demo_books
+   ledgerloom build --project demo_books --run-id run-2026-01

@@ -1,94 +1,69 @@
-Project configuration
-=====================
+Project configuration (ledgerloom.yaml)
+======================================
 
-LedgerLoom projects are configured with a single YAML file (typically
-``ledgerloom.yaml``) that is validated against a **versioned schema**.
+``ledgerloom.yaml`` controls how LedgerLoom interprets inputs and where it writes outputs.
 
-The goal of v0.2.0 is that an accountant can:
+.. admonition:: Translation box
+   :class: translation-box
 
-* initialize a project (no Python)
-* drop CSVs into an ``inputs/`` folder
-* edit YAML mappings
-* run ``ledgerloom check`` and ``ledgerloom build``
+   **Accountant:** This is where you set the period, default accounts, and “what counts as an error.”
 
-Schema ID
+   **Developer:** This is the contract for build reproducibility: same config + same inputs ⇒ same outputs.
+
+   **Data pro:** This is where you standardize dimensions (e.g., department) and output locations.
+
+A minimal example
+-----------------
+
+.. code-block:: yaml
+
+   schema_id: ledgerloom.project_config.v1
+
+   project:
+     name: demo_books
+     period: 2026-01
+
+   inputs:
+     root: inputs
+
+   outputs:
+     root: outputs
+
+   chart_of_accounts:
+     path: config/chart_of_accounts.yaml
+
+   mappings:
+     root: config/mappings
+
+   policy:
+     # If true, unmapped rows fail the build/check (recommended once your rules are stable).
+     strict_unmapped: false
+
+     # Where to park truly-unknown rows if you choose to allow them.
+     suspense_account: 9999
+
+Key ideas
 ---------
 
-The top-level document **must** include::
+Period
+~~~~~~
 
-   schema_id: ledgerloom.project_config.v1
+The ``project.period`` value determines the default input folder:
 
-This allows LedgerLoom to evolve without breaking existing projects.
+- ``inputs/<period>/``
 
-Minimal example
----------------
+Strictness
+~~~~~~~~~~
 
-The smallest useful config looks like::
+``policy.strict_unmapped`` controls whether unmapped rows are treated as errors.
 
-   schema_id: ledgerloom.project_config.v1
-   project:
-     name: "My Company"
-     period: "2026-01"
-     currency: "USD"
-   chart_of_accounts: "config/chart_of_accounts.yaml"
-   sources: []
-   outputs:
-     root: "outputs"
+- Start with ``false`` while you’re building rules.
+- Switch to ``true`` once your mapping rules cover the expected input patterns.
 
-Strict unmapped mode
---------------------
+Dimensions
+~~~~~~~~~~
 
-By default, unmapped transactions are **warnings**: they are posted to the
-configured ``suspense_account`` and recorded in ``unmapped.csv`` so you can
-add mapping rules later.
+LedgerLoom can attach optional “dimensions” (columns like ``department``) to outputs.
+If you do not configure dimensions, LedgerLoom still emits a consistent schema for core artifacts.
 
-If you set::
-
-   strict_unmapped: true
-
-then any unmapped transaction is treated as an **error** and
-:command:`ledgerloom check` will fail (non-zero exit code).
-
-Bank feed source (v1)
----------------------
-
-For v0.2.0, the only supported source type is a simple bank-feed CSV adapter.
-It maps a raw CSV to balanced double-entry :class:`~ledgerloom.core.Entry`
-objects.
-
-Example::
-
-   sources:
-     - source_type: "bank_feed.v1"
-       name: "Chase Checking"
-       # Pattern is evaluated within ``inputs/<period>/`` by default.
-       # (So you typically **do not** include the inputs folder prefix here.)
-       file_pattern: "chase_*.csv"
-       default_account: "Assets:US:Chase:Checking"
-       date_format: "%m/%d/%Y"
-       columns:
-         date: "Posting Date"
-         description: "Description"
-         amount: "Amount"
-       # Optional amount parsing overrides (useful for EU formats).
-       amount_thousands_sep: ","
-       amount_decimal_sep: "."
-       invert_amount_sign: true
-       suspense_account: "Expenses:Uncategorized"
-       rules:
-         - pattern: "Starbucks|Peets"
-           account: "Expenses:MealsAndEntertainment"
-
-Next steps
-----------
-
-* ``ledgerloom check`` provides the gatekeeper experience (staging + validation).
-* ``ledgerloom build`` creates a run folder (snapshot + check + trust) and, when check passes,
-  writes accounting artifacts:
-
-  * ``outputs/<run_id>/artifacts/postings.csv``
-  * ``outputs/<run_id>/artifacts/trial_balance.csv``
-  * ``outputs/<run_id>/artifacts/income_statement.csv``
-  * ``outputs/<run_id>/artifacts/balance_sheet.csv``
-
-* Next planned artifacts: closing entries + post-close statements (plus subledgers like AR/AP/inventory).
+See also: :doc:`chart_of_accounts` and :doc:`check`.
