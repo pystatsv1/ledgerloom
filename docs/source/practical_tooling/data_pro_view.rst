@@ -24,7 +24,7 @@ Core tables
 -----------
 
 Postings (fact table)
-^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^
 
 ``artifacts/postings.csv`` is the canonical fact table for analysis. Each row is a posting line
 (debit or credit) with stable identifiers and deterministic ordering.
@@ -39,7 +39,7 @@ Typical columns include:
 - optional dimensions (e.g., ``department``) when configured
 
 Trial balance (snapshot)
-^^^^^^^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``artifacts/trial_balance.csv`` provides balances by account for the run period. It is derived from
 postings and is useful for quick sanity checks and reporting rollups.
