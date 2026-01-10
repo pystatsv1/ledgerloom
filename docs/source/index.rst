@@ -59,6 +59,13 @@ The documentation is organized into:
    ledgerloom_ch17_statement_analysis_summary_statistics
    ledgerloom_ch18_forecasting_planning_basics
 
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Workbook (Hybrid method)
+
+   workbook/index
+
 .. toctree::
    :maxdepth: 1
    :caption: Appendices
