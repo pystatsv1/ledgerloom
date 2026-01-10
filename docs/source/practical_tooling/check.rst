@@ -1,155 +1,97 @@
-Staging + ``ledgerloom check``
-==============================
+ledgerloom check
+================
 
-The ``ledgerloom check`` command is the *gatekeeper*.
+``ledgerloom check`` is the *gatekeeper* command. It ingests your inputs into a staging table,
+runs validations, and writes a small set of human- and machine-readable artifacts you can review
+before you run ``ledgerloom build``.
 
-It stages your input CSVs and reports problems *before* you attempt to build
-postings, a trial balance, or financial statements. The intent is to prevent
-"Crash on Entry" frustration by giving you fast, actionable feedback.
+Basic usage
+-----------
 
-Quickstart
-----------
+Run check against a project folder::
 
-From your project root (the folder that contains ``ledgerloom.yaml``):
+  ledgerloom check --project my_books --outdir my_books/_out_check
 
-.. code-block:: bash
+Output artifacts
+----------------
 
-   ledgerloom check
+``ledgerloom check`` writes these files into the chosen outdir:
 
-If your project lives elsewhere, point the command at it:
+- ``checks.md`` — human-readable summary (errors/warnings + counts)
+- ``staging.csv`` — normalized staged rows (what LedgerLoom *thinks* it read)
+- ``staging_issues.csv`` — machine-readable issues table (errors and warnings)
+- ``unmapped.csv`` — rows posted to suspense because no mapping rule matched
+- ``reclass_template.csv`` — a helper template to reclass suspense rows later
 
-.. code-block:: bash
+Unmapped and suspense workflow
+------------------------------
 
-   ledgerloom check --project /path/to/my_books
+If a row does not match any mapping rule, LedgerLoom posts it to the source's ``suspense_account``.
+This is reported as a warning (issue code ``unmapped_suspense``) by default.
 
-By default, ``ledgerloom check`` reads inputs from:
+If you want unmapped rows to *fail* your check (useful once your mappings are mature), set::
 
-``inputs/<period>/``
+  strict_unmapped: true
 
-where ``<period>`` is ``project.period`` in your config.
+in ``ledgerloom.yaml``. With strict mode on, unmapped suspense rows become errors and
+``ledgerloom check`` returns a non-zero exit code.
 
-Artifacts written
------------------
+unmapped.csv (copy/paste helpers)
+---------------------------------
 
-``ledgerloom check`` writes four files to an output directory.
+``unmapped.csv`` is designed to be “fix-forward”:
 
-By default, the output directory is:
+- ``suggested_pattern`` is a conservative ``(?i)`` regex derived from the original description.
+- ``suggested_rule_yaml`` is a ready-to-paste YAML rule snippet with a placeholder account.
 
-``<outputs.root>/check/<period>/``
+Example snippet (as written in the CSV)::
 
-For example:
+  - { pattern: '(?i)coffee', account: 'REPLACE_ME' }
 
-.. code-block:: text
+You can paste that directly under a source's ``rules:`` list in ``ledgerloom.yaml`` and then replace
+``REPLACE_ME`` with the correct account code from your chart of accounts.
 
-   outputs/check/2026-01/
+ledgerloom suggest-mappings (dedupe to a YAML block)
+----------------------------------------------------
 
-You can override the output directory:
+If you have many unmapped rows, you probably don’t want to copy/paste one-by-one. The helper command
+``ledgerloom suggest-mappings`` reads ``unmapped.csv``, dedupes similar rows, and prints a YAML block
+you can review.
 
-.. code-block:: bash
+Print to stdout::
 
-   ledgerloom check --outdir /tmp/ledgerloom_check
+  ledgerloom suggest-mappings --unmapped my_books/_out_check/unmapped.csv
 
-``checks.md``
-    A human-readable report (what to fix first).
+Write to a file::
 
-``staging.csv``
-    A normalized staging table (one row per staged entry).
+  ledgerloom suggest-mappings --unmapped my_books/_out_check/unmapped.csv --out my_books/suggested_mappings.yaml
 
-``staging_issues.csv``
-    A machine-readable list of errors and warnings.
+reclass_template.csv (reclassification helper)
+----------------------------------------------
 
-``unmapped.csv``
-    Rows that did not match any mapping rule and were posted to the source suspense account.
-    Use this as a worklist for authoring mappings.
+Alongside ``unmapped.csv``, ``ledgerloom check`` writes ``reclass_template.csv``. This file is a
+*header-stable* starting point for creating reclassification entries (moving transactions out of the
+suspense account once you know the right category).
 
-    The file also includes two helper columns:
+Stable columns
+^^^^^^^^^^^^^^
 
-    * ``suggested_pattern`` – a conservative case-insensitive regex derived from the description
-    * ``suggested_rule_yaml`` – a one-line YAML rule snippet you can paste under ``rules:``
+The column schema is defined centrally in code to prevent “column drift”:
 
+- ``entry_id``
+- ``date``
+- ``description``
+- ``original_amount``
+- ``suspense_account``
+- ``reclass_account``
+- ``note``
 
-    By default, unmapped rows are warnings and :command:`ledgerloom check` still passes.
-    If you set ``strict_unmapped: true`` in ``ledgerloom.yaml``, unmapped rows become errors and the check fails.
+How to use it
+^^^^^^^^^^^^^
 
-Finding the bad row in Excel
-----------------------------
+1) Fill in ``reclass_account`` for each row (e.g., ``Expenses:Meals``).
 
-The ``staging_issues.csv`` file includes ``source_row_number``.
+2) Optionally add a short ``note`` (why you classified it that way).
 
-This value is **1-based relative to the first data row** in the source CSV
-(the header row is not counted). This lets you locate the problematic record
-quickly in Excel or Google Sheets.
-
-Exit codes
-----------
-
-``ledgerloom check`` exits with:
-
-* ``0`` when there are **no errors** (warnings may be present)
-* ``1`` when **errors** are present
-
-
-Schema of ``staging_issues.csv``
---------------------------------
-
-The exception list is designed to be filterable/sortable in a spreadsheet.
-
-Columns:
-
-``severity``
-    ``error`` or ``warning``.
-
-``code``
-    A short machine-friendly code (e.g. ``parse_date``, ``unknown_account``).
-
-``message``
-    A human-friendly description of what went wrong.
-
-``source_name`` / ``source_file``
-    Where the issue came from (source name and filename).
-
-``source_row_number``
-    1-based row number (first data row = 1).
-
-``column`` / ``raw_value``
-    When available, the problematic column name and the raw value.
-
-``account``
-    When relevant, the account code involved.
-
-
-Common issues
--------------
-
-``config_load``
-    ``ledgerloom.yaml`` could not be found or parsed. Make sure you run from the project root
-    (or pass ``--project``).
-
-``inputs_missing`` / ``no_files``
-    The inputs directory doesn't exist, or the file pattern matched nothing.
-
-``parse_date`` / ``parse_amount``
-    The raw CSV value could not be parsed using the configured format/separators.
-
-``unknown_account``
-    A staged entry references an account code that is not present in the Chart of Accounts.
-
-``unmapped_suspense``
-    No mapping rule matched the description; the row landed in the suspense account (warning).
-
-
-Suggesting mappings (copy/paste helper)
----------------------------------------
-
-Once you've run a check and produced ``unmapped.csv``, you can generate a YAML snippet that you can paste
-directly into your project's mapping rules.
-
-.. code-block:: bash
-
-   # If you used the default check output folder:
-   ledgerloom suggest-mappings --project demo_books
-
-   # Or if you ran check with a custom --outdir:
-   ledgerloom suggest-mappings --project demo_books --outdir demo_books/_out_check
-
-This prints a ``rules:`` block to stdout with deduplicated patterns and ``account: REPLACE_ME`` placeholders.
+3) Use the completed template as your checklist for creating the actual reclass entry in your system.
+   (Future LedgerLoom chapters will show how to encode and ingest these as entries.)
