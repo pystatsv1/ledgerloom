@@ -39,6 +39,7 @@ from ledgerloom.artifacts import write_csv_df, write_text
 from ledgerloom.ingest.csv_bank_feed import ingest_bank_feed_csv
 from ledgerloom.project.coa import load_chart_of_accounts
 from ledgerloom.project.config import ProjectConfig
+from ledgerloom.project.reclass import RECLASS_TEMPLATE_COLUMNS, reclass_template_from_unmapped
 
 
 Severity = Literal["error", "warning"]
@@ -553,6 +554,13 @@ def run_check(
     if unmapped_df.empty and len(unmapped_df.columns) == 0:
         unmapped_df = pd.DataFrame(columns=unmapped_cols)
     write_csv_df(outdir / "unmapped.csv", unmapped_df, columns=unmapped_cols)
+    reclass_df = reclass_template_from_unmapped(unmapped_df)
+    write_csv_df(
+        outdir / "reclass_template.csv",
+        reclass_df,
+        columns=RECLASS_TEMPLATE_COLUMNS,
+    )
+
 
 
     md = _render_checks_md(
