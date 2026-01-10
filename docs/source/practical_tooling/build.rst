@@ -1,17 +1,58 @@
 ledgerloom build
 ================
 
-``ledgerloom build`` runs the full trusted pipeline and writes an auditable run folder under
-``outputs/<run_id>/`` (inputs/config snapshots, artifacts, and a trust manifest).
+``ledgerloom build`` creates an **immutable run folder** containing:
 
-...
+- a snapshot of inputs/config
+- the check report produced during the build
+- a trust manifest
+- accounting artifacts (postings, trial balance, statements)
 
-Exception-handling artifacts
-----------------------------
+.. admonition:: Translation box
+   :class: translation-box
 
-In addition to core accounting outputs, build also includes::
+   **Accountant:** This produces the deliverables you share: postings + TB + statements.
 
-  artifacts/reclass_template.csv
+   **Developer:** This is the “build artifact” you can checksum, archive, and reproduce.
 
-This template supports the suspense/reclassification workflow and is included in the trust manifest
-so it is hashed and traceable like your other artifacts.
+   **Data pro:** This produces stable CSVs that are safe to load into notebooks/BI tools.
+
+Run it
+------
+
+.. code-block:: bash
+
+   ledgerloom build --project demo_books --run-id run-2026-01
+
+Run folder layout
+-----------------
+
+.. code-block:: text
+
+   demo_books/outputs/run-2026-01/
+     source_snapshot/
+     check/
+     trust/
+       manifest.json
+       run_meta.json
+     artifacts/
+       postings.csv
+       trial_balance.csv
+       income_statement.csv
+       balance_sheet.csv
+
+Determinism proof (manifest hash)
+---------------------------------
+
+Because the trust manifest is content-addressed, you can verify determinism by hashing it:
+
+.. code-block:: bash
+
+   ledgerloom build --project demo_books --run-id run-a
+   ledgerloom build --project demo_books --run-id run-b
+
+   sha256sum demo_books/outputs/run-a/trust/manifest.json             demo_books/outputs/run-b/trust/manifest.json
+
+If the inputs + config are unchanged, the hashes should match.
+
+See also: :doc:`check` and :doc:`overview`.

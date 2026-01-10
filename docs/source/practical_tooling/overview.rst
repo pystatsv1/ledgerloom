@@ -1,67 +1,63 @@
-Practical tool overview
-=======================
+Practical tooling overview
+==========================
 
-LedgerLoom is both:
+LedgerLoom ships a small CLI that turns *messy real-world inputs* (bank CSVs + simple mapping rules)
+into *deterministic, reviewable accounting artifacts*.
 
-* a teaching project (accounting concepts for developers), and
-* a practical workflow for turning messy inputs into trustworthy accounting outputs.
+A LedgerLoom **project** is just a folder with:
 
-The practical tool is intentionally **simple and deterministic**. The core idea is:
+- ``ledgerloom.yaml`` (project configuration)
+- ``config/chart_of_accounts.yaml`` (your chart of accounts)
+- ``config/mappings/`` (optional: mapping rules)
+- ``inputs/<period>/`` (your source CSV files)
+- ``outputs/`` (generated run folders + check reports)
 
-1. Put raw files in a period folder.
-2. Run a gatekeeper check to get a clean, actionable exception list.
-3. Build postings + reports from staged entries.
-4. Keep a complete audit trail (hashed inputs, stable outputs).
+.. admonition:: Translation box
+   :class: translation-box
 
+   **Accountant:** A repeatable workflow: import → review exceptions → produce postings + trial balance + statements.
 
-What a LedgerLoom project looks like
-------------------------------------
+   **Developer:** A deterministic build pipeline with a trust manifest you can hash, diff, and put in CI.
 
-A LedgerLoom project is just a folder:
+   **Data pro:** Clean, columnar outputs (postings + statements) that you can join, model, and visualize.
 
-.. code-block:: text
+Quick start
+-----------
 
-   my_books/
-     ledgerloom.yaml
-     config/
-       chart_of_accounts.yaml
-       mappings/            # (future) mapping packs
-     inputs/
-       2026-01/
-         chase_checking.csv
-         visa_card.csv
-     outputs/
-       check/
-         2026-01/
-           checks.md
-           staging.csv
-           staging_issues.csv
+.. code-block:: bash
 
+   # Create a new project folder
+   ledgerloom init demo_books
 
-Commands
---------
+   # Validate your inputs + mappings (no "run" folder yet)
+   ledgerloom check --project demo_books
 
-``ledgerloom check``
-    Stages + validates inputs *before* building anything. It produces a markdown report and a CSV
-    exception list (this is the main "gatekeeper" experience).
+   # Build a run folder (snapshot + check + trust + artifacts)
+   ledgerloom build --project demo_books --run-id run-2026-01
 
-``ledgerloom build`` (coming)
-    Ingests inputs, posts balanced entries, produces a trial balance and financial statements, and
-    writes trust artifacts (a run directory with stable, hashed outputs).
+Run folders (what ``build`` writes)
+-----------------------------------
 
+``ledgerloom build`` creates an *immutable* run directory:
 
-The trust goal
---------------
+- ``outputs/<run_id>/source_snapshot/`` — copy of the inputs/config used for the run
+- ``outputs/<run_id>/check/`` — the check report produced during this build
+- ``outputs/<run_id>/trust/`` — the trust manifest for the run
+- ``outputs/<run_id>/artifacts/`` — postings, trial balance, and statements
 
-LedgerLoom aims for outputs that are stable across operating systems and reruns:
+Determinism + the trust anchor
+------------------------------
 
-* deterministic file ordering
-* normalized LF newlines
-* a manifest describing inputs/configs/outputs with hashes
-* a run metadata file capturing the configuration + environment
+LedgerLoom is designed so that **the trust manifest hash is stable**:
 
-These guarantees make it easier to:
+- If you run the same project inputs/config twice, the bytes of
+  ``outputs/<run_id>/trust/manifest.json`` are the same (even with different ``run_id``),
+  so the SHA-256 is the same.
+- This lets you treat the manifest hash as a *content-addressed trust anchor*.
 
-* review changes in Git,
-* reproduce the same run later,
-* and explain "where the numbers came from".
+See also:
+
+- :doc:`init`
+- :doc:`check`
+- :doc:`build`
+- :doc:`reclass_workflow`

@@ -1,109 +1,70 @@
-Accountant quickstart (copy/paste)
-==================================
+Accountant quickstart
+=====================
 
-This page is written in an "accountant-first" voice. It's also intentionally shaped so you can
-copy/paste it into a README later.
+This is the fastest path to “use LedgerLoom for real bookkeeping work.”
 
+.. admonition:: Translation box
+   :class: translation-box
 
-What you need
--------------
+   **Accountant:** Treat this like a lightweight month-end workflow.
 
-* A LedgerLoom project folder (contains ``ledgerloom.yaml``)
-* A chart of accounts YAML (valid account codes)
-* One or more bank-feed CSV files for a period
+   **Developer:** Treat this like a reproducible pipeline with stable artifacts.
 
+   **Data pro:** Treat this like a repeatable ETL job that outputs analysis-ready tables.
 
-0) Create a project (one-time)
-------------------------------
-
-If you are starting from scratch, create a project skeleton:
+0) Create a project
+-------------------
 
 .. code-block:: bash
 
-   ledgerloom init my_books
+   ledgerloom init demo_books
 
-Then ``cd`` into the project folder:
+1) Put your CSVs in the inputs folder
+-------------------------------------
 
-.. code-block:: bash
+Copy your bank CSV files into:
 
-   cd my_books
+- ``demo_books/inputs/<period>/``
 
+The default period is set in ``demo_books/ledgerloom.yaml``.
 
-1) Put files in a period folder
+2) Set up your chart of accounts
+--------------------------------
+
+Edit:
+
+- ``demo_books/config/chart_of_accounts.yaml``
+
+Add (or rename) accounts you actually use.
+
+3) Run a check (review package)
 -------------------------------
 
-Create a folder for the period you are working on:
+.. code-block:: bash
 
-.. code-block:: text
+   ledgerloom check --project demo_books
 
-   inputs/2026-01/
+Review:
 
-Drop your CSV exports into that folder.
+- ``outputs/check/<period>/checks.md``
+- ``outputs/check/<period>/unmapped.csv``
 
+4) Encode reclasses as rules
+----------------------------
 
-2) Run the gatekeeper
----------------------
+Use the reclass workflow:
 
-From the project root (the folder that contains ``ledgerloom.yaml``):
+- :doc:`reclass_workflow`
+
+5) Build a run folder (deliverables + trust)
+--------------------------------------------
 
 .. code-block:: bash
 
-   ledgerloom check
+   ledgerloom build --project demo_books --run-id run-2026-01
 
-LedgerLoom will write a check run folder (by default):
+Deliverables are in:
 
-.. code-block:: text
+- ``demo_books/outputs/run-2026-01/artifacts/``
 
-   outputs/check/2026-01/
-
-
-3) Open the report and fix issues
----------------------------------
-
-Open:
-
-* ``outputs/check/2026-01/checks.md`` (what to fix first)
-* ``outputs/check/2026-01/staging_issues.csv`` (exception list you can filter/sort)
-
-Key column: ``source_row_number``
-   This is the **original row number in the source CSV** (1-based relative to the first data row).
-   It lets you find the problematic record quickly in Excel.
-
-
-4) Re-run until errors are gone
--------------------------------
-
-``ledgerloom check`` returns:
-
-* exit code ``0`` when there are **no errors** (warnings may be present)
-* exit code ``1`` when **errors** are present
-
-Warnings usually mean "uncategorized" rows that landed in a suspense account; you can decide
-whether to treat them as acceptable for now or tighten your mapping rules.
-
-
-Next step: build (coming)
--------------------------
-
-The next major command is ``ledgerloom build`` (planned for v0.2.0). It will:
-
-* post staged entries into a ledger (balanced double-entry)
-* generate a trial balance + statements
-* write a run directory with trust artifacts (manifest + run metadata)
-
-
-4) Create a run folder (snapshot + check)
------------------------------------------
-
-Once your check results look good, you can create a **run folder** that snapshots your inputs/configs.
-
-.. code-block:: bash
-
-   ledgerloom build --run-id demo
-
-This writes:
-
-* ``outputs/demo/source_snapshot/`` (copy of your inputs + configs)
-* ``outputs/demo/check/`` (the gatekeeper results for this run)
-
-If check finds errors, build exits non-zero but keeps the run folder so you can inspect what happened.
+Next: if your workflow includes closing entries, that comes after postings + statements.

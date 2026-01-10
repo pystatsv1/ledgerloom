@@ -1,60 +1,40 @@
-Chart of Accounts YAML
-======================
+Chart of accounts (config/chart_of_accounts.yaml)
+=================================================
 
-LedgerLoom uses a Chart of Accounts (COA) as a **schema**:
+The chart of accounts (COA) defines the set of accounts LedgerLoom is allowed to post to.
 
-* It defines which account codes are valid.
-* It records account metadata (type, rollups, contra flags).
-* It enables early validation: "this CSV row references an unknown account".
+.. admonition:: Translation box
+   :class: translation-box
 
-For the practical-tool workflow, LedgerLoom reads the COA from a versioned YAML
-file and converts it into the engine's COA model.
+   **Accountant:** This is your GL account list: codes, names, and normal classification.
 
+   **Developer:** This is a schema for validation (unknown accounts are errors).
 
-File format (v1)
-----------------
+   **Data pro:** This is the dimension table you’ll join to postings for reporting.
 
-Your COA YAML must include a schema id and a list of accounts.
+Example
+-------
 
 .. code-block:: yaml
 
    schema_id: ledgerloom.chart_of_accounts.v1
+
    accounts:
-     - code: Assets:Cash
+     - code: 1000
        name: Cash
-       account_type: ASSET
+       type: asset
+     - code: 4000
+       name: Consulting income
+       type: income
+     - code: 6500
+       name: Office supplies
+       type: expense
 
-     - code: Revenue:Sales
-       name: Sales revenue
-       account_type: REVENUE
+Field notes
+-----------
 
-     - code: Expenses:Meals
-       name: Meals & entertainment
-       account_type: EXPENSE
+- ``code`` should be unique. Keep it stable once you have historical data.
+- ``type`` is used for statement classification (e.g., income vs expense).
+- Add accounts freely as your business grows, but avoid renumbering existing codes.
 
-Optional fields
-~~~~~~~~~~~~~~~
-
-Each account may also include optional metadata:
-
-.. code-block:: yaml
-
-   - code: Assets:AccumDepr
-     name: Accumulated depreciation
-     account_type: ASSET
-     is_contra: true
-     rollup_code: Assets:FixedAssets
-     is_active: true
-     track_department: false
-     track_project: false
-     description: "Contra-asset used for depreciation."
-
-
-Validation
-----------
-
-LedgerLoom runs the engine's COA validation rules (duplicates, required fields,
-normal-side consistency) and returns a list of validation messages.
-
-The ``ledgerloom check`` command uses the COA to flag
-unknown account codes **before** posting anything to the ledger.
+See also: :doc:`project_config`.
