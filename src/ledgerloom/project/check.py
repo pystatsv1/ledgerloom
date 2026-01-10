@@ -284,6 +284,7 @@ def run_check(
         out.mkdir(parents=True, exist_ok=True)
         write_text(out / "checks.md", f"# LedgerLoom check\n\nConfig load failed: {e}\n")
         write_csv_df(out / "staging.csv", empty)
+        write_csv_df(out / "staging_postings.csv", empty)
         write_csv_df(out / "staging_issues.csv", pd.DataFrame([i.to_dict() for i in issues]))
         return CheckResult(outdir=out, staging=empty, issues=issues)
 
@@ -307,6 +308,7 @@ def run_check(
         coa_codes = set()
 
     staged_rows: list[dict[str, Any]] = []
+    staging_postings_rows: list[dict[str, Any]] = []
     unmapped_rows: list[dict[str, Any]] = []
     input_files: list[Path] = []
 
@@ -389,6 +391,26 @@ def run_check(
                         "original_description": meta.get("original_description"),
                         "original_amount": meta.get("original_amount"),
                 }
+                # Also emit posting-line staging rows (workbook-ready schema).
+                try:
+                    source_path = p.relative_to(project_root).as_posix()
+                except Exception:  # pragma: no cover
+                    source_path = p.as_posix()
+
+                for post in e.postings:
+                    staging_postings_rows.append({
+                        "source_name": meta.get("source_name"),
+                        "source_path": source_path,
+                        "source_row_number": row_number_int,
+                        "entry_id": meta.get("entry_id"),
+                        "date": e.dt.isoformat(),
+                        "narration": e.narration,
+                        "account": post.account,
+                        "debit": str(post.debit) if post.debit > 0 else "",
+                        "credit": str(post.credit) if post.credit > 0 else "",
+                        "entry_kind": "transaction",
+                    })
+
                 staged_rows.append(row_out)
 
                 # Capture suspense postings so users can author mappings.
@@ -482,6 +504,19 @@ def run_check(
             )
 
     # Write artifacts.
+    staging_postings_cols = [
+        "source_name",
+        "source_path",
+        "source_row_number",
+        "entry_id",
+        "date",
+        "narration",
+        "account",
+        "debit",
+        "credit",
+        "entry_kind",
+    ]
+
     staging_cols = [
         "entry_id",
         "date",
@@ -521,6 +556,23 @@ def run_check(
     # columns. Ensure we still write a stable CSV header for downstream tooling.
     if staging.empty and len(staging.columns) == 0:
         staging = pd.DataFrame(columns=staging_cols)
+
+    staging_postings = pd.DataFrame(staging_postings_rows)
+    if not staging_postings.empty:
+        staging_postings = staging_postings.sort_values(
+            by=["source_name", "source_path", "source_row_number", "entry_id", "account"],
+            na_position="last",
+            kind="mergesort",
+        ).reset_index(drop=True)
+
+    if staging_postings.empty and len(staging_postings.columns) == 0:
+        staging_postings = pd.DataFrame(columns=staging_postings_cols)
+
+    write_csv_df(
+        outdir / "staging_postings.csv",
+        staging_postings,
+        columns=staging_postings_cols,
+    )
 
     write_csv_df(outdir / "staging.csv", staging, columns=staging_cols)
     write_csv_df(
