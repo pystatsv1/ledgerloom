@@ -1,35 +1,17 @@
-LedgerLoom Changelog
-====================
+Changelog
+=========
+
+This page is a curated summary for readers of the documentation.
+For full detail, see ``CHANGELOG.md`` in the repository root.
+
+0.2.0 (Unreleased)
+------------------
+
+- Add a runnable real-world example project.
+- Add CI determinism smoke test (manifest hash stability).
+- Expand Practical Tool docs with audience-specific pages.
 
 0.1.5 (2026-01-05)
 ------------------
-- Engine: deterministic money conversion (explicit rounding + cents normalization)
-- Engine: add as-of filtering helper(s) for period cutoffs
-- Engine: expand invariant/contract checks (posting_id shape + root validation)
-- Tests: add engine money + contract tests
-- Docs: add Engine overview + design principles + API reference + data model reference
 
-0.1.4 (2026-01-04)
-------------------
-- Docs: transition to Engine
-
-0.1.3 (2026-01-03)
-------------------
-- Docs: scaffold chapters Ch02–Ch18 and appendices; wire into RTD navigation.
-- Docs: expand README/VISION roadmap content to match the canonical 18-chapter plan.
-
-0.1.2 (2026-01-03)
-------------------
-- Packaging: declare pandas dependency + extras; refine classifiers/keywords.
-- Docs: add changelog page to RTD; expand Vision + Chapter 01 docs pages.
-- CI: simplify workflow; add .gitattributes + .editorconfig.
-
-0.1.1 (2026-01-03)
-------------------
-- Package: expose Chapter 01 runner as ``python -m ledgerloom.chapters.ch01_journal_vs_eventlog``.
-- Docs: add Vision/Roadmap pages (README + VISION + RTD page).
-- Infrastructure: enable PyPI publish via trusted publisher.
-
-0.1.0 (2026-01-03)
-------------------
-- Initial release of LedgerLoom (MIT): tiny library + CLI + demo Chapter 01 runner.
+- Initial LedgerLoom engine MVP + Practical Tool CLI scaffolding.

@@ -1,2 +1,9 @@
-include LICENSE
 include README.md
+include LICENSE
+include CHANGELOG.md
+
+# Ship example projects used in docs/CI smoke tests.
+recursive-include examples *
+
+# Ship docs sources (useful for downstream builders).
+recursive-include docs/source *.rst *.md

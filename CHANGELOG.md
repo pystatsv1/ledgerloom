@@ -1,55 +1,22 @@
-# LedgerLoom Changelog
+# Changelog
 
+LedgerLoom follows semantic versioning.
+
+## 0.2.0 (Unreleased)
+
+### Added
+- Practical Tool example project: `examples/real_world_scenario/` (runnable COA + config + sample CSV).
+- Deterministic build smoke test for the example (manifest hash stability).
+- Audience-focused Practical Tool docs: accountant quickstart, developer view, data professional view.
+
+### Changed
+- Trust/manifest + run metadata writing centralized and made deterministic across runs.
 
 ## 0.1.5 (2026-01-05)
 
-- Engine: deterministic money conversion (explicit rounding + cents normalization)
+### Added
+- Initial engine MVP: signed-money model + debits/credits encoding, COA validation, and statement derivations.
+- CLI commands: `ledgerloom init`, `ledgerloom check`, and `ledgerloom build` (foundations for the Practical Tool).
 
-- Engine: add as-of filtering helper(s) for period cutoffs
-
-- Engine: expand invariant/contract checks (posting_id shape + root validation)
-
-- Tests: add engine money + contract tests
-
-- Docs: add Engine overview + design principles + API reference + data model reference
-
-
-
-## 0.1.4 (2026-01-04)
-
-- Docs: transition to Engine
-
-
-
-## 0.1.3 (2026-01-03)
-
-- Docs: scaffold chapters Ch02–Ch18 and appendices; wire into RTD navigation.
-
-- Docs: expand README/VISION roadmap content to match the canonical 18-chapter plan.
-
-
-
-## 0.1.2 (2026-01-03)
-
-- Packaging: declare pandas dependency + extras; refine classifiers/keywords.
-
-- Docs: add changelog page to RTD; expand Vision + Chapter 01 docs pages.
-
-- CI: simplify workflow; add .gitattributes + .editorconfig.
-
-
-
-## 0.1.1 (2026-01-03)
-
-- Package: expose Chapter 01 runner as `python -m ledgerloom.chapters.ch01\_journal\_vs\_eventlog`.
-
-- Docs: add Vision/Roadmap pages (README + VISION + RTD page).
-
-- Infrastructure: enable PyPI publish via trusted publisher.
-
-
-
-## 0.1.0 (2026-01-03)
-
-- Initial release of LedgerLoom (MIT): tiny library + CLI + demo Chapter 01 runner.
-
+### Changed
+- Documentation overhaul: clearer engine narrative and practical tooling section scaffolding.
