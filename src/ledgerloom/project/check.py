@@ -28,7 +28,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from decimal import Decimal, InvalidOperation
-from datetime import datetime
 import re
 from pathlib import Path
 from typing import Any, Literal
@@ -101,14 +100,27 @@ def _default_outdir(project_root: Path, cfg: ProjectConfig) -> Path:
     return project_root / cfg.outputs.root / "check" / cfg.project.period
 
 
+def _issue_sort_key(i: CheckIssue) -> tuple[Any, ...]:
+    """Stable ordering for issue lists and CSVs (determinism + UX)."""
+    return (
+        i.severity,
+        i.source_name or "",
+        i.source_file or "",
+        i.source_row_number or 0,
+        i.column or "",
+        i.code,
+        i.message,
+    )
+
+
 def _render_checks_md(
     *,
+    project_root: Path,
     cfg: ProjectConfig,
     inputs_dir: Path,
     input_files: list[Path],
     staging: pd.DataFrame,
     issues: list[CheckIssue],
-    generated_at: datetime,
 ) -> str:
     errors = [i for i in issues if i.severity == "error"]
     warnings = [i for i in issues if i.severity == "warning"]
@@ -118,11 +130,15 @@ def _render_checks_md(
     lines.append("")
     lines.append(f"- Project: **{cfg.project.name}**")
     lines.append(f"- Period: **{cfg.project.period}**")
-    lines.append(f"- Generated: {generated_at.isoformat(timespec='seconds')}")
     lines.append("")
     lines.append("## Inputs")
     lines.append("")
-    lines.append(f"- Inputs directory: `{inputs_dir.as_posix()}`")
+    try:
+        inputs_display = inputs_dir.relative_to(project_root).as_posix()
+    except ValueError:
+        # Avoid embedding machine-specific absolute paths in trust-affecting artifacts.
+        inputs_display = inputs_dir.name
+    lines.append(f"- Inputs directory: `{inputs_display}`")
     if input_files:
         for p in input_files:
             lines.append(f"- `{p.name}`")
@@ -481,16 +497,8 @@ def run_check(
         "original_description",
         "original_amount",
     ]
-    issues_df = pd.DataFrame([i.to_dict() for i in sorted(
-        issues,
-        key=lambda x: (
-            x.severity,
-            x.source_name or "",
-            x.source_file or "",
-            x.source_row_number or 0,
-            x.code,
-        ),
-    )])
+    issues_sorted = sorted(issues, key=_issue_sort_key)
+    issues_df = pd.DataFrame([i.to_dict() for i in issues_sorted])
 
     issues_cols = [
         "severity",
@@ -564,13 +572,13 @@ def run_check(
 
 
     md = _render_checks_md(
+        project_root=project_root,
         cfg=cfg,
         inputs_dir=inputs_dir,
         input_files=sorted(set(input_files)),
         staging=staging,
-        issues=issues,
-        generated_at=datetime.utcnow(),
+        issues=issues_sorted,
     )
     write_text(outdir / "checks.md", md)
 
-    return CheckResult(outdir=outdir, staging=staging, issues=issues)
+    return CheckResult(outdir=outdir, staging=staging, issues=issues_sorted)
