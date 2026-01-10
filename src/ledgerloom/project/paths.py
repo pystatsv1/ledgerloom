@@ -31,13 +31,27 @@ def resolve_under(project_root: Path, path: Path) -> Path:
 def resolve_config_path(project_root: Path, config_path: Path | None) -> Path:
     """Return the config file path (defaults to ``ledgerloom.yaml``)."""
 
+    def _missing_default_config_message(cfg: Path) -> str:
+        msg = (
+            "No ledgerloom.yaml found in the project root.\n\n"
+            f"Searched: {cfg}\n"
+            f"Project root: {project_root.resolve()}\n\n"
+            "Tip: ledgerloom build/check expect a project directory created by 'ledgerloom init'.\n"
+            "Example:\n"
+            "  ledgerloom init my_books\n"
+            "  ledgerloom build --project my_books --run-id run-a\n"
+        )
+        if (project_root / "pyproject.toml").exists() and (project_root / "src" / "ledgerloom").exists():
+            msg += (
+                "\nIt looks like you're running from the LedgerLoom source repository.\n"
+                "The repository root is not a LedgerLoom project directory.\n"
+            )
+        return msg
+
     if config_path is None:
         cfg = (project_root / "ledgerloom.yaml").resolve()
         if not cfg.exists():
-            raise FileNotFoundError(
-                "No ledgerloom.yaml found. Run inside a LedgerLoom project directory "
-                "or pass --project <path> (and optionally --config <path>)."
-            )
+            raise FileNotFoundError(_missing_default_config_message(cfg))
         return cfg
 
     cfg = resolve_under(project_root, Path(config_path))
@@ -46,13 +60,9 @@ def resolve_config_path(project_root: Path, config_path: Path | None) -> Path:
         # the default config name.
         default_cfg = (project_root / "ledgerloom.yaml").resolve()
         if cfg == default_cfg:
-            raise FileNotFoundError(
-                "No ledgerloom.yaml found. Run inside a LedgerLoom project directory "
-                "or pass --project <path> (and optionally --config <path>)."
-            )
+            raise FileNotFoundError(_missing_default_config_message(cfg))
         raise FileNotFoundError(f"Config file not found: {cfg}")
     return cfg
-
 
 def resolve_inputs_dir(project_root: Path, *, period: str, inputs_dir: Path | None) -> Path:
     """Return the inputs directory.
