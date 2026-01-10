@@ -1,0 +1,44 @@
+schema_id: ledgerloom.project_config.v1
+
+project:
+  name: Real World Scenario
+  period: 2026-01
+  currency: USD
+
+chart_of_accounts: config/chart_of_accounts.yaml
+
+# If true, unmapped rows (posted to suspense) are treated as errors.
+strict_unmapped: false
+
+sources:
+  - source_type: bank_feed.v1
+    name: Checking
+    # Pattern is relative to inputs/<period>/
+    file_pattern: "*.csv"
+    default_account: Assets:Cash
+    columns:
+      date: Date
+      description: Description
+      amount: Amount
+
+    # Require an explicit date format. Do not guess.
+    date_format: "%m/%d/%Y"
+    amount_thousands_sep: ","
+    amount_decimal_sep: "."
+    invert_amount_sign: false
+
+    # Where to post rows that do not match any rule.
+    suspense_account: Expenses:Uncategorized
+
+    rules:
+      - pattern: "(?i)coffee|cafe"
+        account: Expenses:Meals
+      - pattern: "(?i)supermarket|grocery"
+        account: Expenses:Groceries
+      - pattern: "(?i)office depot|staples"
+        account: Expenses:OfficeSupplies
+      - pattern: "(?i)client payment|consulting"
+        account: Income:Consulting
+
+outputs:
+  root: outputs
