@@ -200,7 +200,25 @@ def postings_fact_table(entries: list[Entry], cfg: LedgerEngineConfig) -> pd.Dat
             )
             rows.append(row)
 
-    df = pd.DataFrame(rows)
+    # If there are no entries, ``rows`` is empty and pandas would create an
+    # empty DataFrame with *no columns*. Downstream code (and determinism
+    # guarantees) expect the postings schema to exist even when empty.
+    dim_cols = [d.name for d in cfg.effective_dimensions]
+    cols = (
+        ["posting_id", "entry_id", "line_no", "date"]
+        + dim_cols
+        + [
+            "narration",
+            "account",
+            "root",
+            "debit",
+            "credit",
+            "raw_delta",
+            "signed_delta",
+        ]
+    )
+
+    df = pd.DataFrame(rows, columns=cols)
     df = df.sort_values(["date", "entry_id", "line_no"], kind="mergesort").reset_index(drop=True)
     return df
 

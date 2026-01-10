@@ -197,7 +197,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         print("Next:")
         print(f"  1) Put CSVs in inputs/{period}/")
         print("  2) Edit ledgerloom.yaml and config/chart_of_accounts.yaml")
-        print("  3) Run: ledgerloom check --project .")
+        # Print a command that works regardless of the user's current directory.
+        print(f"  3) Run: ledgerloom check --project {dest.as_posix()}")
         return 0
 
     if getattr(args, "command", None) == "build":
