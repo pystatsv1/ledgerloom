@@ -22,7 +22,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Mapping, TypeAlias
+from typing import Any, Literal, Mapping, TypeAlias
 
 import yaml
 
@@ -37,6 +37,13 @@ SCHEMA_ID_PROJECT_CONFIG_V2 = "ledgerloom.project_config.v2"
 SOURCE_TYPE_BANK_FEED_V1 = "bank_feed.v1"
 SOURCE_TYPE_JOURNAL_ENTRIES_V1 = "journal_entries.v1"
 ENTRY_KINDS = ("transaction", "adjustment", "closing", "opening")
+
+
+BuildProfile: TypeAlias = Literal["practical", "workbook"]
+
+BUILD_PROFILE_PRACTICAL: BuildProfile = "practical"
+BUILD_PROFILE_WORKBOOK: BuildProfile = "workbook"
+DEFAULT_BUILD_PROFILE: BuildProfile = BUILD_PROFILE_PRACTICAL
 
 
 def _require_str(d: Mapping[str, Any], key: str) -> str:
@@ -398,6 +405,7 @@ class ProjectConfig:
     project: ProjectInfo
     chart_of_accounts: str
     strict_unmapped: bool = False
+    build_profile: BuildProfile = DEFAULT_BUILD_PROFILE
     sources: list[SourceConfig] = field(default_factory=list)
     outputs: OutputsConfig = field(default_factory=OutputsConfig)
     schema_id: str = SCHEMA_ID_PROJECT_CONFIG_V1
@@ -422,6 +430,16 @@ class ProjectConfig:
         if not isinstance(strict_unmapped_raw, bool):
             raise ValueError("Expected boolean for 'strict_unmapped'")
         strict_unmapped = strict_unmapped_raw
+
+        build_profile_raw = d.get("build_profile", DEFAULT_BUILD_PROFILE)
+        if not isinstance(build_profile_raw, str):
+            raise ValueError("Expected string for 'build_profile'")
+        if build_profile_raw not in {BUILD_PROFILE_PRACTICAL, BUILD_PROFILE_WORKBOOK}:
+            raise ValueError(
+                "Invalid build_profile '…'".replace("…", build_profile_raw)
+                + f". Expected '{BUILD_PROFILE_PRACTICAL}' or '{BUILD_PROFILE_WORKBOOK}'."
+            )
+        build_profile: BuildProfile = build_profile_raw
 
         sources_raw = d.get("sources", [])
         if not isinstance(sources_raw, list):
@@ -450,6 +468,7 @@ class ProjectConfig:
             project=project,
             chart_of_accounts=chart_of_accounts,
             strict_unmapped=strict_unmapped,
+            build_profile=build_profile,
             sources=sources,
             outputs=outputs,
         )
@@ -466,14 +485,21 @@ class ProjectConfig:
     def to_dict(self) -> dict[str, Any]:
         """Return a normalized mapping with deterministic key ordering."""
 
-        return {
+        out: dict[str, Any] = {
             "schema_id": self.schema_id,
             "project": self.project.to_dict(),
             "chart_of_accounts": self.chart_of_accounts,
             "strict_unmapped": self.strict_unmapped,
-            "sources": [s.to_dict() for s in self.sources],
-            "outputs": self.outputs.to_dict(),
         }
+
+        # Backwards-compatible: omit when default so existing roundtrip tests and
+        # older configs stay stable.
+        if self.build_profile != DEFAULT_BUILD_PROFILE:
+            out["build_profile"] = self.build_profile
+
+        out["sources"] = [s.to_dict() for s in self.sources]
+        out["outputs"] = self.outputs.to_dict()
+        return out
 
     def dump_yaml(self, path: Path) -> None:
         """Write a normalized YAML config (LF newlines, stable key order)."""
