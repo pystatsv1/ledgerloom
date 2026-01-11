@@ -482,20 +482,28 @@ def run_check(
                             severity='error',
                             message=iss.message,
                             source_name=src.name,
-                            source_path=source_path,
+                            # Keep issue schema aligned across adapters.
+                            # Use the same field name (`source_file`) that bank_feed uses.
+                            source_file=p.name,
                             source_row_number=iss.row_number,
                             column=iss.column,
                             raw_value=iss.raw_value,
                         )
                     )
             else:
+                # Defensive: a config may contain a source_type not yet supported
+                # by this LedgerLoom version. Point the user at the config file.
+                try:
+                    cfg_rel = cfg_file.relative_to(project_root).as_posix()
+                except Exception:  # pragma: no cover
+                    cfg_rel = cfg_file.as_posix()
                 issues.append(
                     CheckIssue(
                         code='unsupported_source_type',
                         severity='error',
                         message=f'Unsupported source_type: {src.source_type}',
                         source_name=src.name,
-                        source_path=str(cfg.config_path),
+                        source_file=cfg_rel,
                     )
                 )
     staging = pd.DataFrame(staged_rows)
