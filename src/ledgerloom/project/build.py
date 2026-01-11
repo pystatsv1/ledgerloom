@@ -507,21 +507,35 @@ def run_build(
             entries = _entries_from_staging_postings(
                 staging_postings_csv=check_outdir / "staging_postings.csv",
             )
-            eng, postings = _derive_postings(entries=entries)
-            tb = bookset_v1.trial_balance(postings)
 
-            _write_postings_csv(eng=eng, postings=postings, run_root=run_root)
-            _write_trial_balance_csv(tb=tb, run_root=run_root)
-            _write_statements_csv(tb=tb, run_root=run_root)
+            if cfg.build_profile == "workbook":
+                # Workbook profile stops after emitting the canonical entries.csv
+                # artifact. Students do the remaining cycle computations in the
+                # spreadsheet; LedgerLoom verifies invariants and preserves an
+                # auditable run folder.
+                _write_entries_csv(entries=entries, run_root=run_root)
 
-            extra_artifacts = (
-                "artifacts/postings.csv",
-                "artifacts/trial_balance.csv",
-                "artifacts/income_statement.csv",
-                "artifacts/balance_sheet.csv",
-                "artifacts/unmapped.csv",
-                "artifacts/reclass_template.csv",
-            )
+                extra_artifacts = (
+                    "artifacts/entries.csv",
+                    "artifacts/unmapped.csv",
+                    "artifacts/reclass_template.csv",
+                )
+            else:
+                eng, postings = _derive_postings(entries=entries)
+                tb = bookset_v1.trial_balance(postings)
+
+                _write_postings_csv(eng=eng, postings=postings, run_root=run_root)
+                _write_trial_balance_csv(tb=tb, run_root=run_root)
+                _write_statements_csv(tb=tb, run_root=run_root)
+
+                extra_artifacts = (
+                    "artifacts/postings.csv",
+                    "artifacts/trial_balance.csv",
+                    "artifacts/income_statement.csv",
+                    "artifacts/balance_sheet.csv",
+                    "artifacts/unmapped.csv",
+                    "artifacts/reclass_template.csv",
+                )
         else:
             # Check had errors, but only unmapped_suspense warnings/errors; keep the run folder.
             extra_artifacts = (
