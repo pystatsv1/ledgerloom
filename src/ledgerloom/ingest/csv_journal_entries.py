@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import re
 from datetime import date, datetime
 from decimal import Decimal
@@ -331,3 +332,172 @@ def ingest_journal_entries_csv(
         entries.append(entry)
 
     return IngestResult(entries=entries, issues=issues)
+
+
+
+def staging_postings_from_journal_entries_csv(
+    path: Path,
+    *,
+    source_name: str,
+    source_path: str,
+    entry_kind: str = "adjustment",
+    date_format: str = "%Y-%m-%d",
+    thousands_sep: str = ",",
+    decimal_sep: str = ".",
+    entry_id_col: str = "entry_id",
+    date_col: str = "date",
+    narration_col: str = "narration",
+    account_col: str = "account",
+    debit_col: str = "debit",
+    credit_col: str = "credit",
+) -> tuple[list[dict[str, str]], list[IngestIssue]]:
+    """Parse a journal_entries.v1 CSV into staging_postings rows.
+
+    This is a lightweight helper for `ledgerloom check`: it does **not** build
+    `Entry` objects or validate that each entry balances. Instead it normalizes
+    each input posting-line into the canonical staging schema:
+
+      - one staging row per CSV row
+      - `debit` is positive
+      - `credit` is negative (to match postings/trial-balance sign conventions)
+      - `source_row_number` is 1-based over *data rows* (header excluded)
+    """
+
+    issues: list[IngestIssue] = []
+    rows: list[dict[str, str]] = []
+
+    with path.open("r", encoding="utf-8", newline="") as f:
+        reader = csv.DictReader(f)
+        fieldnames = reader.fieldnames or []
+        required_cols = {entry_id_col, date_col, account_col, debit_col, credit_col}
+        missing = sorted(c for c in required_cols if c not in fieldnames)
+        if missing:
+            issues.append(
+                IngestIssue(
+                    row_number=None,
+                    code="missing_columns",
+                    message=f"Missing required column(s): {', '.join(missing)}",
+                )
+            )
+            return rows, issues
+
+        has_narration = narration_col in fieldnames
+
+        for row_number, row in enumerate(reader, start=1):
+            # Required strings.
+            entry_id = (row.get(entry_id_col) or "").strip()
+            if not entry_id:
+                issues.append(
+                    IngestIssue(
+                        row_number=row_number,
+                        code="missing_entry_id",
+                        message="entry_id is required",
+                        column=entry_id_col,
+                        raw_value=row.get(entry_id_col),
+                    )
+                )
+                continue
+
+            raw_date = (row.get(date_col) or "").strip()
+            if not raw_date:
+                issues.append(
+                    IngestIssue(
+                        row_number=row_number,
+                        code="missing_date",
+                        message="date is required",
+                        column=date_col,
+                        raw_value=row.get(date_col),
+                    )
+                )
+                continue
+
+            account = (row.get(account_col) or "").strip()
+            if not account:
+                issues.append(
+                    IngestIssue(
+                        row_number=row_number,
+                        code="missing_account",
+                        message="account is required",
+                        column=account_col,
+                        raw_value=row.get(account_col),
+                    )
+                )
+                continue
+
+            # Normalize/validate date.
+            try:
+                dt = _parse_date(raw_date, date_format=date_format)
+            except ValueError as e:
+                issues.append(
+                    IngestIssue(
+                        row_number=row_number,
+                        code="invalid_date",
+                        message=str(e),
+                        column=date_col,
+                        raw_value=raw_date,
+                    )
+                )
+                continue
+
+            raw_debit = (row.get(debit_col) or "").strip()
+            raw_credit = (row.get(credit_col) or "").strip()
+
+            try:
+                debit_cents = _parse_amount_cents(
+                    raw_debit, thousands_sep=thousands_sep, decimal_sep=decimal_sep
+                ) if raw_debit else 0
+                credit_cents = _parse_amount_cents(
+                    raw_credit, thousands_sep=thousands_sep, decimal_sep=decimal_sep
+                ) if raw_credit else 0
+            except ValueError as e:
+                # Prefer pointing at the provided column.
+                bad_col = debit_col if raw_debit else credit_col
+                bad_val = raw_debit if raw_debit else raw_credit
+                issues.append(
+                    IngestIssue(
+                        row_number=row_number,
+                        code="invalid_amount",
+                        message=str(e),
+                        column=bad_col,
+                        raw_value=bad_val,
+                    )
+                )
+                continue
+
+            # Must provide exactly one of debit/credit (non-zero after parse).
+            if (debit_cents != 0) == (credit_cents != 0):
+                issues.append(
+                    IngestIssue(
+                        row_number=row_number,
+                        code="invalid_debit_credit",
+                        message="Exactly one of debit or credit must be provided",
+                    )
+                )
+                continue
+
+            # Staging convention: debit positive, credit negative.
+            debit_out = ""
+            credit_out = ""
+            if debit_cents != 0:
+                debit_out = cents_to_str(abs(debit_cents))
+            else:
+                credit_out = cents_to_str(-abs(credit_cents))
+
+            narration = (row.get(narration_col) or "").strip() if has_narration else ""
+
+            rows.append(
+                {
+                    "source_name": source_name,
+                    "source_path": source_path,
+                    "source_row_number": str(row_number),
+                    "entry_id": entry_id,
+                    "date": dt.isoformat(),
+                    "narration": narration,
+                    "account": account,
+                    "debit": debit_out,
+                    "credit": credit_out,
+                    "entry_kind": entry_kind,
+                }
+            )
+
+    return rows, issues
