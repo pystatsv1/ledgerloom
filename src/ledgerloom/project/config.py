@@ -35,6 +35,8 @@ SCHEMA_ID_PROJECT_CONFIG_V2 = "ledgerloom.project_config.v2"
 # Source types are part of the public UX (accountants edit these), so keep them
 # short and descriptive.
 SOURCE_TYPE_BANK_FEED_V1 = "bank_feed.v1"
+SOURCE_TYPE_JOURNAL_ENTRIES_V1 = "journal_entries.v1"
+ENTRY_KINDS = ("transaction", "adjustment", "closing", "opening")
 
 
 def _require_str(d: Mapping[str, Any], key: str) -> str:
@@ -104,6 +106,36 @@ class BankFeedColumns:
             out["type"] = self.tx_type
         return out
 
+
+@dataclass(frozen=True, slots=True)
+class JournalEntriesColumns:
+    entry_id: str
+    date: str
+    narration: str
+    account: str
+    debit: str
+    credit: str
+
+    @staticmethod
+    def from_mapping(d: Mapping[str, Any]) -> "JournalEntriesColumns":
+        return JournalEntriesColumns(
+            entry_id=_require_str(d, "entry_id"),
+            date=_require_str(d, "date"),
+            narration=_require_str(d, "narration"),
+            account=_require_str(d, "account"),
+            debit=_require_str(d, "debit"),
+            credit=_require_str(d, "credit"),
+        )
+
+    def to_dict(self) -> dict[str, str]:
+        return {
+            "entry_id": self.entry_id,
+            "date": self.date,
+            "narration": self.narration,
+            "account": self.account,
+            "debit": self.debit,
+            "credit": self.credit,
+        }
 
 @dataclass(frozen=True, slots=True)
 class BankFeedRule:
@@ -231,23 +263,113 @@ class BankFeedSource:
 
 # NOTE: This is intentionally a *TypeAlias* so future PRs can expand this union
 # without changing call sites.
-SourceConfig: TypeAlias = BankFeedSource
+@dataclass(frozen=True, slots=True)
+class JournalEntriesSource:
+    """A posting-line journal entries source.
+
+    Each CSV row is a posting line (account + debit OR credit).
+    Rows are grouped by entry_id to form balanced Entries by the adapter.
+    """
+
+    source_type: str = field(init=False, default=SOURCE_TYPE_JOURNAL_ENTRIES_V1)
+
+    # Human-friendly name for this source (used in artifacts and meta).
+    name: str = "Journal Entries"
+
+    # A glob-style pattern for input files.
+    file_pattern: str = "inputs/{period}/journal_entries.csv"
+
+    # A semantic tag used later in the accounting cycle (transactions vs adjustments vs closing).
+    entry_kind: str = "transaction"
+
+    columns: JournalEntriesColumns = field(
+        default_factory=lambda: JournalEntriesColumns(
+            entry_id="entry_id",
+            date="date",
+            narration="narration",
+            account="account",
+            debit="debit",
+            credit="credit",
+        )
+    )
+
+    # Example: "%Y-%m-%d".
+    date_format: str = "%Y-%m-%d"
+
+    # Amount parsing controls (used by the adapter).
+    amount_thousands_sep: str = ","
+    amount_decimal_sep: str = "."
+
+    @staticmethod
+    def from_mapping(d: Mapping[str, Any]) -> "JournalEntriesSource":
+        # Default source_type is journal_entries.v1; error if user set something else.
+        source_type_raw = d.get("source_type", SOURCE_TYPE_JOURNAL_ENTRIES_V1)
+        if not isinstance(source_type_raw, str) or not source_type_raw.strip():
+            raise ValueError("Expected non-empty string for 'source_type'")
+        source_type = source_type_raw.strip()
+        if source_type != SOURCE_TYPE_JOURNAL_ENTRIES_V1:
+            raise ValueError(
+                "JournalEntriesSource.source_type must be "
+                f"{SOURCE_TYPE_JOURNAL_ENTRIES_V1!r} but got {source_type!r}"
+            )
+
+        entry_kind_raw = d.get("entry_kind", "transaction")
+        if not isinstance(entry_kind_raw, str) or not entry_kind_raw.strip():
+            raise ValueError("Expected non-empty string for 'entry_kind'")
+        entry_kind = entry_kind_raw.strip()
+        if entry_kind not in ENTRY_KINDS:
+            raise ValueError(f"entry_kind must be one of {ENTRY_KINDS} but got {entry_kind!r}")
+
+        columns_raw = d.get("columns")
+        columns = (
+            JournalEntriesColumns.from_mapping(columns_raw)
+            if isinstance(columns_raw, Mapping)
+            else JournalEntriesSource().columns
+        )
+
+        return JournalEntriesSource(
+            name=_require_str(d, "name"),
+            file_pattern=_require_str(d, "file_pattern"),
+            entry_kind=entry_kind,
+            columns=columns,
+            date_format=_require_str(d, "date_format") if "date_format" in d else "%Y-%m-%d",
+            amount_thousands_sep=_require_str(d, "amount_thousands_sep") if "amount_thousands_sep" in d else ",",
+            amount_decimal_sep=_require_str(d, "amount_decimal_sep") if "amount_decimal_sep" in d else ".",
+        )
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "source_type": self.source_type,
+            "name": self.name,
+            "file_pattern": self.file_pattern,
+            "entry_kind": self.entry_kind,
+            "columns": self.columns.to_dict(),
+            "date_format": self.date_format,
+            "amount_thousands_sep": self.amount_thousands_sep,
+            "amount_decimal_sep": self.amount_decimal_sep,
+        }
+
+SourceConfig: TypeAlias = BankFeedSource | JournalEntriesSource
 
 
 def source_config_from_mapping(d: Mapping[str, Any]) -> SourceConfig:
-    """Parse a single source config mapping.
+    """Parse a source mapping into a concrete SourceConfig.
 
-    This is the multi-source "dispatch point". In v0.2.x we only support
-    ``bank_feed.v1``; later versions will add journal-based sources.
+    Supported adapters:
+      - bank_feed.v1
+      - journal_entries.v1
     """
+    source_type = _require_str(d, "source_type") if "source_type" in d else SOURCE_TYPE_BANK_FEED_V1
 
-    source_type = d.get("source_type", SOURCE_TYPE_BANK_FEED_V1)
     if source_type == SOURCE_TYPE_BANK_FEED_V1:
         return BankFeedSource.from_mapping(d)
-    raise ValueError(
-        f"Unsupported source_type '{source_type}'. Supported: '{SOURCE_TYPE_BANK_FEED_V1}'."
-    )
+    if source_type == SOURCE_TYPE_JOURNAL_ENTRIES_V1:
+        return JournalEntriesSource.from_mapping(d)
 
+    raise ValueError(
+        "Unknown source_type "
+        f"{source_type!r}. Supported: {SOURCE_TYPE_BANK_FEED_V1!r}, {SOURCE_TYPE_JOURNAL_ENTRIES_V1!r}"
+    )
 
 @dataclass(frozen=True, slots=True)
 class OutputsConfig:
@@ -308,6 +430,14 @@ class ProjectConfig:
         for i, s in enumerate(sources_raw):
             if not isinstance(s, Mapping):
                 raise ValueError(f"Expected mapping for sources[{i}]")
+            if schema_id == SCHEMA_ID_PROJECT_CONFIG_V1:
+                st = _require_str(s, "source_type") if "source_type" in s else SOURCE_TYPE_BANK_FEED_V1
+                if st != SOURCE_TYPE_BANK_FEED_V1:
+                    raise ValueError(
+                        "ledgerloom.project_config.v1 supports only bank_feed.v1 sources; "
+                        "use ledgerloom.project_config.v2 for journal_entries.v1"
+                    )
+
             sources.append(source_config_from_mapping(s))
 
         outputs_raw = d.get("outputs", {})
