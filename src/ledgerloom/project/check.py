@@ -36,8 +36,9 @@ import pandas as pd
 
 from ledgerloom.artifacts import write_csv_df, write_text
 from ledgerloom.ingest.csv_bank_feed import ingest_bank_feed_csv
+from ledgerloom.ingest.csv_journal_entries import staging_postings_from_journal_entries_csv
 from ledgerloom.project.coa import load_chart_of_accounts
-from ledgerloom.project.config import ProjectConfig
+from ledgerloom.project.config import BankFeedSource, JournalEntriesSource, ProjectConfig
 from ledgerloom.project.reclass import RECLASS_TEMPLATE_COLUMNS, reclass_template_from_unmapped
 
 
@@ -247,6 +248,22 @@ def _suggest_rule_yaml(pattern: str, account_hint: str) -> str:
 
 
 
+
+def _resolve_source_files(*, project_root: Path, inputs_dir: Path, file_pattern: str, period: str) -> list[Path]:
+    """Resolve input file globs for both v1 and v2 patterns.
+
+    v1 patterns are typically relative to inputs/<period>/ (e.g., "bank_*.csv").
+    v2 patterns often include "inputs/{period}/..." and should be resolved from project_root.
+    """
+    try:
+        pattern = (file_pattern or "").format(period=period)
+    except Exception:
+        pattern = file_pattern or ""
+
+    if ("/" in pattern) or ("\\" in pattern):
+        return sorted(project_root.glob(pattern))
+    return sorted(inputs_dir.glob(pattern))
+
 def run_check(
     *,
     project_root: Path,
@@ -324,7 +341,7 @@ def run_check(
     # Ingest per source and file.
     for src in cfg.sources:
         # Deterministic file ordering.
-        files = sorted(inputs_dir.glob(src.file_pattern)) if inputs_dir.exists() else []
+        files = _resolve_source_files(project_root=project_root, inputs_dir=inputs_dir, file_pattern=src.file_pattern, period=cfg.project.period)
         if not files:
             issues.append(
                 CheckIssue(
@@ -338,105 +355,142 @@ def run_check(
 
         for p in files:
             input_files.append(p)
-            result = ingest_bank_feed_csv(p, src, strict=False)
-
-            for iss in result.issues:
+            if isinstance(src, BankFeedSource):
+                result = ingest_bank_feed_csv(p, src, strict=False)
+    
+                for iss in result.issues:
+                    issues.append(
+                        CheckIssue(
+                            severity="error",
+                            code=iss.code,
+                            message=iss.message,
+                            source_name=src.name,
+                            source_file=p.name,
+                            source_row_number=iss.row_number,
+                            column=iss.column,
+                            raw_value=iss.raw_value,
+                        )
+                    )
+    
+                for e in result.entries:
+                    meta = e.meta or {}
+                    row_number = meta.get("row_number")
+                    try:
+                        row_number_int = int(row_number) if row_number is not None else None
+                    except Exception:
+                        row_number_int = None
+    
+                    # Bank-feed adapter produces two postings. Capture the debit/credit legs.
+                    # ``Posting.debit``/``Posting.credit`` are always Decimals; identify legs by > 0.
+                    debit_post = next((p for p in e.postings if p.debit > 0), None)
+                    credit_post = next((p for p in e.postings if p.credit > 0), None)
+    
+                    debit_account = None if debit_post is None else debit_post.account
+                    credit_account = None if credit_post is None else credit_post.account
+    
+                    amount = None
+                    if debit_post is not None:
+                        amount = debit_post.debit
+                    elif credit_post is not None:
+                        amount = credit_post.credit
+    
+                    row_out = {
+                            "entry_id": meta.get("entry_id"),
+                            "date": e.dt.isoformat(),
+                            "narration": e.narration,
+                            "amount": str(amount) if amount is not None else None,
+                            "debit_account": debit_account,
+                            "credit_account": credit_account,
+                            "source_type": meta.get("source_type"),
+                            "source_name": meta.get("source_name"),
+                            "source_file": meta.get("source_file"),
+                            "source_row_number": row_number_int,
+                            "matched_rule_pattern": meta.get("matched_rule_pattern"),
+                            "original_description": meta.get("original_description"),
+                            "original_amount": meta.get("original_amount"),
+                    }
+                    # Also emit posting-line staging rows (workbook-ready schema).
+                    try:
+                        source_path = p.relative_to(project_root).as_posix()
+                    except Exception:  # pragma: no cover
+                        source_path = p.as_posix()
+    
+                    for post in e.postings:
+                        staging_postings_rows.append({
+                            "source_name": meta.get("source_name"),
+                            "source_path": source_path,
+                            "source_row_number": row_number_int,
+                            "entry_id": meta.get("entry_id"),
+                            "date": e.dt.isoformat(),
+                            "narration": e.narration,
+                            "account": post.account,
+                            "debit": str(post.debit) if post.debit > 0 else "",
+                            "credit": str(post.credit) if post.credit > 0 else "",
+                            "entry_kind": "transaction",
+                        })
+    
+                    staged_rows.append(row_out)
+    
+                    # Capture suspense postings so users can author mappings.
+                    if row_out.get("matched_rule_pattern") in (None, "", "None") and row_out.get("original_description") is not None:
+                        desc = str(row_out.get("original_description") or "")
+                        suggested_pattern = _suggest_pattern_from_description(desc)
+                        suggested_account = _suggest_account_hint(row_out.get("original_amount"))
+                        suggested_rule_yaml = (
+                            _suggest_rule_yaml(suggested_pattern, suggested_account) if suggested_pattern else ""
+                        )
+    
+                        unmapped_rows.append({
+                            "entry_id": row_out.get("entry_id"),
+                            "date": row_out.get("date"),
+                            "source_name": row_out.get("source_name"),
+                            "source_file": row_out.get("source_file"),
+                            "source_row_number": row_out.get("source_row_number"),
+                            "original_description": row_out.get("original_description"),
+                            "original_amount": row_out.get("original_amount"),
+                            "debit_account": row_out.get("debit_account"),
+                            "credit_account": row_out.get("credit_account"),
+                            "suspense_account": src.suspense_account,
+                            "suggested_pattern": suggested_pattern,
+                            "suggested_rule_yaml": suggested_rule_yaml,
+                        })
+    
+            elif isinstance(src, JournalEntriesSource):
+                source_path = str(p.relative_to(project_root)).replace('\\', '/')
+                rows, ingest_issues = staging_postings_from_journal_entries_csv(
+                    path=p,
+                    source_name=src.name,
+                    source_path=source_path,
+                    entry_kind=src.entry_kind,
+                    columns=src.columns,
+                    date_format=src.date_format,
+                    amount_thousands_sep=src.amount_thousands_sep,
+                    amount_decimal_sep=src.amount_decimal_sep,
+                )
+                staging_postings_rows.extend(rows)
+                for iss in ingest_issues:
+                    issues.append(
+                        CheckIssue(
+                            code=iss.code,
+                            severity='error',
+                            message=iss.message,
+                            source_name=src.name,
+                            source_path=source_path,
+                            row_number=iss.row_number,
+                            column=iss.column,
+                            raw_value=iss.raw_value,
+                        )
+                    )
+            else:
                 issues.append(
                     CheckIssue(
-                        severity="error",
-                        code=iss.code,
-                        message=iss.message,
+                        code='unsupported_source_type',
+                        severity='error',
+                        message=f'Unsupported source_type: {src.source_type}',
                         source_name=src.name,
-                        source_file=p.name,
-                        source_row_number=iss.row_number,
-                        column=iss.column,
-                        raw_value=iss.raw_value,
+                        source_path=str(cfg.config_path),
                     )
                 )
-
-            for e in result.entries:
-                meta = e.meta or {}
-                row_number = meta.get("row_number")
-                try:
-                    row_number_int = int(row_number) if row_number is not None else None
-                except Exception:
-                    row_number_int = None
-
-                # Bank-feed adapter produces two postings. Capture the debit/credit legs.
-                # ``Posting.debit``/``Posting.credit`` are always Decimals; identify legs by > 0.
-                debit_post = next((p for p in e.postings if p.debit > 0), None)
-                credit_post = next((p for p in e.postings if p.credit > 0), None)
-
-                debit_account = None if debit_post is None else debit_post.account
-                credit_account = None if credit_post is None else credit_post.account
-
-                amount = None
-                if debit_post is not None:
-                    amount = debit_post.debit
-                elif credit_post is not None:
-                    amount = credit_post.credit
-
-                row_out = {
-                        "entry_id": meta.get("entry_id"),
-                        "date": e.dt.isoformat(),
-                        "narration": e.narration,
-                        "amount": str(amount) if amount is not None else None,
-                        "debit_account": debit_account,
-                        "credit_account": credit_account,
-                        "source_type": meta.get("source_type"),
-                        "source_name": meta.get("source_name"),
-                        "source_file": meta.get("source_file"),
-                        "source_row_number": row_number_int,
-                        "matched_rule_pattern": meta.get("matched_rule_pattern"),
-                        "original_description": meta.get("original_description"),
-                        "original_amount": meta.get("original_amount"),
-                }
-                # Also emit posting-line staging rows (workbook-ready schema).
-                try:
-                    source_path = p.relative_to(project_root).as_posix()
-                except Exception:  # pragma: no cover
-                    source_path = p.as_posix()
-
-                for post in e.postings:
-                    staging_postings_rows.append({
-                        "source_name": meta.get("source_name"),
-                        "source_path": source_path,
-                        "source_row_number": row_number_int,
-                        "entry_id": meta.get("entry_id"),
-                        "date": e.dt.isoformat(),
-                        "narration": e.narration,
-                        "account": post.account,
-                        "debit": str(post.debit) if post.debit > 0 else "",
-                        "credit": str(post.credit) if post.credit > 0 else "",
-                        "entry_kind": "transaction",
-                    })
-
-                staged_rows.append(row_out)
-
-                # Capture suspense postings so users can author mappings.
-                if row_out.get("matched_rule_pattern") in (None, "", "None") and row_out.get("original_description") is not None:
-                    desc = str(row_out.get("original_description") or "")
-                    suggested_pattern = _suggest_pattern_from_description(desc)
-                    suggested_account = _suggest_account_hint(row_out.get("original_amount"))
-                    suggested_rule_yaml = (
-                        _suggest_rule_yaml(suggested_pattern, suggested_account) if suggested_pattern else ""
-                    )
-
-                    unmapped_rows.append({
-                        "entry_id": row_out.get("entry_id"),
-                        "date": row_out.get("date"),
-                        "source_name": row_out.get("source_name"),
-                        "source_file": row_out.get("source_file"),
-                        "source_row_number": row_out.get("source_row_number"),
-                        "original_description": row_out.get("original_description"),
-                        "original_amount": row_out.get("original_amount"),
-                        "debit_account": row_out.get("debit_account"),
-                        "credit_account": row_out.get("credit_account"),
-                        "suspense_account": src.suspense_account,
-                        "suggested_pattern": suggested_pattern,
-                        "suggested_rule_yaml": suggested_rule_yaml,
-                    })
-
     staging = pd.DataFrame(staged_rows)
     if not staging.empty:
         staging = staging.sort_values(
