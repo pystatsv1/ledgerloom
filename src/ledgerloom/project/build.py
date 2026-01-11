@@ -21,7 +21,7 @@ from .paths import (
     resolve_config_path,
     resolve_inputs_dir,
     resolve_run_root,
-    run_layout,
+    run_layout,    resolve_source_files,
 )
 
 
@@ -168,7 +168,12 @@ def snapshot_sources(
             files.append(gitkeep)
 
         for src_cfg in cfg.sources:
-            matched = sorted(inputs_dir.glob(src_cfg.file_pattern))
+            matched = resolve_source_files(
+                project_root=project_root,
+                inputs_dir=inputs_dir,
+                file_pattern=src_cfg.file_pattern,
+                period=cfg.project.period,
+            )
             files.extend(matched)
 
     # De-dup + deterministic ordering by relative path.
