@@ -371,3 +371,64 @@ Date,Description,Amount
     issues2 = pd.read_csv(out2 / "staging_issues.csv")
     assert "unmapped_suspense" in set(issues2["code"].tolist())
     assert "error" in set(issues2.loc[issues2["code"] == "unmapped_suspense", "severity"].tolist())
+
+def test_cli_check_flags_unknown_accounts_in_journal_entries_v1(tmp_path: Path) -> None:
+    project_root = tmp_path / "project"
+    out_root = tmp_path / "out"
+
+    _write(
+        project_root / "ledgerloom.yaml",
+        """schema_id: ledgerloom.project_config.v2
+project:
+  name: Demo Books
+  period: 2026-01
+chart_of_accounts: config/chart_of_accounts.yaml
+sources:
+  - source_type: journal_entries.v1
+    name: adjustments
+    file_pattern: inputs/{period}/adjustments.csv
+    entry_kind: adjustment
+    columns:
+      entry_id: entry_id
+      date: date
+      narration: narration
+      account: account
+      debit: debit
+      credit: credit
+""",
+    )
+
+    _write(
+        project_root / "config/chart_of_accounts.yaml",
+        """schema_id: ledgerloom.chart_of_accounts.v1
+account_types:
+  Assets:
+    normal_balance: debit
+  Equity:
+    normal_balance: credit
+accounts:
+  - code: Assets:Cash
+    name: Cash
+    account_type: Assets
+  - code: Equity:OwnerCapital
+    name: Owner capital
+    account_type: Equity
+""",
+    )
+
+    _write(
+        project_root / "inputs/2026-01/adjustments.csv",
+        """entry_id,date,narration,account,debit,credit
+A1,2026-01-02,Lunch,Expenses:Meals,12.34,
+A1,2026-01-02,Lunch,Assets:Cash,,12.34
+""",
+    )
+
+    code = main(["check", "--project", str(project_root), "--outdir", str(out_root)])
+    assert code == 1
+
+    issues = pd.read_csv(out_root / "staging_issues.csv")
+    assert "unknown_account" in set(issues["code"])
+    row = issues.loc[issues["code"] == "unknown_account"].iloc[0]
+    assert row["column"] == "account"
+

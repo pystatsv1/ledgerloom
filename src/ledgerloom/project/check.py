@@ -329,6 +329,8 @@ def run_check(
     unmapped_rows: list[dict[str, Any]] = []
     input_files: list[Path] = []
 
+    journal_source_names = {s.name for s in cfg.sources if s.source_type == 'journal_entries.v1'}
+
     if not inputs_dir.exists():
         issues.append(
             CheckIssue(
@@ -462,10 +464,15 @@ def run_check(
                     source_name=src.name,
                     source_path=source_path,
                     entry_kind=src.entry_kind,
-                    columns=src.columns,
+                    entry_id_col=src.columns.entry_id,
+                    date_col=src.columns.date,
+                    narration_col=src.columns.narration,
+                    account_col=src.columns.account,
+                    debit_col=src.columns.debit,
+                    credit_col=src.columns.credit,
                     date_format=src.date_format,
-                    amount_thousands_sep=src.amount_thousands_sep,
-                    amount_decimal_sep=src.amount_decimal_sep,
+                    thousands_sep=src.amount_thousands_sep,
+                    decimal_sep=src.amount_decimal_sep,
                 )
                 staging_postings_rows.extend(rows)
                 for iss in ingest_issues:
@@ -476,7 +483,7 @@ def run_check(
                             message=iss.message,
                             source_name=src.name,
                             source_path=source_path,
-                            row_number=iss.row_number,
+                            source_row_number=iss.row_number,
                             column=iss.column,
                             raw_value=iss.raw_value,
                         )
@@ -586,6 +593,27 @@ def run_check(
         "original_description",
         "original_amount",
     ]
+    # Unknown account validation for journal staging_postings rows.
+    # (Bank feed already validates debit_account/credit_account via legacy staging.csv.)
+    if coa_codes and staging_postings_rows and journal_source_names:
+        for row in staging_postings_rows:
+            if row.get('source_name') not in journal_source_names:
+                continue
+            acct = str(row.get('account') or '').strip()
+            if acct and acct not in coa_codes:
+                issues.append(
+                    CheckIssue(
+                        code='unknown_account',
+                        severity='error',
+                        message=f"Unknown account '{acct}' (not in chart_of_accounts)",
+                        source_name=str(row.get('source_name') or ''),
+                        source_file=str(row.get('source_path') or ''),
+                        source_row_number=row.get('source_row_number') if isinstance(row.get('source_row_number'), int) else None,
+                        column='account',
+                        raw_value=acct,
+                    )
+                )
+
     issues_sorted = sorted(issues, key=_issue_sort_key)
     issues_df = pd.DataFrame([i.to_dict() for i in issues_sorted])
 
