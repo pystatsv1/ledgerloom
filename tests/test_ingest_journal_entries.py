@@ -97,7 +97,7 @@ def test_journal_entries_staging_postings(tmp_path: Path) -> None:
     )
 
     assert issues == []
-    assert [r["source_row_number"] for r in rows] == ["1", "2"]
+    assert [r["source_row_number"] for r in rows] == [1, 2]
     assert rows[0]["date"] == "2026-01-31"
     assert rows[0]["debit"] == "1234.50"
     assert rows[0]["credit"] == ""

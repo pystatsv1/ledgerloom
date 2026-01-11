@@ -350,7 +350,7 @@ def staging_postings_from_journal_entries_csv(
     account_col: str = "account",
     debit_col: str = "debit",
     credit_col: str = "credit",
-) -> tuple[list[dict[str, str]], list[IngestIssue]]:
+) -> tuple[list[dict[str, object]], list[IngestIssue]]:
     """Parse a journal_entries.v1 CSV into staging_postings rows.
 
     This is a lightweight helper for `ledgerloom check`: it does **not** build
@@ -364,7 +364,8 @@ def staging_postings_from_journal_entries_csv(
     """
 
     issues: list[IngestIssue] = []
-    rows: list[dict[str, str]] = []
+    # Values are mostly strings, but `source_row_number` is an int.
+    rows: list[dict[str, object]] = []
 
     with path.open("r", encoding="utf-8", newline="") as f:
         reader = csv.DictReader(f)
@@ -485,11 +486,13 @@ def staging_postings_from_journal_entries_csv(
 
             narration = (row.get(narration_col) or "").strip() if has_narration else ""
 
+            # Keep the staging schema consistent across adapters:
+            # `source_row_number` is an int (1-based, header excluded).
             rows.append(
                 {
                     "source_name": source_name,
                     "source_path": source_path,
-                    "source_row_number": str(row_number),
+                    "source_row_number": row_number,
                     "entry_id": entry_id,
                     "date": dt.isoformat(),
                     "narration": narration,
