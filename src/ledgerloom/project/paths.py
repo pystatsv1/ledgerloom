@@ -134,3 +134,30 @@ def iter_glob(root_dir: Path, pattern: str) -> list[Path]:
     root = Path(root_dir)
     matches: Iterable[Path] = root.glob(pattern)
     return sorted((p for p in matches if p.is_file()), key=lambda p: p.as_posix())
+
+
+def posix_relpath(project_root: Path, path: Path) -> str:
+    """Return a project-root-relative path with POSIX separators (stable across OS)."""
+
+    return path.relative_to(project_root).as_posix()
+
+
+def resolve_source_files(*, project_root: Path, inputs_dir: Path, file_pattern: str, period: str) -> list[Path]:
+    """Resolve source file globs deterministically for both v1 and v2 patterns.
+
+    Supports patterns that are:
+    - inputs-dir-relative (e.g. ``bank_*.csv``), and
+    - project-root-relative (e.g. ``inputs/{period}/bank_*.csv``).
+
+    The only supported format placeholder is ``{period}``.
+    """
+
+    try:
+        pat = file_pattern.format(period=period)
+    except Exception:
+        # Defensive: if the pattern contains unmatched braces or unknown keys,
+        # treat it as a literal glob pattern.
+        pat = file_pattern
+
+    root = project_root if ("/" in pat or "\\" in pat) else inputs_dir
+    return iter_glob(root, pat)

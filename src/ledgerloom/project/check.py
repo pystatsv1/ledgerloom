@@ -40,6 +40,7 @@ from ledgerloom.ingest.csv_journal_entries import staging_postings_from_journal_
 from ledgerloom.project.coa import load_chart_of_accounts
 from ledgerloom.project.config import BankFeedSource, JournalEntriesSource, ProjectConfig
 from ledgerloom.project.reclass import RECLASS_TEMPLATE_COLUMNS, reclass_template_from_unmapped
+from ledgerloom.project.paths import posix_relpath, resolve_source_files
 
 
 Severity = Literal["error", "warning"]
@@ -249,20 +250,7 @@ def _suggest_rule_yaml(pattern: str, account_hint: str) -> str:
 
 
 
-def _resolve_source_files(*, project_root: Path, inputs_dir: Path, file_pattern: str, period: str) -> list[Path]:
-    """Resolve input file globs for both v1 and v2 patterns.
 
-    v1 patterns are typically relative to inputs/<period>/ (e.g., "bank_*.csv").
-    v2 patterns often include "inputs/{period}/..." and should be resolved from project_root.
-    """
-    try:
-        pattern = (file_pattern or "").format(period=period)
-    except Exception:
-        pattern = file_pattern or ""
-
-    if ("/" in pattern) or ("\\" in pattern):
-        return sorted(project_root.glob(pattern))
-    return sorted(inputs_dir.glob(pattern))
 
 def run_check(
     *,
@@ -343,7 +331,7 @@ def run_check(
     # Ingest per source and file.
     for src in cfg.sources:
         # Deterministic file ordering.
-        files = _resolve_source_files(project_root=project_root, inputs_dir=inputs_dir, file_pattern=src.file_pattern, period=cfg.project.period)
+        files = resolve_source_files(project_root=project_root, inputs_dir=inputs_dir, file_pattern=src.file_pattern, period=cfg.project.period)
         if not files:
             issues.append(
                 CheckIssue(
@@ -458,7 +446,7 @@ def run_check(
                         })
     
             elif isinstance(src, JournalEntriesSource):
-                source_path = str(p.relative_to(project_root)).replace('\\', '/')
+                source_path = posix_relpath(project_root, p)
                 rows, ingest_issues = staging_postings_from_journal_entries_csv(
                     path=p,
                     source_name=src.name,
