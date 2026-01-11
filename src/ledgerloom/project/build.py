@@ -2,13 +2,15 @@ from __future__ import annotations
 
 import shutil
 from dataclasses import dataclass
+from datetime import date
+from decimal import Decimal
 from pathlib import Path
 import pandas as pd
 
 from ledgerloom import __version__ as ledgerloom_version
 from ledgerloom.artifacts import write_csv_df
+from ledgerloom.core import Entry, Posting
 from ledgerloom.engine import LedgerEngine
-from ledgerloom.ingest.csv_bank_feed import ingest_bank_feed_csv
 from ledgerloom.scenarios import bookset_v1
 from ledgerloom.trust.pipeline import emit_run_trust_artifacts
 
@@ -50,20 +52,92 @@ class BuildAbortError(RuntimeError):
         self.check_outdir = check_outdir
         self.trust_outdir: Path | None = None
 
+def _slug_source_name(name: str) -> str:
+    """Best-effort slug for stable entry_id synthesis."""
 
-def _ingest_entries(*, cfg: ProjectConfig, inputs_dir: Path) -> list:
-    """Re-ingest configured sources into Entry objects.
+    return "".join(c.lower() if c.isalnum() else "_" for c in str(name)).strip("_")
 
-    We intentionally reuse the same call signature that ``run_check`` uses:
-    ``ingest_bank_feed_csv(path, src, strict=...)``.
+
+def _parse_money(raw: str) -> Decimal:
+    s = str(raw).strip()
+    if s == "":
+        return Decimal("0")
+    return Decimal(s)
+
+
+def _entries_from_staging_postings(*, staging_postings_csv: Path) -> list[Entry]:
+    """Compile check's staging_postings.csv into Entry objects.
+
+    This is the core "compiler" move:
+
+    - `ledgerloom check` produces a canonical posting-line IR (staging_postings.csv)
+    - `ledgerloom build` compiles that IR into postings/TB/statements
+
+    This keeps build multi-source without re-parsing every input CSV twice.
     """
 
-    entries: list = []
-    for src in cfg.sources:
-        files = sorted(inputs_dir.glob(src.file_pattern)) if inputs_dir.exists() else []
-        for p in files:
-            res = ingest_bank_feed_csv(p, src, strict=False)
-            entries.extend(res.entries)
+    df = pd.read_csv(staging_postings_csv, keep_default_na=False, dtype=str)
+
+    required = [
+        "source_name",
+        "source_path",
+        "source_row_number",
+        "entry_id",
+        "date",
+        "narration",
+        "account",
+        "debit",
+        "credit",
+        "entry_kind",
+    ]
+    missing = [c for c in required if c not in df.columns]
+    if missing:
+        raise ValueError(
+            "staging_postings.csv missing required columns: " + ", ".join(missing) + f" ({staging_postings_csv})"
+        )
+
+    # Deterministic order: use the CSV row order that `check` emits.
+    group_cols = ["source_name", "source_path", "entry_id", "date", "narration", "entry_kind"]
+
+    entries: list[Entry] = []
+    for _, g in df.groupby(group_cols, sort=False):
+        source_name = g["source_name"].iloc[0]
+        source_path = g["source_path"].iloc[0]
+        raw_entry_id = g["entry_id"].iloc[0]
+        dt = date.fromisoformat(g["date"].iloc[0])
+        narration = g["narration"].iloc[0]
+        entry_kind = g["entry_kind"].iloc[0]
+
+        # Ensure entry_id is stable + globally unique for the engine.
+        entry_id = raw_entry_id
+        if ":" not in entry_id:
+            entry_id = f"journal:{_slug_source_name(source_name)}:{Path(source_path).name}:{raw_entry_id}"
+
+        # Aggregate row numbers for traceability (string join keeps it human-readable).
+        row_nos = ",".join(str(x) for x in g["source_row_number"].tolist() if str(x).strip() != "")
+
+        meta = {
+            "entry_id": entry_id,
+            "entry_kind": entry_kind,
+            "source_name": source_name,
+            "source_file": Path(source_path).name,
+            "source_path": source_path,
+            "source_row_numbers": row_nos,
+        }
+
+        postings: list[Posting] = []
+        for _, r in g.iterrows():
+            dr = abs(_parse_money(r["debit"]))
+            cr = abs(_parse_money(r["credit"]))
+            if (dr > 0) == (cr > 0):
+                raise ValueError(
+                    "staging_postings row must have exactly one of debit/credit non-zero "
+                    f"(entry_id={raw_entry_id}, account={r['account']}, debit={r['debit']!r}, credit={r['credit']!r})"
+                )
+            postings.append(Posting(account=r["account"], debit=dr, credit=cr))
+
+        entries.append(Entry(dt=dt, narration=narration, postings=postings, meta=meta))
+
     return entries
 
 
@@ -357,8 +431,10 @@ def run_build(
             )
         elif not check_result.has_errors:
             # After check passes:
-            #   ingest -> entries -> postings -> trial balance -> statements
-            entries = _ingest_entries(cfg=cfg, inputs_dir=inputs_dir)
+            #   check IR -> entries -> postings -> trial balance -> statements
+            entries = _entries_from_staging_postings(
+                staging_postings_csv=check_outdir / "staging_postings.csv",
+            )
             eng, postings = _derive_postings(entries=entries)
             tb = bookset_v1.trial_balance(postings)
 
