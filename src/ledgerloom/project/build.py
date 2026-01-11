@@ -149,6 +149,78 @@ def _derive_postings(*, entries: list) -> tuple[LedgerEngine, object]:
     return eng, postings
 
 
+
+
+def _write_entries_csv(*, entries: list[Entry], run_root: Path) -> Path:
+    """Materialize entries.csv under outputs/<run_id>/artifacts/.
+
+    This is a canonical "journal lines" artifact derived from Entry objects.
+    It is intended for workbook-style workflows where students prepare their
+    entries in a spreadsheet and LedgerLoom verifies invariants downstream.
+
+    Row contract (one row per posting line):
+
+    - entry_id: stable globally unique entry id
+    - date: ISO date (YYYY-MM-DD)
+    - narration: entry header narration
+    - entry_kind: e.g. bank_feed, journal, adjustment (from check IR)
+    - line_no: 1-based line number within the entry
+    - account: posting account
+    - debit, credit: positive numbers (exactly one non-zero)
+    - source_name/source_file/source_row_numbers: traceability (may be blank)
+    """
+
+    layout = run_layout(run_root)
+    layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
+
+    cols = [
+        "entry_id",
+        "date",
+        "narration",
+        "entry_kind",
+        "line_no",
+        "account",
+        "debit",
+        "credit",
+        "source_name",
+        "source_file",
+        "source_row_numbers",
+    ]
+
+    rows: list[dict[str, object]] = []
+    for e in entries:
+        meta = dict(getattr(e, "meta", {}) or {})
+        entry_id = str(meta.get("entry_id") or "")
+        entry_kind = str(meta.get("entry_kind") or "")
+        source_name = str(meta.get("source_name") or "")
+        source_file = str(meta.get("source_file") or "")
+        source_rows = str(meta.get("source_row_numbers") or "")
+
+        for i, p in enumerate(e.postings, start=1):
+            rows.append(
+                {
+                    "entry_id": entry_id,
+                    "date": e.dt.isoformat(),
+                    "narration": e.narration,
+                    "entry_kind": entry_kind,
+                    "line_no": i,
+                    "account": p.account,
+                    "debit": str(p.debit),
+                    "credit": str(p.credit),
+                    "source_name": source_name,
+                    "source_file": source_file,
+                    "source_row_numbers": source_rows,
+                }
+            )
+
+    df = pd.DataFrame(rows, columns=cols)
+    if df.empty:
+        df = pd.DataFrame(columns=cols)
+
+    out_path = layout.artifacts_dir / "entries.csv"
+    write_csv_df(out_path, df, columns=cols)
+    return out_path
+
 def _write_postings_csv(*, eng: LedgerEngine, postings: object, run_root: Path) -> Path:
     """Materialize postings.csv under outputs/<run_id>/artifacts/."""
 
