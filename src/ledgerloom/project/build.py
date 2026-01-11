@@ -466,6 +466,7 @@ def run_build(
             "period": cfg.project.period,
             "currency": cfg.project.currency,
             "config_schema": cfg.schema_id,
+            "build_profile": cfg.build_profile,
         },
         include_dirs=("source_snapshot", "check"),
         extra_artifacts=extra_artifacts,
