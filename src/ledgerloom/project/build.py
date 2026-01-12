@@ -267,7 +267,7 @@ def _write_postings_csv(*, eng: LedgerEngine, postings: object, run_root: Path) 
     return out_path
 
 
-def _write_trial_balance_csv(*, tb: object, run_root: Path) -> Path:
+def _write_trial_balance_csv(*, tb: object, run_root: Path, filename: str = "trial_balance.csv") -> Path:
     """Materialize trial_balance.csv under outputs/<run_id>/artifacts/.
 
     Contract:
@@ -279,7 +279,7 @@ def _write_trial_balance_csv(*, tb: object, run_root: Path) -> Path:
     layout = run_layout(run_root)
     layout.artifacts_dir.mkdir(parents=True, exist_ok=True)
 
-    out_path = layout.artifacts_dir / "trial_balance.csv"
+    out_path = layout.artifacts_dir / filename
     write_csv_df(out_path, tb, columns=["account", "root", "balance"])
     return out_path
 
@@ -546,8 +546,36 @@ def run_build(
                 # auditable run folder.
                 _write_entries_csv(entries=entries, run_root=run_root)
 
+                # Workbook profile: also emit the canonical worksheet views.
+                # Unadjusted TB = opening + transactions; Adjusted TB = opening + transactions + adjustments.
+                entries_unadjusted = _filter_entries_by_kind(
+                    entries=entries, allowed_kinds={"opening", "transaction"}
+                )
+                entries_adjusted = _filter_entries_by_kind(
+                    entries=entries, allowed_kinds={"opening", "transaction", "adjustment"}
+                )
+
+                _, postings_unadjusted = _derive_postings(entries=entries_unadjusted)
+                tb_unadjusted = bookset_v1.trial_balance(postings_unadjusted)
+                _write_trial_balance_csv(
+                    tb=tb_unadjusted,
+                    run_root=run_root,
+                    filename="trial_balance_unadjusted.csv",
+                )
+
+                _, postings_adjusted = _derive_postings(entries=entries_adjusted)
+                tb_adjusted = bookset_v1.trial_balance(postings_adjusted)
+                _write_trial_balance_csv(
+                    tb=tb_adjusted,
+                    run_root=run_root,
+                    filename="trial_balance_adjusted.csv",
+                )
+
+
                 extra_artifacts = (
                     "artifacts/entries.csv",
+                    "artifacts/trial_balance_unadjusted.csv",
+                    "artifacts/trial_balance_adjusted.csv",
                     "artifacts/unmapped.csv",
                     "artifacts/reclass_template.csv",
                 )

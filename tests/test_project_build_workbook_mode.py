@@ -39,6 +39,9 @@ def test_build_workbook_mode_emits_entries_csv_only(tmp_path: Path) -> None:
 
     assert entries_csv.exists()
     assert not (artifacts_dir / "postings.csv").exists()
+    assert (artifacts_dir / "trial_balance_unadjusted.csv").exists()
+    assert (artifacts_dir / "trial_balance_adjusted.csv").exists()
+
     assert not (artifacts_dir / "trial_balance.csv").exists()
     assert not (artifacts_dir / "income_statement.csv").exists()
     assert not (artifacts_dir / "balance_sheet.csv").exists()
@@ -49,6 +52,8 @@ def test_build_workbook_mode_emits_entries_csv_only(tmp_path: Path) -> None:
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
     artifact_paths = set(manifest.get("artifacts", {}).keys())
     assert "artifacts/entries.csv" in artifact_paths
+    assert "artifacts/trial_balance_unadjusted.csv" in artifact_paths
+    assert "artifacts/trial_balance_adjusted.csv" in artifact_paths
     assert "artifacts/postings.csv" not in artifact_paths
 
     # Headers are stable even when the file is empty.
