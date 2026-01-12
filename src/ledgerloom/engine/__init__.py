@@ -10,6 +10,7 @@ Public v0.1 API (intentionally small):
 """
 
 from .coa import Account, COASchema, SegmentValue
+from .closing_entries import closing_entries_from_adjusted_tb
 from .config import Dimension, LedgerEngineConfig
 from .ledger import LedgerEngine
 
@@ -17,6 +18,7 @@ __all__ = [
     "Account",
     "SegmentValue",
     "COASchema",
+    "closing_entries_from_adjusted_tb",
     "Dimension",
     "LedgerEngineConfig",
     "LedgerEngine",
