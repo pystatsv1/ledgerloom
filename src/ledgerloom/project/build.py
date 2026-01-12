@@ -141,6 +141,37 @@ def _entries_from_staging_postings(*, staging_postings_csv: Path) -> list[Entry]
     return entries
 
 
+def _entry_kind_of(entry: Entry) -> str:
+    """Return the normalized entry_kind for an Entry.
+
+    LedgerLoom currently stores entry_kind in ``Entry.meta['entry_kind']``.
+    Some call sites (and future refactors) may add a direct ``entry.entry_kind``
+    attribute; we support that shape too.
+    """
+
+    # Future-proof: prefer a first-class attribute if present.
+    raw = getattr(entry, "entry_kind", None)
+    if raw is None:
+        raw = (entry.meta or {}).get("entry_kind")
+
+    s = str(raw or "").strip().lower()
+    return s or "transaction"
+
+
+def _filter_entries_by_kind(*, entries: list[Entry], allowed_kinds: set[str] | None) -> list[Entry]:
+    """Filter entries by entry_kind.
+
+    - If allowed_kinds is None: no filtering.
+    - Otherwise: keep only entries whose normalized kind is in allowed_kinds.
+    """
+
+    if allowed_kinds is None:
+        return list(entries)
+
+    normalized = {str(k).strip().lower() for k in allowed_kinds}
+    return [e for e in entries if _entry_kind_of(e) in normalized]
+
+
 def _derive_postings(*, entries: list) -> tuple[LedgerEngine, object]:
     """Derive the postings fact table from entries."""
 
