@@ -38,6 +38,7 @@ class InitOptions:
     project_name: str
     period: str
     currency: str = "USD"
+    build_profile: str = "practical"
 
 
 def create_project_skeleton(dest: Path, *, opts: InitOptions) -> list[Path]:
@@ -67,11 +68,133 @@ def create_project_skeleton(dest: Path, *, opts: InitOptions) -> list[Path]:
 
     created: list[Path] = []
 
+    # Validate profile early.
+    if opts.build_profile not in {"practical", "workbook"}:
+        raise ValueError(
+            f"Unknown build_profile {opts.build_profile!r}. Expected 'practical' or 'workbook'."
+        )
+
     # Directory layout.
     (dest / "config").mkdir(parents=True, exist_ok=True)
-    (dest / "config" / "mappings").mkdir(parents=True, exist_ok=True)
     (dest / "inputs" / opts.period).mkdir(parents=True, exist_ok=True)
     (dest / "outputs").mkdir(parents=True, exist_ok=True)
+
+    if opts.build_profile == "workbook":
+        # Workbook skeleton mirrors examples/workbook/ch01_startup.
+
+        coa_text = """\
+schema_id: ledgerloom.chart_of_accounts.v1
+
+accounts:
+  - code: Assets:Cash
+    name: Cash
+    type: asset
+
+  - code: Equity:OwnerCapital
+    name: Owner Capital
+    type: equity
+
+  - code: Equity:RetainedEarnings
+    name: Retained Earnings
+    type: equity
+
+  - code: Equity:Dividends
+    name: Dividends / Draws
+    type: equity
+
+  - code: Revenue:ServiceRevenue
+    name: Service Revenue
+    type: revenue
+
+  - code: Expenses:Supplies
+    name: Supplies Expense
+    type: expense
+"""
+        _write_text_lf(dest / "config" / "chart_of_accounts.yaml", coa_text)
+        created.append(Path("config/chart_of_accounts.yaml"))
+
+        yaml_text = f"""\
+schema_id: ledgerloom.project_config.v2
+
+project:
+  name: {opts.project_name}
+  period: {opts.period}
+  currency: {opts.currency}
+
+chart_of_accounts: config/chart_of_accounts.yaml
+build_profile: workbook
+
+# Two journal sources: transactions + adjustments.
+# Each source is a posting-line journal CSV that becomes strict Entries.
+sources:
+  - source_type: journal_entries.v1
+    name: Transactions
+    file_pattern: inputs/{{period}}/transactions.csv
+    entry_kind: transaction
+
+  - source_type: journal_entries.v1
+    name: Adjustments
+    file_pattern: inputs/{{period}}/adjustments.csv
+    entry_kind: adjustment
+"""
+        _write_text_lf(dest / "ledgerloom.yaml", yaml_text)
+        created.append(Path("ledgerloom.yaml"))
+
+        ymd = opts.period
+        tx_text = f"""\
+entry_id,date,narration,account,debit,credit
+T1,{ymd}-02,Owner investment,Assets:Cash,10000.00,0.00
+T1,{ymd}-02,Owner investment,Equity:OwnerCapital,0.00,10000.00
+T2,{ymd}-05,Service revenue,Assets:Cash,500.00,0.00
+T2,{ymd}-05,Service revenue,Revenue:ServiceRevenue,0.00,500.00
+T3,{ymd}-06,Buy supplies,Expenses:Supplies,200.00,0.00
+T3,{ymd}-06,Buy supplies,Assets:Cash,0.00,200.00
+T4,{ymd}-20,Owner draw,Equity:Dividends,100.00,0.00
+T4,{ymd}-20,Owner draw,Assets:Cash,0.00,100.00
+"""
+        _write_text_lf(dest / "inputs" / opts.period / "transactions.csv", tx_text)
+        created.append(Path(f"inputs/{opts.period}/transactions.csv"))
+
+        adj_text = """\
+entry_id,date,narration,account,debit,credit
+"""
+        _write_text_lf(dest / "inputs" / opts.period / "adjustments.csv", adj_text)
+        created.append(Path(f"inputs/{opts.period}/adjustments.csv"))
+
+        readme = f"""\
+# {opts.project_name}
+
+This folder is a LedgerLoom **workbook-profile** project.
+
+It demonstrates the end-to-end workbook build artifacts:
+
+- `entries.csv`
+- `trial_balance_unadjusted.csv`
+- `trial_balance_adjusted.csv`
+- `closing_entries.csv`
+- `trial_balance_post_close.csv`
+
+## Run it
+
+From this folder:
+
+```bash
+python -m ledgerloom check --project .
+python -m ledgerloom build --project . --run-id demo
+```
+
+Outputs will be written under:
+
+- `outputs/check/{opts.period}/` (from `check`)
+- `outputs/demo/` (from `build`)
+"""
+        _write_text_lf(dest / "README.md", readme)
+        created.append(Path("README.md"))
+
+        return created
+
+    # Default (practical) skeleton.
+    (dest / "config" / "mappings").mkdir(parents=True, exist_ok=True)
 
     # Placeholder files keep empty dirs visible in Git.
     _write_text_lf(dest / "config" / "mappings" / ".gitkeep", "")

@@ -57,6 +57,19 @@ def build_parser() -> argparse.ArgumentParser:
         help="Currency code (default: USD).",
     )
 
+    # PR-F2: allow creating a workbook-profile project skeleton.
+    i.add_argument(
+        "--profile",
+        choices=["practical", "workbook"],
+        default="practical",
+        help="Project template to generate (default: practical).",
+    )
+    i.add_argument(
+        "--workbook",
+        action="store_true",
+        help="Shortcut for --profile workbook.",
+    )
+
     # PR04 implemented check; wire it into the product CLI.
     c = sub.add_parser("check", help="Stage + validate inputs (gatekeeper workflow)")
     c.add_argument(
@@ -177,11 +190,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         project_name = args.name if args.name is not None else dest.name
         period = args.period if args.period is not None else default_period_today()
         currency = args.currency
+        profile = "workbook" if getattr(args, "workbook", False) else args.profile
 
         try:
             created = create_project_skeleton(
                 dest,
-                opts=InitOptions(project_name=project_name, period=period, currency=currency),
+                opts=InitOptions(
+                    project_name=project_name,
+                    period=period,
+                    currency=currency,
+                    build_profile=profile,
+                ),
             )
         except FileNotFoundError as e:
             print(str(e), file=sys.stderr)
@@ -195,10 +214,16 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(f"  - {p.as_posix()}")
         print("")
         print("Next:")
-        print(f"  1) Put CSVs in inputs/{period}/")
-        print("  2) Edit ledgerloom.yaml and config/chart_of_accounts.yaml")
-        # Print a command that works regardless of the user's current directory.
-        print(f"  3) Run: ledgerloom check --project {dest.as_posix()}")
+        if profile == "workbook":
+            print(f"  1) Edit inputs/{period}/transactions.csv and adjustments.csv")
+            print("  2) Edit ledgerloom.yaml and config/chart_of_accounts.yaml")
+            print(f"  3) Run: ledgerloom check --project {dest.as_posix()}")
+            print(f"  4) Run: ledgerloom build --project {dest.as_posix()} --run-id demo")
+        else:
+            print(f"  1) Put CSVs in inputs/{period}/")
+            print("  2) Edit ledgerloom.yaml and config/chart_of_accounts.yaml")
+            # Print a command that works regardless of the user's current directory.
+            print(f"  3) Run: ledgerloom check --project {dest.as_posix()}")
         return 0
 
     if getattr(args, "command", None) == "build":
