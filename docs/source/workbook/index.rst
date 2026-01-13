@@ -19,6 +19,7 @@ This workbook teaches *intro* financial accounting using a simple hybrid workflo
    workbook_spreadsheet_build_ch01_ch04
    workbook_onboarding
    workbook_project_layout
+   workbook_check_your_work_pack
    student_quick_start
    intro_zero_cost_stack
    ch01_startup
