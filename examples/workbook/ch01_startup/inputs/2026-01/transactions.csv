@@ -1,0 +1,9 @@
+entry_id,date,narration,account,debit,credit
+T1,2026-01-02,Owner investment,Assets:Cash,10000.00,0.00
+T1,2026-01-02,Owner investment,Equity:OwnerCapital,0.00,10000.00
+T2,2026-01-05,Service revenue,Assets:Cash,500.00,0.00
+T2,2026-01-05,Service revenue,Revenue:ServiceRevenue,0.00,500.00
+T3,2026-01-06,Buy supplies,Expenses:Supplies,200.00,0.00
+T3,2026-01-06,Buy supplies,Assets:Cash,0.00,200.00
+T4,2026-01-20,Owner draw,Equity:Dividends,100.00,0.00
+T4,2026-01-20,Owner draw,Assets:Cash,0.00,100.00
