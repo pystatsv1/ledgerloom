@@ -1,0 +1,9 @@
+entry_id,date,narration,account,debit,credit
+A001,2026-01-31,Adjust supplies used,Expenses:Supplies,150.00,
+A001,2026-01-31,Adjust supplies used,Assets:Supplies,,150.00
+A002,2026-01-31,Record monthly depreciation,Expenses:Depreciation,50.00,
+A002,2026-01-31,Record monthly depreciation,Assets:Equipment,,50.00
+A003,2026-01-31,Accrue utilities expense,Expenses:Utilities,75.00,
+A003,2026-01-31,Accrue utilities expense,Liabilities:AccountsPayable,,75.00
+A004,2026-01-31,Accrue earned service revenue,Assets:AccountsReceivable,200.00,
+A004,2026-01-31,Accrue earned service revenue,Revenue:ServiceRevenue,,200.00

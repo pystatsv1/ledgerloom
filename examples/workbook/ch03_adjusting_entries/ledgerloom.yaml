@@ -1,0 +1,20 @@
+schema_id: ledgerloom.project_config.v2
+
+project:
+  name: Workbook Ch03 Adjusting Entries
+  period: 2026-01
+  currency: USD
+
+chart_of_accounts: config/chart_of_accounts.yaml
+build_profile: workbook
+
+sources:
+  - source_type: journal_entries.v1
+    name: Transactions
+    file_pattern: inputs/{period}/transactions.csv
+    entry_kind: transaction
+
+  - source_type: journal_entries.v1
+    name: Adjustments
+    file_pattern: inputs/{period}/adjustments.csv
+    entry_kind: adjustment
