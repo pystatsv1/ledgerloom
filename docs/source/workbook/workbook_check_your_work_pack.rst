@@ -67,6 +67,18 @@ What’s inside the ZIP:
 - ``inputs/2026-01/adjustments.csv`` (canonical adjusting entries)
 - ``outputs/r1/`` (check report + canonical artifacts + trust manifest)
 
+Ch04 — Closing and post-close
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Completed spreadsheet (XLSX): :download:`ledgerloom_workbook_completed_ch04_closing_and_post_close.xlsx <../_static/ledgerloom_workbook_completed_ch04_closing_and_post_close.xlsx>`
+- Reference outputs (ZIP): :download:`ledgerloom_workbook_reference_outputs_ch04_closing_and_post_close.zip <../_static/ledgerloom_workbook_reference_outputs_ch04_closing_and_post_close.zip>`
+
+What’s inside the ZIP:
+
+- ``inputs/2026-01/transactions.csv`` (includes dividends)
+- ``inputs/2026-01/adjustments.csv`` (canonical adjusting entries)
+- ``outputs/r1/`` (check report + canonical artifacts + trust manifest)
+
 How to use it
 -------------
 
