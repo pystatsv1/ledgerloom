@@ -10,6 +10,8 @@ The goal is to produce the same artifacts LedgerLoom will later verify:
 - Closing Entries
 - Post-close Trial Balance
 
+**Optional template (download):** :download:`LedgerLoom Workbook spreadsheet template (XLSX) <../_static/ledgerloom_workbook_template.xlsx>`
+
 Chapter 1 — Transactions (Journal)
 ----------------------------------
 
