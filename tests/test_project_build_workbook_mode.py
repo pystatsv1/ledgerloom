@@ -41,6 +41,8 @@ def test_build_workbook_mode_emits_entries_csv_only(tmp_path: Path) -> None:
     assert not (artifacts_dir / "postings.csv").exists()
     assert (artifacts_dir / "trial_balance_unadjusted.csv").exists()
     assert (artifacts_dir / "trial_balance_adjusted.csv").exists()
+    assert (artifacts_dir / "closing_entries.csv").exists()
+    assert (artifacts_dir / "trial_balance_post_close.csv").exists()
 
     assert not (artifacts_dir / "trial_balance.csv").exists()
     assert not (artifacts_dir / "income_statement.csv").exists()
@@ -54,8 +56,21 @@ def test_build_workbook_mode_emits_entries_csv_only(tmp_path: Path) -> None:
     assert "artifacts/entries.csv" in artifact_paths
     assert "artifacts/trial_balance_unadjusted.csv" in artifact_paths
     assert "artifacts/trial_balance_adjusted.csv" in artifact_paths
+    assert "artifacts/closing_entries.csv" in artifact_paths
+    assert "artifacts/trial_balance_post_close.csv" in artifact_paths
     assert "artifacts/postings.csv" not in artifact_paths
 
+
+    # Post-close TB is Balance-Sheet-only (temporary accounts removed).
+    tb_post_close = (artifacts_dir / "trial_balance_post_close.csv").read_text(encoding="utf-8").splitlines()
+    # Header + rows
+    assert tb_post_close, "trial_balance_post_close.csv should not be empty"
+    # Parse roots column (account,root,balance)
+    roots = {line.split(",")[1] for line in tb_post_close[1:] if line.strip() != ""}
+    assert roots.issubset({"Assets", "Liabilities", "Equity"})
+    # Also ensure dividends/draw accounts are not present by name.
+    accounts = {line.split(",")[0] for line in tb_post_close[1:] if line.strip() != ""}
+    assert not any(a.split(":")[-1].lower() in {"dividends", "dividend", "draw", "draws"} for a in accounts)
     # Headers are stable even when the file is empty.
     header = entries_csv.read_text(encoding="utf-8").splitlines()[0].split(",")
     assert header[:4] == ["entry_id", "date", "narration", "entry_kind"]
