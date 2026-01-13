@@ -16,3 +16,6 @@ This workbook teaches *intro* financial accounting using a simple hybrid workflo
    intro_zero_cost_stack
    ch01_startup
    ch01_equation_transaction
+   ch02_journal_to_trial_balance
+   ch03_adjusting_entries
+   ch04_closing_and_post_close
