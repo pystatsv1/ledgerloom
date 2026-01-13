@@ -13,6 +13,8 @@ This workbook teaches *intro* financial accounting using a simple hybrid workflo
 .. toctree::
    :maxdepth: 2
 
+   workbook_spreadsheet_first_overview
+   workbook_spreadsheet_first_ch01_ch04
    workbook_onboarding
    workbook_project_layout
    student_quick_start
