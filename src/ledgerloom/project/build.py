@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import calendar
 import shutil
 from dataclasses import dataclass
 from datetime import date
@@ -10,7 +11,7 @@ import pandas as pd
 from ledgerloom import __version__ as ledgerloom_version
 from ledgerloom.artifacts import write_csv_df
 from ledgerloom.core import Entry, Posting
-from ledgerloom.engine import LedgerEngine
+from ledgerloom.engine import LedgerEngine, closing_entries_from_adjusted_tb
 from ledgerloom.scenarios import bookset_v1
 from ledgerloom.trust.pipeline import emit_run_trust_artifacts
 
@@ -63,6 +64,18 @@ def _parse_money(raw: str) -> Decimal:
     if s == "":
         return Decimal("0")
     return Decimal(s)
+
+
+def _period_end_date(period: str) -> date:
+    """Return the last calendar day of a YYYY-MM period."""
+    try:
+        y_str, m_str = period.split("-", 1)
+        y = int(y_str)
+        m = int(m_str)
+    except Exception as exc:  # pragma: no cover
+        raise ValueError(f"Invalid period format (expected YYYY-MM): {period!r}") from exc
+    last = calendar.monthrange(y, m)[1]
+    return date(y, m, last)
 
 
 def _entries_from_staging_postings(*, staging_postings_csv: Path) -> list[Entry]:
@@ -182,7 +195,7 @@ def _derive_postings(*, entries: list) -> tuple[LedgerEngine, object]:
 
 
 
-def _write_entries_csv(*, entries: list[Entry], run_root: Path) -> Path:
+def _write_entries_csv(*, entries: list[Entry], run_root: Path, filename: str = "entries.csv") -> Path:
     """Materialize entries.csv under outputs/<run_id>/artifacts/.
 
     This is a canonical "journal lines" artifact derived from Entry objects.
@@ -248,7 +261,7 @@ def _write_entries_csv(*, entries: list[Entry], run_root: Path) -> Path:
     if df.empty:
         df = pd.DataFrame(columns=cols)
 
-    out_path = layout.artifacts_dir / "entries.csv"
+    out_path = layout.artifacts_dir / filename
     write_csv_df(out_path, df, columns=cols)
     return out_path
 
@@ -571,11 +584,55 @@ def run_build(
                     filename="trial_balance_adjusted.csv",
                 )
 
+                # PR-E3b/E3c: closing entries + post-close TB (workbook profile only).
+                period = cfg.project.period
+                close_date = _period_end_date(period)
+                closing_entries = closing_entries_from_adjusted_tb(
+                    tb_adjusted,
+                    period=period,
+                    close_date=close_date,
+                )
+                _write_entries_csv(
+                    entries=closing_entries,
+                    run_root=run_root,
+                    filename="closing_entries.csv",
+                )
+
+                # Compute post-close TB by applying closing entries to the adjusted entries.
+                entries_post_close = [*entries_adjusted, *closing_entries]
+                _, postings_post_close = _derive_postings(entries=entries_post_close)
+                tb_post_close_full = bookset_v1.trial_balance(postings_post_close)
+
+                def _is_dividends_account(acct: str) -> bool:
+                    leaf = str(acct).split(":")[-1].strip().lower()
+                    return "dividend" in leaf or "draw" in leaf
+
+                # Enforce the "system reset" invariant: temporary accounts must be zero.
+                tmp_ie = tb_post_close_full.loc[tb_post_close_full["root"].isin(["Revenue", "Expenses"])].copy()
+                tmp_ie = tmp_ie.loc[tmp_ie["balance"].map(bookset_v1.str_to_cents) != 0]
+                tmp_div = tb_post_close_full.loc[(tb_post_close_full["root"] == "Equity") & tb_post_close_full["account"].map(_is_dividends_account)].copy()
+                tmp_div = tmp_div.loc[tmp_div["balance"].map(bookset_v1.str_to_cents) != 0]
+                if not tmp_ie.empty or not tmp_div.empty:
+                    raise ValueError(
+                        "Post-close trial balance invariant violated: temporary accounts not fully closed "
+                        "(Revenue/Expenses/Dividends)."
+                    )
+
+                tb_post_close = tb_post_close_full.copy()
+                tb_post_close = tb_post_close.loc[tb_post_close["root"].isin(["Assets", "Liabilities", "Equity"])].copy()
+                tb_post_close = tb_post_close.loc[~((tb_post_close["root"] == "Equity") & tb_post_close["account"].map(_is_dividends_account))].reset_index(drop=True)
+                _write_trial_balance_csv(
+                    tb=tb_post_close,
+                    run_root=run_root,
+                    filename="trial_balance_post_close.csv",
+                )
 
                 extra_artifacts = (
                     "artifacts/entries.csv",
                     "artifacts/trial_balance_unadjusted.csv",
                     "artifacts/trial_balance_adjusted.csv",
+                    "artifacts/closing_entries.csv",
+                    "artifacts/trial_balance_post_close.csv",
                     "artifacts/unmapped.csv",
                     "artifacts/reclass_template.csv",
                 )
