@@ -55,6 +55,18 @@ Downloads
   * Canonical LedgerLoom artifacts under ``outputs/r1/artifacts/`` (entries + trial balances + closing + post-close TB)
   * Trust metadata under ``outputs/r1/trust/``
 
+Ch03 — Adjusting entries
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+- Completed spreadsheet (XLSX): :download:`ledgerloom_workbook_completed_ch03_adjusting_entries.xlsx <../_static/ledgerloom_workbook_completed_ch03_adjusting_entries.xlsx>`
+- Reference outputs (ZIP): :download:`ledgerloom_workbook_reference_outputs_ch03_adjusting_entries.zip <../_static/ledgerloom_workbook_reference_outputs_ch03_adjusting_entries.zip>`
+
+What’s inside the ZIP:
+
+- ``inputs/2026-01/transactions.csv`` (same base transactions as Ch02)
+- ``inputs/2026-01/adjustments.csv`` (canonical adjusting entries)
+- ``outputs/r1/`` (check report + canonical artifacts + trust manifest)
+
 How to use it
 -------------
 
