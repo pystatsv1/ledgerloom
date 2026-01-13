@@ -12,6 +12,8 @@ The goal is to produce the same artifacts LedgerLoom will later verify:
 
 **Optional template (download):** :download:`LedgerLoom Workbook spreadsheet template (XLSX) <../_static/ledgerloom_workbook_template.xlsx>`
 
+**Optional CSV-aligned template (download):** :download:`LedgerLoom Workbook CSV-aligned template (XLSX) <../_static/ledgerloom_workbook_template_csv_headers.xlsx>`
+
 Chapter 1 — Transactions (Journal)
 ----------------------------------
 
