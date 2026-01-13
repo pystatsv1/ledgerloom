@@ -1,0 +1,56 @@
+schema_id: ledgerloom.chart_of_accounts.v1
+accounts:
+  # Assets
+  - code: Assets:Cash
+    name: Cash
+    type: asset
+  - code: Assets:AccountsReceivable
+    name: Accounts Receivable
+    type: asset
+  - code: Assets:Supplies
+    name: Supplies
+    type: asset
+  - code: Assets:Equipment
+    name: Equipment
+    type: asset
+
+  # Liabilities
+  - code: Liabilities:AccountsPayable
+    name: Accounts Payable
+    type: liability
+  - code: Liabilities:NotesPayable
+    name: Notes Payable
+    type: liability
+
+  # Equity
+  - code: Equity:OwnerCapital
+    name: Owner Capital
+    type: equity
+  - code: Equity:RetainedEarnings
+    name: Retained Earnings
+    type: equity
+  - code: Equity:Dividends
+    name: Owner Draws / Dividends
+    type: equity
+
+  # Revenue
+  - code: Revenue:ServiceRevenue
+    name: Service Revenue
+    type: revenue
+
+  # Expenses
+  - code: Expenses:Rent
+    name: Rent Expense
+    type: expense
+  - code: Expenses:Wages
+    name: Wages Expense
+    type: expense
+  - code: Expenses:Supplies
+    name: Supplies Expense
+    type: expense
+  - code: Expenses:Utilities
+    name: Utilities Expense
+    type: expense
+  - code: Expenses:Depreciation
+    name: Depreciation Expense
+    type: expense

@@ -1,0 +1,19 @@
+entry_id,date,narration,account,debit,credit
+T001,2026-01-02,Owner investment,Assets:Cash,10000,
+T001,2026-01-02,Owner investment,Equity:OwnerCapital,,10000
+T002,2026-01-03,Buy supplies (cash),Assets:Supplies,800,
+T002,2026-01-03,Buy supplies (cash),Assets:Cash,,800
+T003,2026-01-05,Buy equipment on account,Assets:Equipment,5000,
+T003,2026-01-05,Buy equipment on account,Liabilities:AccountsPayable,,5000
+T004,2026-01-10,Service revenue (cash),Assets:Cash,2500,
+T004,2026-01-10,Service revenue (cash),Revenue:ServiceRevenue,,2500
+T005,2026-01-12,Service revenue (on account),Assets:AccountsReceivable,1200,
+T005,2026-01-12,Service revenue (on account),Revenue:ServiceRevenue,,1200
+T006,2026-01-15,Pay rent,Expenses:Rent,600,
+T006,2026-01-15,Pay rent,Assets:Cash,,600
+T007,2026-01-20,Pay accounts payable,Liabilities:AccountsPayable,1000,
+T007,2026-01-20,Pay accounts payable,Assets:Cash,,1000
+T008,2026-01-25,Collect accounts receivable,Assets:Cash,700,
+T008,2026-01-25,Collect accounts receivable,Assets:AccountsReceivable,,700
+T009,2026-01-28,Owner withdrawal (dividends),Equity:Dividends,300.00,
+T009,2026-01-28,Owner withdrawal (dividends),Assets:Cash,,300.00
