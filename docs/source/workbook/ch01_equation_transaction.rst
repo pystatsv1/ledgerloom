@@ -11,6 +11,15 @@ Before we touch debits/credits, we learn the law that *must* always hold:
 
 LedgerLoom exists to enforce this law.
 
+In this workbook, you will *draft* the accounting in a spreadsheet, then *verify*
+it with LedgerLoom.
+
+Why do this?
+
+* A spreadsheet is great for exploration.
+* A verifier is great for **proof**.
+* When the two agree, you know you didn’t “balance by accident.”
+
 The assignment: “Sparkle Cleaners”
 ----------------------------------
 
@@ -84,66 +93,62 @@ For this chapter, treat the supplies as an **asset**:
 Verify with LedgerLoom (v0.2.0 workflow)
 ----------------------------------------
 
-In LedgerLoom v0.2.0, we verify using the practical tool pipeline:
+In the *workbook* profile, we verify using the accounting-cycle artifacts that
+match what you do in class:
 
-**bank feed CSV → mapping rules → postings → trial balance → statements**
+**transactions.csv → (optional) adjustments.csv → entries → trial balances → closing**
 
-Step 1 — Initialize a project
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Step 1 — Initialize a workbook project
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
-   ledgerloom init sparkle_cleaners
+   ledgerloom init --profile workbook sparkle_cleaners
    cd sparkle_cleaners
 
-Step 2 — Add accounts to your chart
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+.. tip::
 
-Edit ``config/chart_of_accounts.yaml`` and add these accounts (keeping the file valid YAML):
+   If your terminal can’t find the ``ledgerloom`` command, use:
 
-.. code-block:: yaml
+   .. code-block:: bash
 
-   accounts:
-     Assets:
-       Cash:
-       Equipment:
-       Supplies:
-     Equity:
-       Capital:
-     Expenses:
-       Supplies:
+      python -m ledgerloom init --profile workbook sparkle_cleaners
 
-Step 3 — Create a tiny bank feed CSV
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Step 2 — Add the accounts you need
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Date,Description,Amount
-2026-01-01,Owner investment,10000.00
-2026-01-02,Buy equipment,-3000.00
-2026-01-03,Buy supplies,-500.00
+Open ``config/chart_of_accounts.yaml`` and make sure it contains at least:
 
-Step 4 — Add mapping rules
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+* ``Assets:Cash``
+* ``Assets:Equipment``
+* ``Assets:Supplies``
+* ``Equity:OwnerCapital``
 
-Create ``config/mappings/checking.yaml``:
+.. admonition:: Keep it simple
 
-.. code-block:: yaml
+   In Chapter 1 we *do not* record expenses yet. Supplies are an **asset** here.
+   (You’ll see supplies become an expense later, when used up.)
 
-   version: 1
-   default_account: Assets:Cash
-   rules:
-     - when:
-         description_contains: "Owner investment"
-       to_account: Equity:Capital
+Step 3 — Enter the journal lines in ``transactions.csv``
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-     - when:
-         description_contains: "equipment"
-       to_account: Assets:Equipment
+Open ``inputs/<period>/transactions.csv`` (the folder name is your period, e.g. ``2026-01``)
+and enter these lines:
 
-     - when:
-         description_contains: "supplies"
-       to_account: Assets:Supplies
+.. code-block:: text
 
-Step 5 — Run check, then build
+   entry_id,date,narration,account,debit,credit
+   T1,2026-01-01,Owner investment,Assets:Cash,10000.00,0.00
+   T1,2026-01-01,Owner investment,Equity:OwnerCapital,0.00,10000.00
+   T2,2026-01-02,Buy equipment,Assets:Equipment,3000.00,0.00
+   T2,2026-01-02,Buy equipment,Assets:Cash,0.00,3000.00
+   T3,2026-01-03,Buy supplies,Assets:Supplies,500.00,0.00
+   T3,2026-01-03,Buy supplies,Assets:Cash,0.00,500.00
+
+Each ``entry_id`` groups the lines of a single transaction. LedgerLoom enforces
+that each entry balances.
+
+Step 4 — Run check, then build
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
@@ -151,27 +156,32 @@ Step 5 — Run check, then build
    ledgerloom check --project .
    ledgerloom build --project . --run-id ch01
 
-Now open these artifacts:
+Now open these artifacts under ``outputs/ch01/artifacts/``:
 
-- ``outputs/ch01/artifacts/postings.csv``
-- ``outputs/ch01/artifacts/trial_balance.csv``
-- ``outputs/ch01/artifacts/balance_sheet.csv``
+* ``entries.csv`` (your cleaned, canonical entries)
+* ``trial_balance_unadjusted.csv``
+
+.. tip::
+
+   If you are using Excel/Sheets, you can *import* the trial balance CSV and
+   compare it directly to your spreadsheet totals.
 
 Reconciling with your Google Sheet
 ----------------------------------
 
 Your sheet and LedgerLoom should agree on the ending balances:
 
-- Cash = 6,500
-- Equipment = 3,000
-- Supplies = 500
-- Capital = 10,000
+* Cash = 6,500
+* Equipment = 3,000
+* Supplies = 500
+* OwnerCapital = 10,000
 
 If they don’t match, treat it like a programming bug:
 
-- locate the first place the two diverge,
-- inspect the mapping rule or sign,
-- fix it,
-- re-run ``ledgerloom build``.
+
+* locate the first place the two diverge,
+* inspect the transaction lines (wrong account? wrong sign? swapped debit/credit?),
+* fix the CSV,
+* re-run ``ledgerloom build``.
 
 That’s the Hybrid Method: **draft fast, verify strict, reconcile to proof**.

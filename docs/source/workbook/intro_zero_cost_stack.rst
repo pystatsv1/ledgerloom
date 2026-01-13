@@ -3,50 +3,75 @@ Introduction: The zero-cost stack
 
 If you are starting an “Intro to Financial Accounting” course, you’ve probably got:
 
-- a textbook,
-- a calculator,
-- and a spreadsheet open…
+* a textbook,
+* a calculator,
+* and a spreadsheet open…
 
 …and you’re hoping you didn’t miss a sign, a row, or a formula.
 
 This workbook introduces **The Hybrid Method**:
 
-- **Google Sheets** for drafting (visual + flexible + free)
-- **LedgerLoom** for verification (rigid + strict + free)
+* **Google Sheets or Excel** for drafting (visual, flexible, familiar)
+* **LedgerLoom** for verification (rigid, strict, deterministic)
 
-LedgerLoom is like a spell-checker for accounting.
-It stops you when your work violates the double-entry invariant, and it produces
-standard artifacts (postings, trial balance, financial statements) you can compare
-to your sheet.
+Think of LedgerLoom like a spell-checker for accounting:
+
+* It stops you when your work violates the double-entry invariant.
+* It produces standard artifacts (entries + trial balances) you can compare to your sheet.
 
 What you need
 -------------
 
-- A free Google account (Google Sheets)
-- Python 3.10+ (already required by LedgerLoom)
-- LedgerLoom v0.2.0
+You do **not** need paid software.
+
+* A spreadsheet (Google Sheets, Excel, LibreOffice)
+* Python 3.10+ (Windows/macOS/Linux)
+* LedgerLoom (installed from PyPI)
+
+.. tip:: Using Git Bash on Windows
+
+   The command examples in this workbook use a POSIX-style shell.
+   On Windows, Git Bash is a great choice (and it matches what we use in class).
 
 Install LedgerLoom
 ------------------
 
 .. code-block:: bash
 
-   pip install ledgerloom
+   python -m pip install --upgrade pip
+   python -m pip install ledgerloom
 
-Create a homework project
--------------------------
+If the ``ledgerloom`` command is not found, you can always run:
 
 .. code-block:: bash
 
-   ledgerloom init my_homework
+   python -m ledgerloom --help
+
+Create a workbook project
+-------------------------
+
+LedgerLoom uses a small project folder with a config file (``ledgerloom.yaml``) and
+CSV inputs.
+
+.. code-block:: bash
+
+   ledgerloom init --profile workbook my_homework
    cd my_homework
 
-This creates a small project folder with:
+This creates:
 
-- ``ledgerloom.yaml`` (project config)
-- ``config/chart_of_accounts.yaml`` (your chart)
-- ``config/mappings/`` (your mapping rules)
-- ``inputs/<period>/`` (bank feed CSVs go here)
-- ``outputs/<run_id>/`` (build artifacts land here)
+* ``ledgerloom.yaml`` (project config)
+* ``config/chart_of_accounts.yaml`` (your chart of accounts)
+* ``inputs/<period>/transactions.csv`` (journal lines)
+* ``inputs/<period>/adjustments.csv`` (adjusting entries)
+* ``outputs/<run_id>/`` (artifacts per run)
 
+From there, your workflow is simple:
 
+.. code-block:: bash
+
+   ledgerloom check --project .
+   ledgerloom build --project . --run-id run-01
+
+Next: go to :doc:`ch01_startup` to run a known-good example and learn what the
+output folders mean.
