@@ -45,3 +45,43 @@ def test_cli_init_refuses_non_empty_directory(tmp_path: Path) -> None:
 
     rc = main(["init", str(dest), "--period", "2026-01"])
     assert rc == 1
+
+
+def test_cli_init_workbook_profile_creates_expected_templates(tmp_path: Path) -> None:
+    dest = tmp_path / "workbook_books"
+
+    rc = main(
+        [
+            "init",
+            str(dest),
+            "--name",
+            "Workbook Demo",
+            "--period",
+            "2026-01",
+            "--currency",
+            "USD",
+            "--profile",
+            "workbook",
+        ]
+    )
+    assert rc == 0
+
+    assert (dest / "ledgerloom.yaml").exists()
+    assert (dest / "config" / "chart_of_accounts.yaml").exists()
+    assert (dest / "inputs" / "2026-01" / "transactions.csv").exists()
+    assert (dest / "inputs" / "2026-01" / "adjustments.csv").exists()
+    assert (dest / "outputs").is_dir()
+
+    # Ensure init templates are written with LF newlines (stable across OSes).
+    assert b"\r\n" not in (dest / "ledgerloom.yaml").read_bytes()
+    assert b"\r\n" not in (dest / "config" / "chart_of_accounts.yaml").read_bytes()
+    assert b"\r\n" not in (dest / "inputs" / "2026-01" / "transactions.csv").read_bytes()
+
+    text = (dest / "ledgerloom.yaml").read_text(encoding="utf-8")
+    assert "schema_id: ledgerloom.project_config.v2" in text
+    assert "build_profile: workbook" in text
+    assert "source_type: journal_entries.v1" in text
+
+    # Gatekeeper should run on a freshly-initialized workbook project.
+    rc2 = main(["check", "--project", str(dest)])
+    assert rc2 == 0
