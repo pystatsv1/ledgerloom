@@ -46,6 +46,7 @@ Your spreadsheet layout (recommended)
 
 **Optional CSV-aligned template (download):** :download:`LedgerLoom Workbook CSV-aligned template (XLSX) <../_static/ledgerloom_workbook_template_csv_headers.xlsx>`
 
+See also: :doc:`workbook_check_your_work_pack` (optional completed spreadsheet + reference outputs).
 Create a workbook with these tabs:
 
 - **COA** (Chart of Accounts)
