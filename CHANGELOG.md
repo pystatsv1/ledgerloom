@@ -2,6 +2,11 @@
 
 LedgerLoom follows semantic versioning.
 
+## 0.3.0 — 2026-01-13
+- Adds full workbook build pipeline (Ch01–Ch04).
+- Introduces canonical datasets and “check your work” solution packs.
+- Promotes LedgerLoom to Beta (usable but still evolving).
+
 ## 0.2.0 (Unreleased)
 
 ### Added
