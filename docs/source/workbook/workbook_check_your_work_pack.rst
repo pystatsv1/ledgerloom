@@ -28,6 +28,33 @@ What you get
 
    - :download:`Download: reference outputs pack (ZIP) <../_static/ledgerloom_workbook_reference_outputs_ch01_startup.zip>`
 
+Workbook Ch02 — Journal → Trial Balance (optional solution pack)
+================================================================
+
+This pack corresponds to the canonical dataset in::
+
+   examples/workbook/ch02_journal_to_trial_balance
+
+Use it if you want a reference answer key for Ch02.
+
+Downloads
+---------
+
+* :download:`Download the completed Ch02 workbook spreadsheet (XLSX)<../_static/ledgerloom_workbook_completed_ch02_journal_to_trial_balance.xlsx>`
+
+  This XLSX contains the **correct** Ch02 inputs in two tabs:
+
+  * ``transactions`` (matches ``inputs/2026-01/transactions.csv``)
+  * ``adjustments`` (matches ``inputs/2026-01/adjustments.csv``)
+
+* :download:`Download the Ch02 reference outputs (ZIP)<../_static/ledgerloom_workbook_reference_outputs_ch02_journal_to_trial_balance.zip>`
+
+  This ZIP contains:
+
+  * The canonical input CSVs under ``inputs/2026-01/``
+  * Canonical LedgerLoom artifacts under ``outputs/r1/artifacts/`` (entries + trial balances + closing + post-close TB)
+  * Trust metadata under ``outputs/r1/trust/``
+
 How to use it
 -------------
 
