@@ -1,0 +1,26 @@
+schema_id: ledgerloom.chart_of_accounts.v1
+
+accounts:
+  - code: Assets:Cash
+    name: Cash
+    type: asset
+
+  - code: Equity:OwnerCapital
+    name: Owner Capital
+    type: equity
+
+  - code: Equity:RetainedEarnings
+    name: Retained Earnings
+    type: equity
+
+  - code: Equity:Dividends
+    name: Dividends / Draws
+    type: equity
+
+  - code: Revenue:ServiceRevenue
+    name: Service Revenue
+    type: revenue
+
+  - code: Expenses:Supplies
+    name: Supplies Expense
+    type: expense
