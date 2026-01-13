@@ -14,4 +14,5 @@ This workbook teaches *intro* financial accounting using a simple hybrid workflo
    :maxdepth: 2
 
    intro_zero_cost_stack
+   ch01_startup
    ch01_equation_transaction
