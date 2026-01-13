@@ -42,6 +42,8 @@ Only balance sheet accounts remain in the post-close trial balance.
 Your spreadsheet layout (recommended)
 -------------------------------------
 
+**Optional template (download):** :download:`LedgerLoom Workbook spreadsheet template (XLSX) <../_static/ledgerloom_workbook_template.xlsx>`
+
 Create a workbook with these tabs:
 
 - **COA** (Chart of Accounts)
