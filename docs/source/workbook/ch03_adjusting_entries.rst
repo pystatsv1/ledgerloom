@@ -1,15 +1,24 @@
-Chapter 3: Adjusting entries and the adjusted trial balance
-===========================================================
-
-Most businesses do not operate on a pure “cash in / cash out” basis.
-At the end of the period, you record **adjusting entries** so your books reflect what was earned and incurred.
-
 What you'll learn
 -----------------
 - Explain why adjustments exist (accrual vs. cash)
 - Compute adjustment amounts in your spreadsheet
 - Export adjustments into ``adjustments.csv``
 - Interpret ``trial_balance_adjusted.csv``
+
+Key accounting terms
+--------------------
+- **Accrual accounting:** record revenue when earned and expenses when incurred (not when cash moves).
+- **Adjusting entry:** an end-of-period entry that updates balances to match accrual reality.
+  Adjustments often change an **asset or liability** *and* a **revenue or expense**.
+- **Accrual vs deferral:**
+
+  - **Accrued expense:** expense happened, cash/payment is later (creates a liability).
+  - **Accrued revenue:** revenue earned, cash/collection is later (creates an asset).
+  - **Prepaid expense:** cash paid first, expense recognized later (asset → expense over time).
+  - **Unearned revenue:** cash received first, revenue recognized later (liability → revenue over time).
+
+- **Depreciation:** allocating the cost of a long-lived asset over time (expense) using a **contra-asset**
+  like ``Assets:AccumulatedDepreciation``.
 
 What to do in your spreadsheet
 ------------------------------
