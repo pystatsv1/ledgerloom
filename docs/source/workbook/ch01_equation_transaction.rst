@@ -1,3 +1,6 @@
+Ch01B — Accounting equation + transactions
+============================================
+
 What you'll learn
 -----------------
 - Describe how each business event changes A / L / E

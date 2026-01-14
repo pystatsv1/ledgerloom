@@ -1,3 +1,6 @@
+Ch01A — Startup
+=================
+
 What you'll learn
 -----------------
 - Install LedgerLoom from PyPI (student workflow)
