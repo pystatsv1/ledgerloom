@@ -5,12 +5,19 @@ LedgerLoom is a small open-source project (MIT license) that teaches accounting
 *and* modern software engineering by building a deterministic, testable ledger
 pipeline.
 
-The documentation is organized into:
+If you are using LedgerLoom as a student, start with the **Workbook**.
 
-- **Start here**: what LedgerLoom is and where it is going
-- **Engine**: the reusable core that powers the chapters
-- **Chapters**: runnable scripts that generate reproducible artifacts
-- **Appendices**: reference material (data model, glossary, cookbook)
+.. toctree::
+   :maxdepth: 2
+   :caption: Workbook (Students)
+
+   workbook/index
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Practical Tooling (CLI)
+
+   practical_tooling/index
 
 .. toctree::
    :maxdepth: 1
@@ -59,13 +66,6 @@ The documentation is organized into:
    ledgerloom_ch17_statement_analysis_summary_statistics
    ledgerloom_ch18_forecasting_planning_basics
 
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Workbook (Hybrid method)
-
-   workbook/index
-
 .. toctree::
    :maxdepth: 1
    :caption: Appendices
@@ -75,4 +75,3 @@ The documentation is organized into:
    ledgerloom_appendix_cookbook
    ledgerloom_appendix_implementation_notes
    ledgerloom_appendix_data_model_reference
-   practical_tooling/index

@@ -26,6 +26,11 @@ These files appear under:
 - ``outputs/<run_id>/artifacts/``
 
 .. note::
+   ``ledgerloom check`` writes a standalone report folder to ``outputs/check/<period>/`` (fast feedback).
+   ``ledgerloom build --run-id run1`` writes a complete run folder to ``outputs/run1/`` and repeats the
+   checks inside ``outputs/run1/check/`` for provenance.
+
+.. note::
    LedgerLoom runs best inside a **virtual environment** (venv). This keeps your class setup clean and repeatable.
 
 Linux (Ubuntu/Debian)
@@ -72,7 +77,7 @@ Linux (Ubuntu/Debian)
 
 .. code-block:: bash
 
-   ledgerloom check --project . --run-id run1
+   ledgerloom check --project .
    ledgerloom build --project . --run-id run1
 
 6) View your outputs
@@ -80,6 +85,10 @@ Linux (Ubuntu/Debian)
 
 .. code-block:: bash
 
+   # Standalone check output (fast feedback)
+   ls -1 outputs/check
+
+   # Build output (a named run folder)
    ls -1 outputs/run1/artifacts
 
 Common gotchas (Linux)
@@ -150,7 +159,7 @@ Then activate again:
 
 .. code-block:: powershell
 
-   ledgerloom check --project . --run-id run1
+   ledgerloom check --project .
    ledgerloom build --project . --run-id run1
 
 6) View your outputs
@@ -158,6 +167,10 @@ Then activate again:
 
 .. code-block:: powershell
 
+   # Standalone check output (fast feedback)
+   dir outputs\check
+
+   # Build output (a named run folder)
    dir outputs\run1\artifacts
 
 Common gotchas (Windows)
@@ -216,7 +229,7 @@ Then:
 
 .. code-block:: bash
 
-   ledgerloom check --project . --run-id run1
+   ledgerloom check --project .
    ledgerloom build --project . --run-id run1
 
 6) View your outputs
@@ -224,6 +237,10 @@ Then:
 
 .. code-block:: bash
 
+   # Standalone check output (fast feedback)
+   ls -1 outputs/check
+
+   # Build output (a named run folder)
    ls -1 outputs/run1/artifacts
 
 Common gotchas (macOS)

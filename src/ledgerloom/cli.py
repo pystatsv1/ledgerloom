@@ -94,7 +94,7 @@ def build_parser() -> argparse.ArgumentParser:
     )
     b = sub.add_parser(
         "build",
-        help="Create a run folder (snapshot + check + trust + postings + trial_balance + statements)",
+        help="Create a run folder (snapshot + check + trust + artifacts)",
     )
     b.add_argument(
         "--project",
@@ -280,7 +280,7 @@ def main(argv: Sequence[str] | None = None) -> int:
             parts.append("trial_balance")
         if inc.exists() and bs.exists():
             parts.append("statements")
-        print(f"Build OK ({' + '.join(parts)}). Next: closing entries.")
+        print(f"Build OK ({' + '.join(parts)}). See artifacts/ for generated CSVs.")
         return 0
 
 
