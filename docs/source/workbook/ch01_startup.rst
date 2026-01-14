@@ -1,6 +1,25 @@
 Ch01A — Startup
 =================
 
+.. admonition:: Running case (Jan 2026): Harborview Bike Repair
+
+   You’re the bookkeeper for a tiny one-person service business that’s just opened its doors.
+   The goal of Ch01–Ch04 is to walk the business through a complete accounting cycle for its
+   first month.
+
+   In this chapter we start with a **micro-dataset** (only four transactions) so you can
+   learn the LedgerLoom workflow without juggling a big chart of accounts.
+
+   The four Ch01 transactions are:
+
+   - **T1 (Jan 2):** Owner invests **$10,000** cash to start the business.
+   - **T2 (Jan 5):** First cash customer pays **$500** for service.
+   - **T3 (Jan 6):** Buy **$200** of consumable supplies (expensed immediately in Ch01).
+   - **T4 (Jan 20):** Owner draw of **$100** for personal use.
+
+   In Chapter 2 we expand the same business into a fuller month (supplies as an asset,
+   equipment, A/R, A/P, rent) so the trial balance becomes “real.”
+
 What you'll learn
 -----------------
 - Install LedgerLoom from PyPI (student workflow)

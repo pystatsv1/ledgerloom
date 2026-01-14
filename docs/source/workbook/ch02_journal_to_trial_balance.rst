@@ -1,6 +1,28 @@
 Ch02 — Journal to trial balance
 =================================
 
+.. admonition:: Running case (Jan 2026): a “real” first month
+
+   **Harborview Bike Repair** has moved past the first-day setup.
+   In this chapter you record a fuller set of January transactions that make a trial balance
+   feel like something you’d see in an actual small business:
+
+   - cash + invoice (A/R) revenue
+   - supplies kept on hand (an asset, later expensed)
+   - equipment purchased on account (A/P)
+   - routine operating costs (rent)
+
+   If you ever feel lost, read each ``entry_id`` as a short business sentence:
+
+   - **T001:** owner funds the business with cash
+   - **T002:** buy supplies with cash
+   - **T003:** buy equipment on account (creates Accounts Payable)
+   - **T004:** cash service revenue
+   - **T005:** service revenue on account (creates Accounts Receivable)
+   - **T006:** pay rent
+   - **T007:** pay down Accounts Payable
+   - **T008:** collect part of Accounts Receivable
+
 What you'll learn
 -----------------
 - Write balanced journal entries in ``transactions.csv``

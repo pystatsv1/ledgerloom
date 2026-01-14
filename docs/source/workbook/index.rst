@@ -10,6 +10,21 @@ This workbook teaches *intro* financial accounting using a simple hybrid workflo
 2. Verify your work with LedgerLoom (strict, deterministic).
 3. Reconcile any differences until they match (proof, not vibes).
 
+Our running case (the “business behind the numbers”)
+----------------------------------------------------
+
+Ch01–Ch04 follow a tiny service business — **Harborview Bike Repair** — through its first month
+of operations (**January 2026**).
+
+You’ll see a realistic mix of events: owner funding, supplies and equipment purchases,
+cash + invoice revenue (A/R), payables (A/P), month-end adjustments, and finally closing the
+books into ``Equity:RetainedEarnings``.
+
+The numbers are intentionally small and clean so you can focus on *reasoning*:
+
+- No sales tax/VAT/GST, no payroll, no bank fees.
+- A minimal chart of accounts (we add complexity only when the chapter needs it).
+
 Start here
 ----------
 
