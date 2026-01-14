@@ -1,3 +1,6 @@
+Ch03 — Adjusting entries
+==========================
+
 What you'll learn
 -----------------
 - Explain why adjustments exist (accrual vs. cash)

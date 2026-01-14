@@ -1,3 +1,6 @@
+Ch04 — Closing + post-close trial balance
+===========================================
+
 What you'll learn
 -----------------
 - Explain what “closing” means and why we do it

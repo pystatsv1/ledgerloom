@@ -1,3 +1,6 @@
+Ch02 — Journal to trial balance
+=================================
+
 What you'll learn
 -----------------
 - Write balanced journal entries in ``transactions.csv``
