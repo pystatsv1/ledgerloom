@@ -33,6 +33,13 @@ These files appear under:
 .. note::
    LedgerLoom runs best inside a **virtual environment** (venv). This keeps your class setup clean and repeatable.
 
+Where to go next
+----------------
+
+- :doc:`workbook_learning_path` — the “golden path” for this course
+- :doc:`workbook_artifacts_reference` — what each output CSV means
+- :doc:`workbook_troubleshooting` — common errors and quick fixes
+
 Linux (Ubuntu/Debian)
 ---------------------
 

@@ -12,18 +12,32 @@ This workbook teaches *intro* financial accounting using a simple hybrid workflo
 
 .. toctree::
    :maxdepth: 2
+   :caption: Start here
 
    student_quick_start
-   workbook_spreadsheet_first_overview
+   workbook_learning_path
    workbook_onboarding
    workbook_project_layout
-   workbook_spreadsheet_first_ch01_ch04
-   workbook_spreadsheet_build_ch01_ch04
-   workbook_data_pack_ch01_startup
-   workbook_check_your_work_pack
-   intro_zero_cost_stack
+   workbook_artifacts_reference
+   workbook_troubleshooting
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Workbook chapters (hybrid method)
+
    ch01_startup
    ch01_equation_transaction
    ch02_journal_to_trial_balance
    ch03_adjusting_entries
    ch04_closing_and_post_close
+
+.. toctree::
+   :maxdepth: 2
+   :caption: Optional tracks and packs
+
+   workbook_spreadsheet_first_overview
+   workbook_spreadsheet_first_ch01_ch04
+   workbook_spreadsheet_build_ch01_ch04
+   workbook_data_pack_ch01_startup
+   workbook_check_your_work_pack
+   intro_zero_cost_stack

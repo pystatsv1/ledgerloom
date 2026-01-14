@@ -1,9 +1,11 @@
-Optional: Check Your Work Pack (Ch01 Startup)
-=============================================
+Optional: Check Your Work Packs (Ch01–Ch04)
+===========================================
 
 This workbook is meant to be a *learning* experience, not a “gotcha” test.
 If you have a low tolerance for frustration (or you just want to confirm you’re on the right track),
 use the downloads below to compare your work against a known-good reference.
+
+These packs are available for **Ch01–Ch04** and include a completed spreadsheet plus reference outputs.
 
 **Canonical dataset contract:** each Workbook chapter has a *canonical dataset* under
 ``examples/workbook/<chapter_slug>/`` — treat this as the answer key. The accompanying
