@@ -24,7 +24,17 @@ A typical workbook project looks like this:
          transactions.csv
          adjustments.csv
      outputs/
+       check/
+         2026-01/
+           checks.md
+           staging.csv
+           staging_issues.csv
+           unmapped.csv
+           reclass_template.csv
        run1/
+         source_snapshot/
+         check/
+         trust/
          artifacts/
            entries.csv
            trial_balance_unadjusted.csv
@@ -51,9 +61,18 @@ What each part means
 ``inputs/<period>/adjustments.csv``
   Your adjusting entries table (often empty at the start of Chapter 1).
 
+``outputs/check/<period>/``
+  The report folder produced by ``ledgerloom check`` when run by itself.
+
+``outputs/<run_id>/``
+  The folder produced by ``ledgerloom build --run-id <run_id>``.
+
 ``outputs/<run_id>/artifacts/``
   The CSV results LedgerLoom generates. These are meant to be opened in Excel/Sheets
   and compared to your workbook.
+
+``outputs/<run_id>/check/``
+  The same check output, captured inside a build run for provenance.
 
 What is a run_id?
 -----------------
@@ -99,13 +118,19 @@ Common workflow (what you actually do)
 
 .. code-block:: bash
 
-   ledgerloom check --project my_books --run-id run1
+   ledgerloom check --project my_books
+
+   # Standalone check output is written to:
+   #   my_books/outputs/check/<period>/
 
 3) Build artifacts:
 
 .. code-block:: bash
 
    ledgerloom build --project my_books --run-id run1
+
+   # Build output is written to:
+   #   my_books/outputs/run1/
 
 4) Open artifacts in Excel/Sheets and compare.
 
@@ -129,4 +154,3 @@ Next: Student Quick Start
 Go to:
 
 :doc:`student_quick_start`
-

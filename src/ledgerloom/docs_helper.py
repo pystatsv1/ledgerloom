@@ -46,4 +46,4 @@ def open_local_docs() -> None:
 
 def open_online_docs() -> None:
     """Open the Read the Docs site for LedgerLoom."""
-    webbrowser.open_new("https://ledgerloom.readthedocs.io/en/latest/")
+    webbrowser.open_new("https://ledgerloom.readthedocs.io/en/latest/workbook/student_quick_start.html")

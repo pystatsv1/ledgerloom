@@ -2,7 +2,7 @@ Financial Accounting — The Hybrid Method with LedgerLoom
 ========================================================
 
 **Subtitle:** Stop Guessing. Start Reconciling.  
-**Version:** 1.0 (compatible with LedgerLoom v0.2.0)
+**Version:** 1.0 (compatible with LedgerLoom v0.3.0)
 
 This workbook teaches *intro* financial accounting using a simple hybrid workflow:
 
@@ -13,14 +13,14 @@ This workbook teaches *intro* financial accounting using a simple hybrid workflo
 .. toctree::
    :maxdepth: 2
 
+   student_quick_start
    workbook_spreadsheet_first_overview
-   workbook_spreadsheet_first_ch01_ch04
-   workbook_data_pack_ch01_startup
-   workbook_spreadsheet_build_ch01_ch04
    workbook_onboarding
    workbook_project_layout
+   workbook_spreadsheet_first_ch01_ch04
+   workbook_spreadsheet_build_ch01_ch04
+   workbook_data_pack_ch01_startup
    workbook_check_your_work_pack
-   student_quick_start
    intro_zero_cost_stack
    ch01_startup
    ch01_equation_transaction
