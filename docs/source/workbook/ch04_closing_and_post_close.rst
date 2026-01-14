@@ -1,15 +1,18 @@
-Chapter 4: Closing entries and the post-close trial balance
-===========================================================
-
-Closing is how we reset the income statement accounts (Revenue and Expenses) to zero
-so the next period starts clean, while moving net income into equity.
-
 What you'll learn
 -----------------
 - Explain what “closing” means and why we do it
 - Read ``closing_entries.csv``
 - Read ``trial_balance_post_close.csv``
 - Understand the Balance-Sheet-only invariant
+
+Key accounting terms
+--------------------
+- **Temporary accounts:** Revenue, Expenses (and often Dividends/Draws) — they reset each period.
+- **Permanent accounts:** Assets, Liabilities, Equity — they carry forward to the next period.
+- **Closing entries:** entries that move the period’s net income into equity and bring temporary accounts to zero.
+- **Post-close trial balance:** the trial balance **after** closing; it should include *only* permanent accounts.
+- **Income summary:** some courses use an intermediate “Income Summary” account. LedgerLoom can generate closing
+  lines directly from the adjusted trial balance; the destination equity account is course-dependent.
 
 What to do in your spreadsheet
 ------------------------------

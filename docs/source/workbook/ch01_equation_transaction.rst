@@ -1,21 +1,19 @@
-Chapter 1: The equation & the transaction
-=========================================
-
-**Subtitle:** The physics of business
-
-Before we touch debits/credits, we learn the law that must always hold:
-
-.. math::
-
-   \text{Assets} = \text{Liabilities} + \text{Equity}
-
-In this workbook, you will draft the work in a spreadsheet, then verify it with LedgerLoom.
-
 What you'll learn
 -----------------
 - Describe how each business event changes A / L / E
 - Translate a business event into a *balanced* journal entry (two or more lines)
 - Use LedgerLoom to confirm you didn’t “balance by accident”
+
+Key accounting terms
+--------------------
+- **Assets:** resources the business controls (cash, equipment, inventory).
+- **Liabilities:** obligations the business owes (loans, accounts payable).
+- **Equity:** the owner’s residual claim (what’s left after liabilities).
+- **Revenue:** value earned from providing goods/services during the period.
+- **Expense:** costs incurred to earn revenue during the period.
+- **Net income:** ``revenue − expenses`` for the period; it increases equity.
+- **Owner capital / retained earnings:** where net income ultimately accumulates (depends on entity type/course).
+- **Dividends / draws:** distributions to the owner. They **reduce equity** but are **not** an expense.
 
 What to do in your spreadsheet
 ------------------------------

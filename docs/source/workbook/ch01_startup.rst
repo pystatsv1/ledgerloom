@@ -1,17 +1,28 @@
-Chapter 0: Setup and a runnable startup project
-===============================================
-
-This setup chapter gets you from **zero → runnable** on Windows, macOS, or Linux.
-
-LedgerLoom is not a replacement for your spreadsheet. It’s a verifier:
-you draft your work in Sheets/Excel, then LedgerLoom checks the accounting-cycle invariants.
-
 What you'll learn
 -----------------
 - Install LedgerLoom from PyPI (student workflow)
 - Create a workbook project with ``ledgerloom init --profile workbook``
 - Understand where outputs go (``outputs/check`` vs ``outputs/<run_id>``)
 - Run the end-to-end workflow: inputs → check → build → artifacts
+
+Key accounting terms
+--------------------
+These terms show up in every chapter:
+
+- **Transaction:** a business event you record (sale, purchase, payment, owner investment).
+- **Account:** a “bucket” for a type of value (Cash, Supplies Expense, Owner Capital).
+- **Chart of Accounts (CoA):** the full list of accounts you’re allowed to use.
+  LedgerLoom uses colon-separated names like ``Assets:Cash`` and ``Revenue:ServiceRevenue``.
+- **Journal entry:** a group of two or more lines that share an ``entry_id``.
+  The total debits must equal the total credits for that ``entry_id``.
+- **Debit / credit:** the two sides of an entry. They are **not** “good” or “bad”.
+  Most courses teach **normal balances**:
+
+  - Assets, Expenses, and Dividends usually increase with **debits**.
+  - Liabilities, Equity, and Revenue usually increase with **credits**.
+
+- **Trial balance:** a list of ending balances by account. If every entry is balanced,
+  total debits = total credits, but you can still be “wrong” (wrong account, wrong timing).
 
 What to do in your spreadsheet
 ------------------------------

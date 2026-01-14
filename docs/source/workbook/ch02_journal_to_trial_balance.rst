@@ -1,15 +1,23 @@
-Chapter 2: From journal lines to an unadjusted trial balance
-============================================================
-
-In Chapter 1, you proved the accounting equation using a spreadsheet.
-In this chapter, you connect that idea to the double-entry system you will use for the rest of the course.
-
 What you'll learn
 -----------------
 - Write balanced journal entries in ``transactions.csv``
 - Explain what LedgerLoom’s ``entries.csv`` represents
 - Explain what a trial balance is (and what it isn't)
 - Reconcile your spreadsheet totals to ``trial_balance_unadjusted.csv``
+
+Key accounting terms
+--------------------
+- **Journal entry:** a set of lines with the same ``entry_id``. Balanced entries are the first invariant.
+- **Debit / credit:** a *direction* on an account, not a value judgement.
+  A quick normal-balance cheat sheet:
+
+  - **Increase with debits:** Assets, Expenses, Dividends
+  - **Increase with credits:** Liabilities, Equity, Revenue
+
+- **Posting:** taking journal lines and “posting” them into the ledger (grouped by account).
+- **Ledger:** the running history of each account after posting.
+- **Trial balance (unadjusted):** balances after regular transactions **before** end-of-period adjustments.
+  A trial balance can balance and still be wrong (wrong account or wrong period), so you still need reasoning.
 
 What to do in your spreadsheet
 ------------------------------
