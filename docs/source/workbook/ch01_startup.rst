@@ -1,180 +1,91 @@
-Workbook Chapter 0 — Setup and a Runnable Startup Project
-=========================================================
+Chapter 0: Setup and a runnable startup project
+===============================================
 
-This chapter is the **setup** chapter.
+This setup chapter gets you from **zero → runnable** on Windows, macOS, or Linux.
 
-By the end, you will be able to:
+LedgerLoom is not a replacement for your spreadsheet. It’s a verifier:
+you draft your work in Sheets/Excel, then LedgerLoom checks the accounting-cycle invariants.
 
-* install LedgerLoom from PyPI on Windows, macOS, or Linux,
-* run a known-good example project,
-* understand the *inputs → verification → artifacts* workflow,
-* and know where to look when something goes wrong.
+What you'll learn
+-----------------
+- Install LedgerLoom from PyPI (student workflow)
+- Create a workbook project with ``ledgerloom init --profile workbook``
+- Understand where outputs go (``outputs/check`` vs ``outputs/<run_id>``)
+- Run the end-to-end workflow: inputs → check → build → artifacts
 
-LedgerLoom is not a replacement for your spreadsheet. It’s a verifier.
-You do the thinking and drafting in Sheets/Excel; LedgerLoom checks the invariants
-(balanced entries, stable totals) and produces canonical artifacts you can compare
-to your sheet.
+What to do in your spreadsheet
+------------------------------
+1) Open the Workbook template (or your course sheet).
+2) Enter the “Startup” transactions for the period.
+3) (Optional) compute one simple adjustment (e.g., supplies used).
 
-What you need
--------------
+Export CSVs
+-----------
+Export these CSVs from your spreadsheet tabs:
 
-* **Python 3.10+** (3.11 or 3.12 recommended).
-* A terminal:
+- ``inputs/<period>/transactions.csv`` (journal lines)
+- ``inputs/<period>/adjustments.csv`` (end-of-period adjustments)
 
-  * **Windows:** Git Bash (recommended) or PowerShell
-  * **macOS/Linux:** Terminal
+The exact column headers matter. If you’re unsure, use:
 
-Install LedgerLoom (PyPI)
--------------------------
+- :download:`Workbook template (XLSX) <../_static/ledgerloom_workbook_template.xlsx>`
+- :download:`Template CSV headers (XLSX) <../_static/ledgerloom_workbook_template_csv_headers.xlsx>`
 
-You can install LedgerLoom in two common ways:
-
-Option A — Virtual environment (recommended for students)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Create a folder for your course work, then:
-
-.. code-block:: bash
-
-   # create a virtual environment
-   python -m venv .venv
-
-   # activate it
-   # macOS/Linux:
-   source .venv/bin/activate
-   # Windows (Git Bash):
-   source .venv/Scripts/activate
-
-   # install LedgerLoom
-   python -m pip install --upgrade pip
-   python -m pip install ledgerloom
-
-Verify:
+Run LedgerLoom
+--------------
+Create a new workbook project (once):
 
 .. code-block:: bash
 
-   python -m ledgerloom --help
+   ledgerloom init --profile workbook my_books
+   cd my_books
 
-Option B — pipx (nice CLI install)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-If you already use ``pipx`` (it installs CLI tools in isolated environments):
+Then verify and build:
 
 .. code-block:: bash
 
-   pipx install ledgerloom
-   ledgerloom --help
+   ledgerloom check --project .
+   ledgerloom build --project . --run-id ch01
 
-.. admonition:: If you see “command not found”
+Where outputs go
+----------------
+- ``ledgerloom check`` (by itself) writes to ``outputs/check/<period>/``
+- ``ledgerloom build --run-id ch01`` writes to ``outputs/ch01/`` and includes:
 
-   Use the module form instead:
+  - ``outputs/ch01/check/`` (the check report for this run)
+  - ``outputs/ch01/trust/`` (manifest + run metadata)
+  - ``outputs/ch01/artifacts/`` (the canonical CSV outputs you will compare)
 
-   .. code-block:: bash
+What to look at
+---------------
+Start with these artifacts:
 
-      python -m ledgerloom --help
+- ``entries.csv`` (normalized entries LedgerLoom ingested)
+- ``trial_balance_unadjusted.csv`` (transactions only)
+- ``trial_balance_adjusted.csv`` (transactions + adjustments)
+- ``closing_entries.csv`` and ``trial_balance_post_close.csv`` (end-of-cycle)
 
-Your first runnable project (in the repo)
------------------------------------------
+For a plain-English guide to each artifact, see :doc:`workbook_artifacts_reference`.
 
-LedgerLoom’s documentation includes a runnable example project in the repository.
-This is what keeps the docs honest: the docs literally include the real files.
+Compare against the answer key
+------------------------------
+Every workbook chapter has a canonical dataset under ``examples/workbook/<chapter_slug>/``.
+If you want a known-good reference:
 
-The example lives here::
+- see :doc:`workbook_check_your_work_pack` (completed spreadsheet + reference outputs zips)
 
-   examples/workbook/ch01_startup/
+Common mistakes
+---------------
+- Wrong CSV headers (extra spaces, renamed columns)
+- Debits/credits not balanced within an ``entry_id``
+- Accounts that don’t match the chart of accounts (typos / wrong root)
+- Confusing ``outputs/check`` (standalone check) with ``outputs/<run_id>`` (build run)
 
-Run it
-------
+Downloads
+---------
+- :download:`Completed Ch01 spreadsheet (XLSX) <../_static/ledgerloom_workbook_completed_ch01_startup.xlsx>`
+- :download:`Reference outputs pack (ZIP) <../_static/ledgerloom_workbook_reference_outputs_ch01_startup.zip>`
 
-From the LedgerLoom repository root, you can run the example by pointing
-``--project`` at the example folder.
-
-.. code-block:: bash
-
-   python -m ledgerloom check --project examples/workbook/ch01_startup
-   python -m ledgerloom build --project examples/workbook/ch01_startup --run-id demo
-
-Where do outputs go?
---------------------
-
-LedgerLoom writes build artifacts under the project folder:
-
-* ``outputs/<run_id>/artifacts/`` — CSV artifacts you can open in Excel/Sheets
-* ``outputs/<run_id>/manifest.json`` — a “trust manifest” that records file hashes
-
-For the example above, look in::
-
-   examples/workbook/ch01_startup/outputs/demo/artifacts/
-
-You should see:
-
-* ``entries.csv``
-* ``trial_balance_unadjusted.csv``
-* ``trial_balance_adjusted.csv``
-* ``closing_entries.csv``
-* ``trial_balance_post_close.csv``
-
-.. admonition:: Why “trust manifests” matter
-
-   In accounting (and in real analytics work), you want the same inputs to produce
-   the same outputs every time. LedgerLoom records hashes of every artifact so you
-   can prove your build is deterministic.
-
-Project config: ``ledgerloom.yaml``
------------------------------------
-
-This file declares the project’s build profile (here: ``workbook``), the accounting
-period, and where inputs live.
-
-.. literalinclude:: ../../../examples/workbook/ch01_startup/ledgerloom.yaml
-   :language: yaml
-
-Chart of accounts: ``config/chart_of_accounts.yaml``
-----------------------------------------------------
-
-The chart of accounts (COA) is the *type system* for your bookkeeping.
-LedgerLoom uses it to classify accounts into Assets / Liabilities / Equity /
-Revenue / Expenses.
-
-.. literalinclude:: ../../../examples/workbook/ch01_startup/config/chart_of_accounts.yaml
-   :language: yaml
-
-Workbook inputs: ``transactions.csv``
--------------------------------------
-
-In workbook mode, your “transactions” input is a CSV version of your journal entries.
-Each transaction has one or more lines; the lines for a single ``entry_id`` must
-balance (debits = credits).
-
-.. literalinclude:: ../../../examples/workbook/ch01_startup/inputs/2026-01/transactions.csv
-   :language: text
-
-Workbook inputs: ``adjustments.csv``
-------------------------------------
-
-Adjustments are also journal entries (same schema), usually created at period-end.
-In Chapter 3, you’ll learn how to compute adjustment amounts in your spreadsheet,
-then export them to this CSV.
-
-.. literalinclude:: ../../../examples/workbook/ch01_startup/inputs/2026-01/adjustments.csv
-   :language: text
-
-The example README (what students actually do)
-----------------------------------------------
-
-.. literalinclude:: ../../../examples/workbook/ch01_startup/README.md
-   :language: text
-
-Troubleshooting checklist
--------------------------
-
-If something fails, check these in order:
-
-1. **Are you pointing at a project folder?**
-   ``ledgerloom build`` expects a folder containing ``ledgerloom.yaml``.
-2. **Is your CSV comma-separated and UTF-8?**
-   Export from Sheets as CSV. Don’t use semicolons.
-3. **Do debits equal credits per entry_id?**
-   LedgerLoom will stop if any entry is unbalanced.
-4. **Did you activate your virtual environment?**
-   If you installed LedgerLoom in a venv, you must activate it first.
+Next chapter
+------------
+Continue to :doc:`ch01_equation_transaction`.

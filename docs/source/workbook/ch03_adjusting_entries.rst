@@ -2,109 +2,61 @@ Chapter 3: Adjusting entries and the adjusted trial balance
 ===========================================================
 
 Most businesses do not operate on a pure “cash in / cash out” basis.
+At the end of the period, you record **adjusting entries** so your books reflect what was earned and incurred.
 
-At the end of the period, you record **adjusting entries** to make sure your
-records reflect what was *earned* and what was *incurred* during the period.
+What you'll learn
+-----------------
+- Explain why adjustments exist (accrual vs. cash)
+- Compute adjustment amounts in your spreadsheet
+- Export adjustments into ``adjustments.csv``
+- Interpret ``trial_balance_adjusted.csv``
 
-By the end of this chapter, you will be able to:
+What to do in your spreadsheet
+------------------------------
+1) Start from your Chapter 2 unadjusted trial balance.
+2) Compute the adjustment amount(s) (example: supplies used, prepaid expiring, accrued revenue).
+3) Write the adjusting journal entry lines.
 
-* explain why adjustments exist (accrual vs. cash),
-* compute adjustment amounts in your spreadsheet,
-* export those adjustments into ``adjustments.csv``,
-* and interpret ``trial_balance_adjusted.csv``.
+Export CSVs
+-----------
+Export:
 
-The big idea
-------------
+- ``inputs/<period>/transactions.csv`` (same as Ch02)
+- ``inputs/<period>/adjustments.csv`` (new for this chapter)
 
-The unadjusted trial balance is “what the ledger says after transactions.”
-The adjusted trial balance is “what the ledger says after we apply accrual logic.”
-
-In class, adjusting entries commonly fall into these buckets:
-
-* **Deferrals** (cash happens first, expense/revenue happens later)
-  * prepaid expenses, unearned revenue
-* **Accruals** (expense/revenue happens first, cash happens later)
-  * accrued wages, accrued interest, accounts receivable
-* **Estimates**
-  * depreciation, bad debt expense
-
-LedgerLoom does not “solve” the adjustment math for you.
-That work belongs in your spreadsheet (because that’s where the reasoning lives).
-LedgerLoom’s job is to:
-
-* enforce that each adjustment entry balances,
-* apply it consistently to produce the adjusted trial balance,
-* preserve the audit trail as versioned CSV artifacts.
-
-Hands-on: add one adjustment
-----------------------------
-
-Use the workbook project from Chapter 2 (or the example from Chapter 0).
-
-Step 1 — Decide your adjustment in the spreadsheet
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Example adjustment: **supplies used**.
-
-Suppose your spreadsheet says that of the supplies on hand, **$120** were used
-in January.
-
-The adjusting entry is:
-
-* Debit **Expenses:SuppliesExpense** 120
-* Credit **Assets:Supplies** 120
-
-.. admonition:: Why this works
-
-   * The asset (supplies on hand) goes down.
-   * The expense (supplies consumed) goes up.
-
-Step 2 — Add accounts to your chart of accounts
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-If your COA does not already include an expense account for supplies, add one.
-For example:
-
-* ``Expenses:SuppliesExpense``
-
-Step 3 — Put the adjustment into ``adjustments.csv``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Open ``inputs/<period>/adjustments.csv`` and add:
-
-.. code-block:: text
-
-   entry_id,date,narration,account,debit,credit
-   A1,2026-01-31,Supplies used,Expenses:SuppliesExpense,120.00,0.00
-   A1,2026-01-31,Supplies used,Assets:Supplies,0.00,120.00
-
-Step 4 — Build and compare
-^^^^^^^^^^^^^^^^^^^^^^^^^^
-
+Run LedgerLoom
+--------------
 .. code-block:: bash
 
    ledgerloom check --project .
    ledgerloom build --project . --run-id ch03
 
-Now compare:
+What to look at
+---------------
+- ``trial_balance_unadjusted.csv``: before adjustments
+- ``trial_balance_adjusted.csv``: after adjustments
 
-* ``outputs/ch03/artifacts/trial_balance_unadjusted.csv``
-* ``outputs/ch03/artifacts/trial_balance_adjusted.csv``
+Your spreadsheet’s adjusted trial balance should match LedgerLoom’s adjusted trial balance
+account-by-account (within rounding rules you control in the spreadsheet).
 
-You should see:
+Compare against the answer key
+------------------------------
+If you want a known-good reference:
 
-* Supplies (asset) is **$120 lower** after the adjustment.
-* SuppliesExpense (expense) appears with a **$120 debit balance**.
+- :doc:`workbook_check_your_work_pack`
 
-Common adjustment mistakes
---------------------------
+Common mistakes
+---------------
+- Putting adjustments in ``transactions.csv`` instead of ``adjustments.csv``
+- Using the wrong date (adjustments are typically period-end)
+- Adjusting the wrong account (asset vs expense)
+- Recording the right adjustment with the wrong sign
 
-* **Forgetting to add the account to the COA** → LedgerLoom can’t classify it.
-* **Putting the adjustment in transactions.csv** → keep transactions and adjustments separate.
-* **Reversing debit/credit** → the adjusted TB moves in the wrong direction.
+Downloads
+---------
+- :download:`Completed Ch03 spreadsheet (XLSX) <../_static/ledgerloom_workbook_completed_ch03_adjusting_entries.xlsx>`
+- :download:`Reference outputs pack (ZIP) <../_static/ledgerloom_workbook_reference_outputs_ch03_adjusting_entries.zip>`
 
 Next chapter
 ------------
-
-In Chapter 4, you will close temporary accounts and produce a **post-close trial
-balance** that contains only balance sheet accounts.
+Continue to :doc:`ch04_closing_and_post_close`.
