@@ -1,6 +1,20 @@
 Ch03 — Adjusting entries
 ==========================
 
+.. admonition:: Month-end reality check (Jan 31, 2026)
+
+   At the end of January, **Harborview Bike Repair** does a quick month-end close.
+   Cash transactions alone don’t capture what really happened during the period, so we add a
+   few **adjusting entries** that match revenue/expenses to January.
+
+   The canonical adjustments in this chapter are small on purpose, but they mirror real
+   bookkeeping decisions:
+
+   - **A001 (Supplies used):** a quick count shows $150 of supplies were consumed during January.
+   - **A002 (Depreciation):** one month of wear on equipment ($50).
+   - **A003 (Utilities accrued):** the utility bill hasn’t been paid yet, but $75 was incurred.
+   - **A004 (Revenue accrued):** $200 of service was earned but not yet billed/collected.
+
 What you'll learn
 -----------------
 - Explain why adjustments exist (accrual vs. cash)
@@ -20,8 +34,9 @@ Key accounting terms
   - **Prepaid expense:** cash paid first, expense recognized later (asset → expense over time).
   - **Unearned revenue:** cash received first, revenue recognized later (liability → revenue over time).
 
-- **Depreciation:** allocating the cost of a long-lived asset over time (expense) using a **contra-asset**
-  like ``Assets:AccumulatedDepreciation``.
+- **Depreciation:** allocating the cost of a long-lived asset over time (expense).
+  Many systems use a separate **contra-asset** (Accumulated Depreciation), but this workbook keeps the
+  chart of accounts small and credits ``Assets:Equipment`` directly.
 
 What to do in your spreadsheet
 ------------------------------

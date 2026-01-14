@@ -1,6 +1,18 @@
 Ch04 — Closing + post-close trial balance
 ===========================================
 
+.. admonition:: Closing the month (Jan 2026)
+
+   You’ve recorded January’s transactions and adjustments for **Harborview Bike Repair**.
+   Now we do the final “reset” step of the accounting cycle:
+
+   - **Temporary accounts** (Revenue / Expenses / Draws) get closed to zero.
+   - The period’s result (net income or net loss) is transferred into
+     ``Equity:RetainedEarnings``.
+
+   In workbook mode, LedgerLoom generates the closing lines for you from the **adjusted trial
+   balance** so you can compare your spreadsheet method against a deterministic reference.
+
 What you'll learn
 -----------------
 - Explain what “closing” means and why we do it
@@ -15,7 +27,9 @@ Key accounting terms
 - **Closing entries:** entries that move the period’s net income into equity and bring temporary accounts to zero.
 - **Post-close trial balance:** the trial balance **after** closing; it should include *only* permanent accounts.
 - **Income summary:** some courses use an intermediate “Income Summary” account. LedgerLoom can generate closing
-  lines directly from the adjusted trial balance; the destination equity account is course-dependent.
+  lines either through Income Summary *or* directly.
+  In this workbook we keep it simple: closing entries go straight to ``Equity:RetainedEarnings`` (no Income Summary
+  account required).
 
 What to do in your spreadsheet
 ------------------------------

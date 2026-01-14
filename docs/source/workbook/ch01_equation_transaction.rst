@@ -1,6 +1,38 @@
 Ch01B — Accounting equation + transactions
 ============================================
 
+.. admonition:: Same story, different lens
+
+   We’re still working with **Harborview Bike Repair** in **January 2026**.
+   This chapter uses the same four startup events from :doc:`ch01_startup`, but the goal is
+   to practice the *reasoning* behind each entry:
+
+   1) What changed in the accounting equation?
+   2) What debit/credit lines express that change?
+
+Equation → journal (side-by-side)
+---------------------------------
+
+.. list-table::
+   :header-rows: 1
+   :widths: 28 36 36
+
+   * - Business event
+     - Accounting equation view
+     - Journal entry view
+   * - Owner invests $10,000 cash
+     - Assets **↑** (Cash); Equity **↑** (Owner Capital)
+     - Dr ``Assets:Cash`` 10,000 / Cr ``Equity:OwnerCapital`` 10,000
+   * - Cash customer pays $500
+     - Assets **↑** (Cash); Equity **↑** via Revenue
+     - Dr ``Assets:Cash`` 500 / Cr ``Revenue:ServiceRevenue`` 500
+   * - Buy $200 supplies (cash)
+     - Assets **↓** (Cash); Equity **↓** via Expense
+     - Dr ``Expenses:Supplies`` 200 / Cr ``Assets:Cash`` 200
+   * - Owner draws $100
+     - Assets **↓** (Cash); Equity **↓** (Draws/Dividends)
+     - Dr ``Equity:Dividends`` 100 / Cr ``Assets:Cash`` 100
+
 What you'll learn
 -----------------
 - Describe how each business event changes A / L / E
