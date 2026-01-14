@@ -3,185 +3,72 @@ Chapter 1: The equation & the transaction
 
 **Subtitle:** The physics of business
 
-Before we touch debits/credits, we learn the law that *must* always hold:
+Before we touch debits/credits, we learn the law that must always hold:
 
 .. math::
 
    \text{Assets} = \text{Liabilities} + \text{Equity}
 
-LedgerLoom exists to enforce this law.
+In this workbook, you will draft the work in a spreadsheet, then verify it with LedgerLoom.
 
-In this workbook, you will *draft* the accounting in a spreadsheet, then *verify*
-it with LedgerLoom.
+What you'll learn
+-----------------
+- Describe how each business event changes A / L / E
+- Translate a business event into a *balanced* journal entry (two or more lines)
+- Use LedgerLoom to confirm you didn’t “balance by accident”
 
-Why do this?
+What to do in your spreadsheet
+------------------------------
+For each event, do two passes:
 
-* A spreadsheet is great for exploration.
-* A verifier is great for **proof**.
-* When the two agree, you know you didn’t “balance by accident.”
+1) **Equation pass**: explain the change in Assets / Liabilities / Equity
+2) **Journal pass**: write the corresponding debit/credit lines
 
-The assignment: “Sparkle Cleaners”
-----------------------------------
+Export CSVs
+-----------
+Export (or edit directly) the journal lines:
 
-Scenario
-^^^^^^^^
+- ``inputs/<period>/transactions.csv``
 
-On January 1, 2026, Sarah opens **Sparkle Cleaners**, a local cleaning business.
+If you are using the workbook project created in Chapter 0, this is already in place.
 
-Record these transactions:
-
-1. **Jan 1:** Sarah invests **$10,000** cash into the business bank account.
-2. **Jan 2:** The business buys cleaning equipment for **$3,000** (paid from the bank).
-3. **Jan 3:** The business buys cleaning supplies for **$500** (paid from the bank).
-
-Your goal
-^^^^^^^^^
-
-After each transaction, show that the equation remains balanced.
-
-Draft the solution in Google Sheets
------------------------------------
-
-Create a sheet with these asset sub-columns:
-
-- Cash
-- Equipment
-- Supplies
-
-And these right-side columns:
-
-- Liabilities (none yet in this chapter)
-- Equity (Owner capital)
-
-Work each transaction step-by-step:
-
-1) Owner investment (Jan 1)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-- Cash increases by 10,000 (asset up)
-- Capital increases by 10,000 (equity up)
-
-2) Equipment purchase (Jan 2)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-- Cash decreases by 3,000
-- Equipment increases by 3,000
-
-This is a pure asset swap.
-
-3) Supplies purchase (Jan 3)
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-- Cash decreases by 500
-- Supplies increases by 500
-
-The gotcha: asset vs expense
-----------------------------
-
-Many students instinctively record the $500 as an expense (“we bought stuff to use”).
-
-For this chapter, treat the supplies as an **asset**:
-
-- On Jan 3, the supplies are sitting on a shelf.
-- They become an expense later, when used up.
-
-.. admonition:: Translation box — what a spreadsheet hides
-
-   In a spreadsheet, you can “make it balance” by changing a cell.
-   LedgerLoom won’t let you: the postings must sum to zero, every time.
-
-Verify with LedgerLoom (v0.2.0 workflow)
-----------------------------------------
-
-In the *workbook* profile, we verify using the accounting-cycle artifacts that
-match what you do in class:
-
-**transactions.csv → (optional) adjustments.csv → entries → trial balances → closing**
-
-Step 1 — Initialize a workbook project
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: bash
-
-   ledgerloom init --profile workbook sparkle_cleaners
-   cd sparkle_cleaners
-
-.. tip::
-
-   If your terminal can’t find the ``ledgerloom`` command, use:
-
-   .. code-block:: bash
-
-      python -m ledgerloom init --profile workbook sparkle_cleaners
-
-Step 2 — Add the accounts you need
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Open ``config/chart_of_accounts.yaml`` and make sure it contains at least:
-
-* ``Assets:Cash``
-* ``Assets:Equipment``
-* ``Assets:Supplies``
-* ``Equity:OwnerCapital``
-
-.. admonition:: Keep it simple
-
-   In Chapter 1 we *do not* record expenses yet. Supplies are an **asset** here.
-   (You’ll see supplies become an expense later, when used up.)
-
-Step 3 — Enter the journal lines in ``transactions.csv``
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Open ``inputs/<period>/transactions.csv`` (the folder name is your period, e.g. ``2026-01``)
-and enter these lines:
-
-.. code-block:: text
-
-   entry_id,date,narration,account,debit,credit
-   T1,2026-01-01,Owner investment,Assets:Cash,10000.00,0.00
-   T1,2026-01-01,Owner investment,Equity:OwnerCapital,0.00,10000.00
-   T2,2026-01-02,Buy equipment,Assets:Equipment,3000.00,0.00
-   T2,2026-01-02,Buy equipment,Assets:Cash,0.00,3000.00
-   T3,2026-01-03,Buy supplies,Assets:Supplies,500.00,0.00
-   T3,2026-01-03,Buy supplies,Assets:Cash,0.00,500.00
-
-Each ``entry_id`` groups the lines of a single transaction. LedgerLoom enforces
-that each entry balances.
-
-Step 4 — Run check, then build
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Run LedgerLoom
+--------------
+From your workbook project folder:
 
 .. code-block:: bash
 
    ledgerloom check --project .
    ledgerloom build --project . --run-id ch01
 
-Now open these artifacts under ``outputs/ch01/artifacts/``:
+What to look at
+---------------
+- ``entries.csv``: what LedgerLoom ingested (grouped by ``entry_id``)
+- ``trial_balance_unadjusted.csv``: your “transactions-only” trial balance
 
-* ``entries.csv`` (your cleaned, canonical entries)
-* ``trial_balance_unadjusted.csv``
+If your spreadsheet totals don’t match the unadjusted trial balance, you have a reconciliation problem
+(not a “LedgerLoom problem”). Use :doc:`workbook_troubleshooting`.
 
-.. tip::
+Compare against the answer key
+------------------------------
+This chapter’s concepts are applied using the same Chapter 0/1 startup dataset.
+Use the Ch01 packs if you want a known-good reference:
 
-   If you are using Excel/Sheets, you can *import* the trial balance CSV and
-   compare it directly to your spreadsheet totals.
+- :doc:`workbook_check_your_work_pack`
 
-Reconciling with your Google Sheet
-----------------------------------
+Common mistakes
+---------------
+- Treating an asset purchase as an expense (e.g., supplies vs supplies expense)
+- Recording one-sided entries (missing the second line)
+- Mixing up account roots (Assets vs Expenses vs Equity)
 
-Your sheet and LedgerLoom should agree on the ending balances:
+Downloads
+---------
+Use the Ch01 startup packs:
 
-* Cash = 6,500
-* Equipment = 3,000
-* Supplies = 500
-* OwnerCapital = 10,000
+- :download:`Completed Ch01 spreadsheet (XLSX) <../_static/ledgerloom_workbook_completed_ch01_startup.xlsx>`
+- :download:`Reference outputs pack (ZIP) <../_static/ledgerloom_workbook_reference_outputs_ch01_startup.zip>`
 
-If they don’t match, treat it like a programming bug:
-
-
-* locate the first place the two diverge,
-* inspect the transaction lines (wrong account? wrong sign? swapped debit/credit?),
-* fix the CSV,
-* re-run ``ledgerloom build``.
-
-That’s the Hybrid Method: **draft fast, verify strict, reconcile to proof**.
+Next chapter
+------------
+Continue to :doc:`ch02_journal_to_trial_balance`.
